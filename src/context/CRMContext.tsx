@@ -72,6 +72,9 @@ interface CRMContextValue {
   addTask: (t: Task) => void;
   updateTask: (t: Task) => void;
   deleteTask: (id: string) => void;
+
+  exportData: () => void;
+  importData: (json: string) => void;
 }
 
 const CRMContext = createContext<CRMContextValue | null>(null);
@@ -93,7 +96,6 @@ function usePersistedState<T>(key: string, fallback: T) {
 
 // ── Provider ────────────────────────────────────────────────────────────────
 export function CRMProvider({ children }: { children: React.ReactNode }) {
-  // Run version check once on mount before state initialises
   useEffect(() => { ensureFreshData(); }, []);
 
   const [clients,    setClients]    = usePersistedState<Client[]>   ('crm_clients',    CLIENTS);
@@ -136,6 +138,39 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   const updateTask = useCallback((t: Task) => setTasks(p => p.map(x => x.id === t.id ? t : x)), [setTasks]);
   const deleteTask = useCallback((id: string) => setTasks(p => p.filter(x => x.id !== id)),     [setTasks]);
 
+  // ── Backup & Restore ────────────────────────────────────────────────────
+  const exportData = useCallback(() => {
+    const data = {
+      version: DATA_VERSION,
+      exportedAt: new Date().toISOString(),
+      clients, contacts, leads, jobOrders, candidates, placements, activities, tasks,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `AnnuHR-CRM-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [clients, contacts, leads, jobOrders, candidates, placements, activities, tasks]);
+
+  const importData = useCallback((json: string) => {
+    try {
+      const data = JSON.parse(json);
+      if (data.clients)    { save('crm_clients',    data.clients);    setClients(data.clients); }
+      if (data.contacts)   { save('crm_contacts',   data.contacts);   setContacts(data.contacts); }
+      if (data.leads)      { save('crm_leads',      data.leads);      setLeads(data.leads); }
+      if (data.jobOrders)  { save('crm_jobs',       data.jobOrders);  setJobOrders(data.jobOrders); }
+      if (data.candidates) { save('crm_candidates', data.candidates); setCandidates(data.candidates); }
+      if (data.placements) { save('crm_placements', data.placements); setPlacements(data.placements); }
+      if (data.activities) { save('crm_activities', data.activities); setActivities(data.activities); }
+      if (data.tasks)      { save('crm_tasks',      data.tasks);      setTasks(data.tasks); }
+      localStorage.setItem('crm_data_version', DATA_VERSION);
+    } catch {
+      alert('Invalid backup file. Please select a valid AnnuHR CRM backup.');
+    }
+  }, [setClients, setContacts, setLeads, setJobOrders, setCandidates, setPlacements, setActivities, setTasks]);
+
   return (
     <CRMContext.Provider value={{
       clients, contacts, leads, jobOrders, candidates, placements, activities, tasks,
@@ -147,6 +182,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
       addPlacement, updatePlacement,
       addActivity, updateActivity, deleteActivity,
       addTask, updateTask, deleteTask,
+      exportData, importData,
     }}>
       {children}
     </CRMContext.Provider>
