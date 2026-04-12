@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import QuickAdd from './QuickAdd';
 
 const TITLES: Record<string, string> = {
   '/':            'Dashboard',
@@ -12,6 +13,8 @@ const TITLES: Record<string, string> = {
   '/jobs':        'Job Orders',
   '/placements':  'Placements',
   '/activities':  'Activities',
+  '/reports':     'Reports & Analytics',
+  '/search':      'Search Results',
 };
 
 export default function Layout() {
@@ -28,6 +31,7 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+      <QuickAdd />
     </div>
   );
 }

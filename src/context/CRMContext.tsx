@@ -6,6 +6,20 @@ import {
   CLIENTS, CONTACTS, LEADS, JOB_ORDERS, CANDIDATES, PLACEMENTS, ACTIVITIES
 } from '../data/mockData';
 
+// ── localStorage helpers ────────────────────────────────────────────────────
+function load<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+function save<T>(key: string, value: T) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* quota */ }
+}
+
+// ── Context type ────────────────────────────────────────────────────────────
 interface CRMContextValue {
   clients: Client[];
   contacts: Contact[];
@@ -45,41 +59,57 @@ interface CRMContextValue {
 
 const CRMContext = createContext<CRMContextValue | null>(null);
 
+// ── Helper: persisted state ─────────────────────────────────────────────────
+function usePersistedState<T>(key: string, fallback: T) {
+  const [value, setValue] = useState<T>(() => load<T>(key, fallback));
+  const set = useCallback((updater: T | ((prev: T) => T)) => {
+    setValue(prev => {
+      const next = typeof updater === 'function'
+        ? (updater as (prev: T) => T)(prev)
+        : updater;
+      save(key, next);
+      return next;
+    });
+  }, [key]);
+  return [value, set] as const;
+}
+
+// ── Provider ────────────────────────────────────────────────────────────────
 export function CRMProvider({ children }: { children: React.ReactNode }) {
-  const [clients, setClients] = useState<Client[]>(CLIENTS);
-  const [contacts, setContacts] = useState<Contact[]>(CONTACTS);
-  const [leads, setLeads] = useState<Lead[]>(LEADS);
-  const [jobOrders, setJobOrders] = useState<JobOrder[]>(JOB_ORDERS);
-  const [candidates, setCandidates] = useState<Candidate[]>(CANDIDATES);
-  const [placements, setPlacements] = useState<Placement[]>(PLACEMENTS);
-  const [activities, setActivities] = useState<Activity[]>(ACTIVITIES);
+  const [clients,    setClients]    = usePersistedState<Client[]>   ('crm_clients',    CLIENTS);
+  const [contacts,   setContacts]   = usePersistedState<Contact[]>  ('crm_contacts',   CONTACTS);
+  const [leads,      setLeads]      = usePersistedState<Lead[]>     ('crm_leads',      LEADS);
+  const [jobOrders,  setJobOrders]  = usePersistedState<JobOrder[]> ('crm_jobs',       JOB_ORDERS);
+  const [candidates, setCandidates] = usePersistedState<Candidate[]>('crm_candidates', CANDIDATES);
+  const [placements, setPlacements] = usePersistedState<Placement[]>('crm_placements', PLACEMENTS);
+  const [activities, setActivities] = usePersistedState<Activity[]> ('crm_activities', ACTIVITIES);
 
-  const addClient = useCallback((c: Client) => setClients(p => [c, ...p]), []);
-  const updateClient = useCallback((c: Client) => setClients(p => p.map(x => x.id === c.id ? c : x)), []);
-  const deleteClient = useCallback((id: string) => setClients(p => p.filter(x => x.id !== id)), []);
+  const addClient    = useCallback((c: Client)    => setClients(p    => [c, ...p]),              [setClients]);
+  const updateClient = useCallback((c: Client)    => setClients(p    => p.map(x => x.id === c.id ? c : x)),  [setClients]);
+  const deleteClient = useCallback((id: string)   => setClients(p    => p.filter(x => x.id !== id)),         [setClients]);
 
-  const addContact = useCallback((c: Contact) => setContacts(p => [c, ...p]), []);
-  const updateContact = useCallback((c: Contact) => setContacts(p => p.map(x => x.id === c.id ? c : x)), []);
-  const deleteContact = useCallback((id: string) => setContacts(p => p.filter(x => x.id !== id)), []);
+  const addContact    = useCallback((c: Contact)   => setContacts(p  => [c, ...p]),              [setContacts]);
+  const updateContact = useCallback((c: Contact)   => setContacts(p  => p.map(x => x.id === c.id ? c : x)), [setContacts]);
+  const deleteContact = useCallback((id: string)   => setContacts(p  => p.filter(x => x.id !== id)),        [setContacts]);
 
-  const addLead = useCallback((l: Lead) => setLeads(p => [l, ...p]), []);
-  const updateLead = useCallback((l: Lead) => setLeads(p => p.map(x => x.id === l.id ? l : x)), []);
-  const deleteLead = useCallback((id: string) => setLeads(p => p.filter(x => x.id !== id)), []);
+  const addLead    = useCallback((l: Lead)    => setLeads(p    => [l, ...p]),              [setLeads]);
+  const updateLead = useCallback((l: Lead)    => setLeads(p    => p.map(x => x.id === l.id ? l : x)),  [setLeads]);
+  const deleteLead = useCallback((id: string) => setLeads(p    => p.filter(x => x.id !== id)),         [setLeads]);
 
-  const addJobOrder = useCallback((j: JobOrder) => setJobOrders(p => [j, ...p]), []);
-  const updateJobOrder = useCallback((j: JobOrder) => setJobOrders(p => p.map(x => x.id === j.id ? j : x)), []);
-  const deleteJobOrder = useCallback((id: string) => setJobOrders(p => p.filter(x => x.id !== id)), []);
+  const addJobOrder    = useCallback((j: JobOrder)  => setJobOrders(p => [j, ...p]),              [setJobOrders]);
+  const updateJobOrder = useCallback((j: JobOrder)  => setJobOrders(p => p.map(x => x.id === j.id ? j : x)), [setJobOrders]);
+  const deleteJobOrder = useCallback((id: string)   => setJobOrders(p => p.filter(x => x.id !== id)),        [setJobOrders]);
 
-  const addCandidate = useCallback((c: Candidate) => setCandidates(p => [c, ...p]), []);
-  const updateCandidate = useCallback((c: Candidate) => setCandidates(p => p.map(x => x.id === c.id ? c : x)), []);
-  const deleteCandidate = useCallback((id: string) => setCandidates(p => p.filter(x => x.id !== id)), []);
+  const addCandidate    = useCallback((c: Candidate) => setCandidates(p => [c, ...p]),              [setCandidates]);
+  const updateCandidate = useCallback((c: Candidate) => setCandidates(p => p.map(x => x.id === c.id ? c : x)), [setCandidates]);
+  const deleteCandidate = useCallback((id: string)   => setCandidates(p => p.filter(x => x.id !== id)),        [setCandidates]);
 
-  const addPlacement = useCallback((p: Placement) => setPlacements(prev => [p, ...prev]), []);
-  const updatePlacement = useCallback((p: Placement) => setPlacements(prev => prev.map(x => x.id === p.id ? p : x)), []);
+  const addPlacement    = useCallback((p: Placement) => setPlacements(prev => [p, ...prev]),              [setPlacements]);
+  const updatePlacement = useCallback((p: Placement) => setPlacements(prev => prev.map(x => x.id === p.id ? p : x)), [setPlacements]);
 
-  const addActivity = useCallback((a: Activity) => setActivities(p => [a, ...p]), []);
-  const updateActivity = useCallback((a: Activity) => setActivities(p => p.map(x => x.id === a.id ? a : x)), []);
-  const deleteActivity = useCallback((id: string) => setActivities(p => p.filter(x => x.id !== id)), []);
+  const addActivity    = useCallback((a: Activity) => setActivities(p => [a, ...p]),              [setActivities]);
+  const updateActivity = useCallback((a: Activity) => setActivities(p => p.map(x => x.id === a.id ? a : x)), [setActivities]);
+  const deleteActivity = useCallback((id: string)  => setActivities(p => p.filter(x => x.id !== id)),        [setActivities]);
 
   return (
     <CRMContext.Provider value={{
