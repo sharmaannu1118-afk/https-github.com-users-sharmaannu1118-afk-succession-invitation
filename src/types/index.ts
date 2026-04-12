@@ -1,9 +1,11 @@
 // ─── Client / Company ───────────────────────────────────────────────────────
-export type ClientStatus = 'Active' | 'Inactive' | 'Prospect';
+export type ClientStatus  = 'Active' | 'Inactive' | 'Prospect';
 export type Industry =
   | 'Technology' | 'Finance' | 'Healthcare' | 'Manufacturing'
   | 'Retail' | 'Education' | 'Consulting' | 'FMCG' | 'Real Estate'
   | 'Logistics' | 'Exports & Trading' | 'Pharma' | 'Construction' | 'Other';
+export type BillingCycle  = 'Monthly' | 'Quarterly' | 'Annual' | 'Project-Based';
+export type WorkMode      = 'Onsite' | 'Hybrid' | 'Weekly Visit' | 'Remote';
 
 export interface Client {
   id: string;
@@ -19,6 +21,10 @@ export interface Client {
   accountManager: string;
   revenue?: number;
   employees?: number;
+  // ── Earnings & Engagement ──
+  billingAmount?: number;       // amount charged per billing cycle
+  billingCycle?: BillingCycle;  // Monthly / Quarterly / Annual / Project-Based
+  workMode?: WorkMode;          // Onsite / Hybrid / Weekly Visit / Remote
   notes?: string;
   createdAt: string;
   updatedAt: string;
