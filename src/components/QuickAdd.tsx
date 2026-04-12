@@ -9,23 +9,32 @@ const today = new Date().toISOString().slice(0, 10);
 const TEAM = ['Annu Sharma', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
 
 export default function QuickAdd() {
-  const { clients, addLead, addActivity, addCandidate } = useCRM();
+  const { addLead, addActivity, addCandidate } = useCRM();
   const [open, setOpen] = useState(false);
   const [modal, setModal] = useState<'lead' | 'activity' | 'candidate' | null>(null);
 
   // ── Quick Lead ──────────────────────────────────────────────────────────
-  const [lead, setLead] = useState({ title: '', clientId: '', value: '', probability: '50', assignedTo: 'Annu Sharma', expectedCloseDate: today });
+  const [lead, setLead] = useState({
+    companyName: '', title: '', contactPerson: '', contactPhone: '',
+    location: '', temperature: 'Warm', value: '', probability: '50',
+    assignedTo: 'Annu Sharma', expectedCloseDate: today,
+  });
   function submitLead(e: React.FormEvent) {
     e.preventDefault();
     addLead({
-      id: newId('l'), title: lead.title, clientId: lead.clientId || undefined,
-      stage: 'New', source: 'Referral',
+      id: newId('l'),
+      companyName: lead.companyName, title: lead.title,
+      contactPerson: lead.contactPerson || undefined,
+      contactPhone: lead.contactPhone || undefined,
+      location: lead.location,
+      temperature: lead.temperature as Lead['temperature'],
+      stage: 'New', source: 'Cold Call',
       value: Number(lead.value) || 0, probability: Number(lead.probability),
       assignedTo: lead.assignedTo, expectedCloseDate: lead.expectedCloseDate,
       createdAt: today, updatedAt: today,
     } as Lead);
     setModal(null);
-    setLead({ title: '', clientId: '', value: '', probability: '50', assignedTo: 'Annu Sharma', expectedCloseDate: today });
+    setLead({ companyName: '', title: '', contactPerson: '', contactPhone: '', location: '', temperature: 'Warm', value: '', probability: '50', assignedTo: 'Annu Sharma', expectedCloseDate: today });
   }
 
   // ── Quick Activity ─────────────────────────────────────────────────────
@@ -97,17 +106,40 @@ export default function QuickAdd() {
         <Modal title="Quick Add Lead" onClose={() => setModal(null)} size="sm">
           <form onSubmit={submitLead} className="space-y-3">
             <div>
-              <label className="label">Lead Title *</label>
-              <input required className="input" placeholder="e.g. HDFC – Senior HR Hire"
-                value={lead.title} onChange={e => setLead(p => ({ ...p, title: e.target.value }))} />
+              <label className="label">Company Name *</label>
+              <input required className="input" placeholder="e.g. Infosys Ltd"
+                value={lead.companyName} onChange={e => setLead(p => ({ ...p, companyName: e.target.value }))} />
             </div>
             <div>
-              <label className="label">Client</label>
-              <select className="input" value={lead.clientId}
-                onChange={e => setLead(p => ({ ...p, clientId: e.target.value }))}>
-                <option value="">-- Optional --</option>
-                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+              <label className="label">Lead Title / Requirement *</label>
+              <input required className="input" placeholder="e.g. HR Manager hiring"
+                value={lead.title} onChange={e => setLead(p => ({ ...p, title: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label">Contact Person</label>
+                <input className="input" placeholder="Name"
+                  value={lead.contactPerson} onChange={e => setLead(p => ({ ...p, contactPerson: e.target.value }))} />
+              </div>
+              <div>
+                <label className="label">Phone</label>
+                <input type="tel" className="input" placeholder="98XXXXXXXX"
+                  value={lead.contactPhone} onChange={e => setLead(p => ({ ...p, contactPhone: e.target.value }))} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label">Location</label>
+                <input className="input" placeholder="City"
+                  value={lead.location} onChange={e => setLead(p => ({ ...p, location: e.target.value }))} />
+              </div>
+              <div>
+                <label className="label">Temperature</label>
+                <select className="input" value={lead.temperature}
+                  onChange={e => setLead(p => ({ ...p, temperature: e.target.value }))}>
+                  <option>Hot</option><option>Warm</option><option>Cold</option>
+                </select>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

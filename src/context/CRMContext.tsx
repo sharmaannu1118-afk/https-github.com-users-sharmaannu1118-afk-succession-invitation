@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type {
-  Client, Contact, Lead, JobOrder, Candidate, Placement, Activity
+  Client, Contact, Lead, JobOrder, Candidate, Placement, Activity, Task
 } from '../types';
 import {
-  CLIENTS, CONTACTS, LEADS, JOB_ORDERS, CANDIDATES, PLACEMENTS, ACTIVITIES
+  CLIENTS, CONTACTS, LEADS, JOB_ORDERS, CANDIDATES, PLACEMENTS, ACTIVITIES, TASKS,
+  DATA_VERSION
 } from '../data/mockData';
 
 // ── localStorage helpers ────────────────────────────────────────────────────
@@ -19,6 +20,17 @@ function save<T>(key: string, value: T) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* quota */ }
 }
 
+const ALL_KEYS = ['crm_clients','crm_contacts','crm_leads','crm_jobs','crm_candidates','crm_placements','crm_activities','crm_tasks'];
+
+// ── Data-version guard: wipe old data when schema changes ────────────────────
+function ensureFreshData() {
+  const stored = localStorage.getItem('crm_data_version');
+  if (stored !== DATA_VERSION) {
+    ALL_KEYS.forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('crm_data_version', DATA_VERSION);
+  }
+}
+
 // ── Context type ────────────────────────────────────────────────────────────
 interface CRMContextValue {
   clients: Client[];
@@ -28,6 +40,7 @@ interface CRMContextValue {
   candidates: Candidate[];
   placements: Placement[];
   activities: Activity[];
+  tasks: Task[];
 
   addClient: (c: Client) => void;
   updateClient: (c: Client) => void;
@@ -55,6 +68,10 @@ interface CRMContextValue {
   addActivity: (a: Activity) => void;
   updateActivity: (a: Activity) => void;
   deleteActivity: (id: string) => void;
+
+  addTask: (t: Task) => void;
+  updateTask: (t: Task) => void;
+  deleteTask: (id: string) => void;
 }
 
 const CRMContext = createContext<CRMContextValue | null>(null);
@@ -76,6 +93,9 @@ function usePersistedState<T>(key: string, fallback: T) {
 
 // ── Provider ────────────────────────────────────────────────────────────────
 export function CRMProvider({ children }: { children: React.ReactNode }) {
+  // Run version check once on mount before state initialises
+  useEffect(() => { ensureFreshData(); }, []);
+
   const [clients,    setClients]    = usePersistedState<Client[]>   ('crm_clients',    CLIENTS);
   const [contacts,   setContacts]   = usePersistedState<Contact[]>  ('crm_contacts',   CONTACTS);
   const [leads,      setLeads]      = usePersistedState<Lead[]>     ('crm_leads',      LEADS);
@@ -83,6 +103,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   const [candidates, setCandidates] = usePersistedState<Candidate[]>('crm_candidates', CANDIDATES);
   const [placements, setPlacements] = usePersistedState<Placement[]>('crm_placements', PLACEMENTS);
   const [activities, setActivities] = usePersistedState<Activity[]> ('crm_activities', ACTIVITIES);
+  const [tasks,      setTasks]      = usePersistedState<Task[]>     ('crm_tasks',      TASKS);
 
   const addClient    = useCallback((c: Client)    => setClients(p    => [c, ...p]),              [setClients]);
   const updateClient = useCallback((c: Client)    => setClients(p    => p.map(x => x.id === c.id ? c : x)),  [setClients]);
@@ -111,9 +132,13 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   const updateActivity = useCallback((a: Activity) => setActivities(p => p.map(x => x.id === a.id ? a : x)), [setActivities]);
   const deleteActivity = useCallback((id: string)  => setActivities(p => p.filter(x => x.id !== id)),        [setActivities]);
 
+  const addTask    = useCallback((t: Task) => setTasks(p => [t, ...p]),              [setTasks]);
+  const updateTask = useCallback((t: Task) => setTasks(p => p.map(x => x.id === t.id ? t : x)), [setTasks]);
+  const deleteTask = useCallback((id: string) => setTasks(p => p.filter(x => x.id !== id)),     [setTasks]);
+
   return (
     <CRMContext.Provider value={{
-      clients, contacts, leads, jobOrders, candidates, placements, activities,
+      clients, contacts, leads, jobOrders, candidates, placements, activities, tasks,
       addClient, updateClient, deleteClient,
       addContact, updateContact, deleteContact,
       addLead, updateLead, deleteLead,
@@ -121,6 +146,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
       addCandidate, updateCandidate, deleteCandidate,
       addPlacement, updatePlacement,
       addActivity, updateActivity, deleteActivity,
+      addTask, updateTask, deleteTask,
     }}>
       {children}
     </CRMContext.Provider>

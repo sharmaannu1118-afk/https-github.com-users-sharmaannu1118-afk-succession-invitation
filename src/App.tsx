@@ -11,6 +11,7 @@ import Placements from './pages/Placements';
 import Activities from './pages/Activities';
 import Reports from './pages/Reports';
 import Search from './pages/Search';
+import Tasks from './pages/Tasks';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/jobs"        element={<Jobs />} />
             <Route path="/placements"  element={<Placements />} />
             <Route path="/activities"  element={<Activities />} />
+            <Route path="/tasks"       element={<Tasks />} />
             <Route path="/reports"     element={<Reports />} />
             <Route path="/search"      element={<Search />} />
           </Route>

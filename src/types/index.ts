@@ -2,7 +2,8 @@
 export type ClientStatus = 'Active' | 'Inactive' | 'Prospect';
 export type Industry =
   | 'Technology' | 'Finance' | 'Healthcare' | 'Manufacturing'
-  | 'Retail' | 'Education' | 'Consulting' | 'FMCG' | 'Real Estate' | 'Other';
+  | 'Retail' | 'Education' | 'Consulting' | 'FMCG' | 'Real Estate'
+  | 'Logistics' | 'Exports & Trading' | 'Pharma' | 'Construction' | 'Other';
 
 export interface Client {
   id: string;
@@ -16,7 +17,7 @@ export interface Client {
   phone?: string;
   email?: string;
   accountManager: string;
-  revenue?: number;           // annual revenue in ₹ crores
+  revenue?: number;
   employees?: number;
   notes?: string;
   createdAt: string;
@@ -26,7 +27,7 @@ export interface Client {
 // ─── Contact ─────────────────────────────────────────────────────────────────
 export type ContactRole =
   | 'HR Manager' | 'HR Director' | 'CHRO' | 'Talent Acquisition'
-  | 'CEO' | 'CFO' | 'Hiring Manager' | 'Other';
+  | 'CEO' | 'CFO' | 'MD' | 'Owner' | 'Hiring Manager' | 'Other';
 
 export interface Contact {
   id: string;
@@ -44,25 +45,55 @@ export interface Contact {
 
 // ─── Lead / Opportunity ───────────────────────────────────────────────────────
 export type LeadStage =
-  | 'New' | 'Qualified' | 'Proposal Sent' | 'Negotiation' | 'Won' | 'Lost';
+  | 'New' | 'Contacted' | 'Qualified' | 'Proposal Sent' | 'Negotiation' | 'Won' | 'Lost';
 export type LeadSource =
-  | 'Referral' | 'LinkedIn' | 'Email Campaign' | 'Cold Call'
-  | 'Website' | 'Event' | 'Partner';
+  | 'Referral' | 'LinkedIn' | 'Naukri' | 'IndiaMART' | 'Justdial'
+  | 'Email Campaign' | 'Cold Call' | 'Website' | 'Event' | 'Partner' | 'WhatsApp';
+export type LeadTemperature = 'Hot' | 'Warm' | 'Cold';
 
 export interface Lead {
   id: string;
-  title: string;
+  companyName: string;         // direct company name on lead
+  contactPerson?: string;      // contact name
+  contactPhone?: string;       // direct phone
+  contactEmail?: string;       // direct email
+  requirement?: string;        // what HR service they need
+  title: string;               // short title / summary
   clientId?: string;
-  contactId?: string;
   stage: LeadStage;
+  temperature: LeadTemperature;
   source: LeadSource;
-  value: number;             // deal value in ₹
-  probability: number;       // 0-100
+  value: number;
+  probability: number;
   assignedTo: string;
+  location: string;
   expectedCloseDate: string;
+  followUpDate?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// ─── Task ─────────────────────────────────────────────────────────────────────
+export type TaskStatus   = 'Pending' | 'In Progress' | 'Completed' | 'Cancelled';
+export type TaskPriority = 'Low' | 'Medium' | 'High' | 'Urgent';
+export type TaskRelatedTo = 'Client' | 'Lead' | 'Candidate' | 'General';
+
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  relatedTo: TaskRelatedTo;
+  relatedId?: string;
+  relatedName?: string;
+  assignedTo: string;
+  assignedDate: string;
+  dueDate: string;
+  completedDate?: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  notes?: string;
+  createdAt: string;
 }
 
 // ─── Job Order ────────────────────────────────────────────────────────────────
@@ -131,7 +162,7 @@ export interface Placement {
   offerDate: string;
   joiningDate?: string;
   ctcOffered: number;
-  fee: number;                // placement fee in ₹
+  fee: number;
   invoiced: boolean;
   paidDate?: string;
   recruiter: string;

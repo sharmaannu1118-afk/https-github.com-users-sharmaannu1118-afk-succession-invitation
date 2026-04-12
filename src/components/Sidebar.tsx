@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, Building2, Users, TrendingUp,
-  UserSearch, Briefcase, Award, CalendarCheck, BarChart2, X
+  UserSearch, Briefcase, Award, CalendarCheck, BarChart2, X, CheckSquare
 } from 'lucide-react';
 
 const NAV = [
@@ -13,6 +13,7 @@ const NAV = [
   { to: '/jobs',        icon: Briefcase,       label: 'Job Orders' },
   { to: '/placements',  icon: Award,           label: 'Placements' },
   { to: '/activities',  icon: CalendarCheck,   label: 'Activities' },
+  { to: '/tasks',       icon: CheckSquare,     label: 'Tasks' },
   { to: '/reports',     icon: BarChart2,       label: 'Reports' },
 ];
 
