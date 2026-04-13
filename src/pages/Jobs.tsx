@@ -11,7 +11,7 @@ const PRIORITIES: Priority[] = ['Low', 'Medium', 'High', 'Urgent'];
 const TEAM = ['Annu Sharma', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
 
 function newId() { return 'j' + Date.now(); }
-const fmt = (n: number) => `₹${(n / 100000).toFixed(1)}L`;
+const fmt = (n: number) => n >= 100000 ? `₹${(n/100000).toFixed(1)}L` : n >= 1000 ? `₹${(n/1000).toFixed(0)}K` : `₹${n}`;
 
 const EMPTY: Omit<JobOrder, 'id' | 'createdAt' | 'updatedAt'> = {
   title: '', clientId: '', status: 'Open', type: 'Permanent',
@@ -93,7 +93,7 @@ export default function Jobs() {
                 <th className="th">Status</th>
                 <th className="th">Priority</th>
                 <th className="th">Openings</th>
-                <th className="th">Salary Range</th>
+                <th className="th">Salary / Month</th>
                 <th className="th">Recruiter</th>
                 <th className="th">Deadline</th>
                 <th className="th"></th>
@@ -118,7 +118,7 @@ export default function Jobs() {
                     </td>
                     <td className="td text-gray-600">{j.openings}</td>
                     <td className="td text-gray-600 text-xs">
-                      {j.salaryMin && j.salaryMax ? `${fmt(j.salaryMin)} – ${fmt(j.salaryMax)}` : '—'}
+                      {j.salaryMin && j.salaryMax ? `${fmt(j.salaryMin)} – ${fmt(j.salaryMax)}/mo` : '—'}
                     </td>
                     <td className="td text-gray-500">{j.recruiter}</td>
                     <td className="td text-gray-500">{j.deadline ?? '—'}</td>
@@ -194,13 +194,13 @@ export default function Jobs() {
                 onChange={e => setForm(p => ({ ...p, location: e.target.value }))} />
             </div>
             <div>
-              <label className="label">Salary Min (₹)</label>
-              <input type="number" className="input" value={form.salaryMin ?? ''}
+              <label className="label">Min Salary (₹ per month)</label>
+              <input type="number" className="input" placeholder="e.g. 15000" value={form.salaryMin ?? ''}
                 onChange={e => setForm(p => ({ ...p, salaryMin: +e.target.value || undefined }))} />
             </div>
             <div>
-              <label className="label">Salary Max (₹)</label>
-              <input type="number" className="input" value={form.salaryMax ?? ''}
+              <label className="label">Max Salary (₹ per month)</label>
+              <input type="number" className="input" placeholder="e.g. 25000" value={form.salaryMax ?? ''}
                 onChange={e => setForm(p => ({ ...p, salaryMax: +e.target.value || undefined }))} />
             </div>
             <div>
