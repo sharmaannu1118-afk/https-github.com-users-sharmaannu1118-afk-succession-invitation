@@ -2,7 +2,7 @@ import type {
   Client, Contact, Lead, Task, JobOrder, Candidate, Placement, Activity, TeamMember
 } from '../types';
 
-export const DATA_VERSION = 'v7';
+export const DATA_VERSION = 'v8';
 
 export const TEAM: TeamMember[] = [
   { id: 'u1', name: 'Annu Sharma',  role: 'Admin',               email: 'annu@annuhrconsulting.com' },
@@ -63,7 +63,32 @@ export const LEADS: Lead[] = [
 export const TASKS: Task[] = [];
 
 // ─── JOB ORDERS ──────────────────────────────────────────────────────────────
-export const JOB_ORDERS: JobOrder[] = [];
+export const JOB_ORDERS: JobOrder[] = [
+  {
+    id: 'j1', title: 'Mechanical Design Engineer',
+    clientId: 'c1', status: 'Open', type: 'Permanent', priority: 'Medium',
+    openings: 1, location: 'Surat',
+    skills: ['AutoCAD', 'SolidWorks', 'Mechanical Design', 'Engineering Drawing'],
+    recruiter: 'Annu Sharma',
+    createdAt: '2026-04-13', updatedAt: '2026-04-13',
+  },
+  {
+    id: 'j2', title: 'Production Engineer',
+    clientId: 'c1', status: 'Open', type: 'Permanent', priority: 'Medium',
+    openings: 1, location: 'Surat',
+    skills: ['Production Planning', 'Quality Control', 'Manufacturing', 'Process Improvement'],
+    recruiter: 'Annu Sharma',
+    createdAt: '2026-04-13', updatedAt: '2026-04-13',
+  },
+  {
+    id: 'j3', title: 'Back Office Executive',
+    clientId: 'c2', status: 'Open', type: 'Permanent', priority: 'Medium',
+    openings: 1, location: 'Surat',
+    skills: ['MS Excel', 'Data Entry', 'Documentation', 'Communication'],
+    recruiter: 'Annu Sharma',
+    createdAt: '2026-04-13', updatedAt: '2026-04-13',
+  },
+];
 
 export const CANDIDATES: Candidate[] = [];
 
