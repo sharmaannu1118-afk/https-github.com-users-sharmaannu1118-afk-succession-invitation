@@ -2,7 +2,7 @@ import type {
   Client, Contact, Lead, Task, JobOrder, Candidate, Placement, Activity, TeamMember
 } from '../types';
 
-export const DATA_VERSION = 'v6';
+export const DATA_VERSION = 'v7';
 
 export const TEAM: TeamMember[] = [
   { id: 'u1', name: 'Annu Sharma',  role: 'Admin',               email: 'annu@annuhrconsulting.com' },
@@ -60,35 +60,13 @@ export const LEADS: Lead[] = [
 ];
 
 // ─── TASKS ────────────────────────────────────────────────────────────────────
-export const TASKS: Task[] = [
-  { id: 't1', title: 'Monthly HR Review – Pooja Enterprises (April)', description: 'Conduct monthly onsite HR review. Topics: recruitment status, attendance, appraisal cycle, any HR issues.', relatedTo: 'Client', relatedId: 'c1', relatedName: 'Pooja Enterprises', assignedTo: 'Annu Sharma', assignedDate: '2026-04-12', dueDate: '2026-04-25', status: 'Pending', priority: 'High', createdAt: '2026-04-12' },
-  { id: 't2', title: 'Monthly HR Review – Shubham Cargo (April)', description: 'Monthly compliance check and HR advisory session. Verify PF/ESIC, review recruitment pipeline.', relatedTo: 'Client', relatedId: 'c2', relatedName: 'Shubham Cargo Movers', assignedTo: 'Annu Sharma', assignedDate: '2026-04-12', dueDate: '2026-04-26', status: 'Pending', priority: 'High', createdAt: '2026-04-12' },
-  { id: 't3', title: 'Prepare Logistics Coordinator Job Description', description: 'Create detailed JD for Logistics Coordinator role at Shubham Cargo. Post on Naukri and LinkedIn.', relatedTo: 'Client', relatedId: 'c2', relatedName: 'Shubham Cargo Movers', assignedTo: 'Annu Sharma', assignedDate: '2026-04-12', dueDate: '2026-04-14', status: 'In Progress', priority: 'Urgent', createdAt: '2026-04-12' },
-  { id: 't4', title: 'Draft HR Policy Manual – Pooja Enterprises', description: 'Prepare/update HR policy manual including leave policy, code of conduct, and HR processes.', relatedTo: 'Client', relatedId: 'c1', relatedName: 'Pooja Enterprises', assignedTo: 'Annu Sharma', assignedDate: '2026-04-12', dueDate: '2026-04-30', status: 'Pending', priority: 'Medium', createdAt: '2026-04-12' },
-  { id: 't5', title: 'Pooja Enterprises – March HR Review', description: 'Monthly onsite HR review completed. Recruitment pipeline discussed.', relatedTo: 'Client', relatedId: 'c1', relatedName: 'Pooja Enterprises', assignedTo: 'Annu Sharma', assignedDate: '2026-03-25', dueDate: '2026-03-30', completedDate: '2026-03-30', status: 'Completed', priority: 'High', createdAt: '2026-03-25' },
-  { id: 't6', title: 'Shubham Cargo – Compliance Check March', description: 'PF/ESIC verified. Advised on joining documentation.', relatedTo: 'Client', relatedId: 'c2', relatedName: 'Shubham Cargo Movers', assignedTo: 'Annu Sharma', assignedDate: '2026-04-01', dueDate: '2026-04-02', completedDate: '2026-04-02', status: 'Completed', priority: 'High', createdAt: '2026-04-01' },
-];
+export const TASKS: Task[] = [];
 
 // ─── JOB ORDERS ──────────────────────────────────────────────────────────────
-export const JOB_ORDERS: JobOrder[] = [
-  { id: 'j1', title: 'Operations Executive', clientId: 'c1', status: 'In Progress', type: 'Permanent', priority: 'High', openings: 1, location: 'Surat', salaryMin: 240000, salaryMax: 360000, skills: ['Operations', 'MS Office', 'Communication', 'Coordination'], recruiter: 'Annu Sharma', description: 'Handling day-to-day operations, vendor coordination, and reporting for Pooja Enterprises.', createdAt: '2026-04-01', updatedAt: '2026-04-10' },
-  { id: 'j2', title: 'Logistics Coordinator', clientId: 'c2', status: 'Open', type: 'Permanent', priority: 'Urgent', openings: 2, location: 'Surat', salaryMin: 180000, salaryMax: 300000, skills: ['Logistics', 'Cargo Management', 'Documentation', 'MS Excel'], recruiter: 'Annu Sharma', description: 'Cargo booking, documentation, and client coordination for Shubham Cargo Movers.', createdAt: '2026-03-20', updatedAt: '2026-04-10' },
-  { id: 'j3', title: 'Accounts Assistant', clientId: 'c1', status: 'Open', type: 'Permanent', priority: 'Medium', openings: 1, location: 'Surat', salaryMin: 180000, salaryMax: 280000, skills: ['Tally', 'GST', 'MS Excel', 'Accounts'], recruiter: 'Annu Sharma', description: 'Tally entries, GST returns, and day-to-day accounts for Pooja Enterprises.', createdAt: '2026-04-05', updatedAt: '2026-04-05' },
-];
+export const JOB_ORDERS: JobOrder[] = [];
 
-export const CANDIDATES: Candidate[] = [
-  { id: 'ca1', firstName: 'Ravi', lastName: 'Desai', email: 'ravi.desai@gmail.com', phone: '+91-9876501234', currentTitle: 'Operations Executive', currentCompany: 'Patel Enterprises', experienceLevel: 'Mid', yearsOfExperience: 4, skills: ['Operations', 'Vendor Management', 'MS Office'], expectedSalary: 320000, currentSalary: 260000, location: 'Surat', status: 'Active', addedBy: 'Annu Sharma', createdAt: '2026-04-02', updatedAt: '2026-04-10' },
-  { id: 'ca2', firstName: 'Meena', lastName: 'Joshi', email: 'meena.joshi@gmail.com', phone: '+91-9876509876', currentTitle: 'Logistics Coordinator', currentCompany: 'Speed Cargo', experienceLevel: 'Mid', yearsOfExperience: 3, skills: ['Logistics', 'Cargo Documentation', 'MS Excel'], expectedSalary: 280000, currentSalary: 220000, location: 'Surat', status: 'Active', addedBy: 'Annu Sharma', createdAt: '2026-04-05', updatedAt: '2026-04-10' },
-  { id: 'ca3', firstName: 'Amit', lastName: 'Sharma', email: 'amit.sharma@gmail.com', phone: '+91-9812300001', currentTitle: 'Accounts Assistant', currentCompany: 'Shree Traders', experienceLevel: 'Entry', yearsOfExperience: 2, skills: ['Tally', 'GST', 'MS Excel'], expectedSalary: 240000, currentSalary: 180000, location: 'Surat', status: 'Active', addedBy: 'Annu Sharma', createdAt: '2026-04-06', updatedAt: '2026-04-06' },
-];
+export const CANDIDATES: Candidate[] = [];
 
-export const PLACEMENTS: Placement[] = [
-  { id: 'p1', candidateId: 'ca1', jobOrderId: 'j1', clientId: 'c1', status: 'Notice Period', offerDate: '2026-04-08', ctcOffered: 300000, fee: 30000, invoiced: false, recruiter: 'Annu Sharma', notes: 'Ravi Desai selected. Joining in 30 days.', createdAt: '2026-04-08' },
-];
+export const PLACEMENTS: Placement[] = [];
 
-export const ACTIVITIES: Activity[] = [
-  { id: 'act1', type: 'Meeting', subject: 'Shubham Cargo – Logistics Coordinator interviews', status: 'Planned', relatedTo: 'client', relatedId: 'c2', relatedName: 'Shubham Cargo Movers', assignedTo: 'Annu Sharma', dueDate: '2026-04-15', createdAt: '2026-04-12' },
-  { id: 'act2', type: 'Meeting', subject: 'Pooja Enterprises – April monthly HR review', status: 'Planned', relatedTo: 'client', relatedId: 'c1', relatedName: 'Pooja Enterprises', assignedTo: 'Annu Sharma', dueDate: '2026-04-25', createdAt: '2026-04-12' },
-  { id: 'act3', type: 'Meeting', subject: 'Shubham Cargo – April monthly HR review', status: 'Planned', relatedTo: 'client', relatedId: 'c2', relatedName: 'Shubham Cargo Movers', assignedTo: 'Annu Sharma', dueDate: '2026-04-26', createdAt: '2026-04-12' },
-  { id: 'act4', type: 'Call', subject: 'Pooja Enterprises – Ravi Desai joining confirmation', status: 'Completed', relatedTo: 'client', relatedId: 'c1', relatedName: 'Pooja Enterprises', assignedTo: 'Annu Sharma', dueDate: '2026-04-08', completedAt: '2026-04-08', createdAt: '2026-04-08' },
-];
+export const ACTIVITIES: Activity[] = [];
