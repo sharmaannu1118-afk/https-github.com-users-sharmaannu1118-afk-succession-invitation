@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, Star } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Star, Phone, Mail, Link2, X } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import type { Contact, ContactRole } from '../types';
 import Modal from '../components/Modal';
@@ -18,15 +18,18 @@ const EMPTY: Omit<Contact, 'id' | 'createdAt'> = {
 
 export default function Contacts() {
   const { contacts, clients, addContact, updateContact, deleteContact } = useCRM();
-  const [search, setSearch] = useState('');
+  const [search, setSearch]           = useState('');
   const [clientFilter, setClientFilter] = useState('All');
-  const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState<Contact | null>(null);
-  const [form, setForm] = useState<Omit<Contact, 'id' | 'createdAt'>>(EMPTY);
+  const [showForm, setShowForm]       = useState(false);
+  const [editing, setEditing]         = useState<Contact | null>(null);
+  const [viewing, setViewing]         = useState<Contact | null>(null);
+  const [form, setForm]               = useState<Omit<Contact, 'id' | 'createdAt'>>(EMPTY);
 
   const filtered = contacts.filter(ct => {
     const name = `${ct.firstName} ${ct.lastName}`.toLowerCase();
-    const matchSearch = name.includes(search.toLowerCase()) || ct.email.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = name.includes(search.toLowerCase()) ||
+      ct.email.toLowerCase().includes(search.toLowerCase()) ||
+      (ct.phone ?? '').includes(search);
     const matchClient = clientFilter === 'All' || ct.clientId === clientFilter;
     return matchSearch && matchClient;
   });
@@ -42,6 +45,7 @@ export default function Contacts() {
     const { id, createdAt, ...rest } = c;
     setForm(rest);
     setShowForm(true);
+    setViewing(null);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -54,6 +58,19 @@ export default function Contacts() {
     }
     setShowForm(false);
   }
+
+  const ROLE_COLORS: Record<string, string> = {
+    'HR Manager': 'bg-blue-100 text-blue-700',
+    'HR Director': 'bg-indigo-100 text-indigo-700',
+    'CHRO': 'bg-purple-100 text-purple-700',
+    'CEO': 'bg-red-100 text-red-700',
+    'CFO': 'bg-orange-100 text-orange-700',
+    'MD': 'bg-amber-100 text-amber-700',
+    'Director': 'bg-rose-100 text-rose-700',
+    'Owner': 'bg-green-100 text-green-700',
+    'Business Partner': 'bg-teal-100 text-teal-700',
+    'Hiring Manager': 'bg-cyan-100 text-cyan-700',
+  };
 
   return (
     <div className="space-y-4">
@@ -92,7 +109,8 @@ export default function Contacts() {
               ) : filtered.map(ct => {
                 const client = clients.find(c => c.id === ct.clientId);
                 return (
-                  <tr key={ct.id} className="hover:bg-gray-50">
+                  <tr key={ct.id} className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => setViewing(ct)}>
                     <td className="td">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
@@ -101,14 +119,32 @@ export default function Contacts() {
                         <span className="font-medium text-gray-900">{ct.firstName} {ct.lastName}</span>
                       </div>
                     </td>
-                    <td className="td text-gray-500 text-xs">{ct.role}</td>
+                    <td className="td">
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[ct.role] ?? 'bg-gray-100 text-gray-600'}`}>
+                        {ct.role}
+                      </span>
+                    </td>
                     <td className="td text-gray-700">{client?.name ?? '—'}</td>
-                    <td className="td text-gray-500">{ct.email}</td>
-                    <td className="td text-gray-500">{ct.phone ?? '—'}</td>
+                    <td className="td">
+                      {ct.email ? (
+                        <a href={`mailto:${ct.email}`} onClick={e => e.stopPropagation()}
+                          className="text-gray-500 hover:text-brand-600 flex items-center gap-1 text-sm">
+                          <Mail size={12} /> {ct.email}
+                        </a>
+                      ) : <span className="text-gray-300">—</span>}
+                    </td>
+                    <td className="td">
+                      {ct.phone ? (
+                        <a href={`tel:${ct.phone}`} onClick={e => e.stopPropagation()}
+                          className="text-gray-500 hover:text-brand-600 flex items-center gap-1 text-sm">
+                          <Phone size={12} /> {ct.phone}
+                        </a>
+                      ) : <span className="text-gray-300">—</span>}
+                    </td>
                     <td className="td">
                       {ct.isPrimary && <Star size={14} className="text-yellow-500 fill-yellow-400" />}
                     </td>
-                    <td className="td">
+                    <td className="td" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <button onClick={() => openEdit(ct)} className="text-gray-400 hover:text-brand-600">
                           <Pencil size={15} />
@@ -126,6 +162,102 @@ export default function Contacts() {
         </div>
       </div>
 
+      {/* ── View Contact Modal ─────────────────────────────────────────────── */}
+      {viewing && (() => {
+        const client = clients.find(c => c.id === viewing.clientId);
+        return (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setViewing(null)}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+              {/* Header */}
+              <div className="bg-gradient-to-r from-indigo-600 to-brand-600 rounded-t-2xl p-6 text-white">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold">
+                      {viewing.firstName[0]}
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold">{viewing.firstName} {viewing.lastName}</h2>
+                      <span className="text-sm text-indigo-200">{viewing.role}</span>
+                      {viewing.isPrimary && (
+                        <span className="ml-2 px-2 py-0.5 bg-yellow-400 text-yellow-900 text-xs font-semibold rounded-full">
+                          ★ Primary
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button onClick={() => setViewing(null)} className="text-white/70 hover:text-white">
+                    <X size={20} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-3">
+                {client && (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div className="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-sm">
+                      {client.name[0]}
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400">Company</p>
+                      <p className="text-sm font-semibold text-gray-900">{client.name}</p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 gap-3">
+                  {viewing.email && (
+                    <a href={`mailto:${viewing.email}`}
+                      className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors">
+                      <Mail size={18} className="text-blue-500" />
+                      <div>
+                        <p className="text-xs text-gray-400">Email</p>
+                        <p className="text-sm font-medium text-gray-800">{viewing.email}</p>
+                      </div>
+                    </a>
+                  )}
+                  {viewing.phone && (
+                    <a href={`tel:${viewing.phone}`}
+                      className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:bg-green-50 hover:border-green-200 transition-colors">
+                      <Phone size={18} className="text-green-500" />
+                      <div>
+                        <p className="text-xs text-gray-400">Phone</p>
+                        <p className="text-sm font-medium text-gray-800">{viewing.phone}</p>
+                      </div>
+                    </a>
+                  )}
+                  {viewing.linkedin && (
+                    <a href={viewing.linkedin} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:bg-blue-50 hover:border-blue-200 transition-colors">
+                      <Link2 size={18} className="text-blue-600" />
+                      <div>
+                        <p className="text-xs text-gray-400">LinkedIn</p>
+                        <p className="text-sm font-medium text-blue-600 truncate">{viewing.linkedin}</p>
+                      </div>
+                    </a>
+                  )}
+                  {viewing.notes && (
+                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
+                      <p className="text-xs text-amber-600 font-medium mb-1">Notes</p>
+                      <p className="text-sm text-gray-700">{viewing.notes}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="px-6 pb-6 flex gap-3">
+                <button onClick={() => openEdit(viewing)}
+                  className="flex-1 btn-primary justify-center">
+                  <Pencil size={14} /> Edit Contact
+                </button>
+                <button onClick={() => setViewing(null)} className="btn-secondary">Close</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Add / Edit Form ────────────────────────────────────────────────── */}
       {showForm && (
         <Modal title={editing ? 'Edit Contact' : 'Add Contact'} onClose={() => setShowForm(false)}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -135,8 +267,8 @@ export default function Contacts() {
                 onChange={e => setForm(p => ({ ...p, firstName: e.target.value }))} />
             </div>
             <div>
-              <label className="label">Last Name *</label>
-              <input required className="input" value={form.lastName}
+              <label className="label">Last Name</label>
+              <input className="input" value={form.lastName}
                 onChange={e => setForm(p => ({ ...p, lastName: e.target.value }))} />
             </div>
             <div>
@@ -155,8 +287,8 @@ export default function Contacts() {
               </select>
             </div>
             <div>
-              <label className="label">Email *</label>
-              <input required type="email" className="input" value={form.email}
+              <label className="label">Email</label>
+              <input type="email" className="input" value={form.email}
                 onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
             </div>
             <div>
@@ -166,7 +298,8 @@ export default function Contacts() {
             </div>
             <div>
               <label className="label">LinkedIn URL</label>
-              <input className="input" value={form.linkedin ?? ''}
+              <input className="input" placeholder="https://linkedin.com/in/..."
+                value={form.linkedin ?? ''}
                 onChange={e => setForm(p => ({ ...p, linkedin: e.target.value }))} />
             </div>
             <div className="flex items-center gap-2 pt-5">

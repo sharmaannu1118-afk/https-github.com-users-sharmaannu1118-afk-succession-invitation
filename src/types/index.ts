@@ -75,6 +75,7 @@ export interface Lead {
   contactPerson?: string;      // contact name
   contactPhone?: string;       // direct phone
   contactEmail?: string;       // direct email
+  linkedin?: string;
   requirement?: string;        // what HR service they need
   title: string;               // short title / summary
   clientId?: string;

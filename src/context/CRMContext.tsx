@@ -20,15 +20,60 @@ function save<T>(key: string, value: T) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* quota */ }
 }
 
-const ALL_KEYS = ['crm_clients','crm_contacts','crm_leads','crm_jobs','crm_candidates','crm_placements','crm_activities','crm_tasks'];
+const SEED_APPLIED_KEY = 'crm_seed_applied';
 
-// ── Data-version guard: wipe old data when schema changes ────────────────────
+// ── Smart seed merge: never wipes user data ──────────────────────────────────
+// On version change, only NEW seed items (by ID) are merged into existing data.
+// User-added data and user-deleted items are never touched.
+function mergeSeedData() {
+  type Applied = Record<string, string[]>;
+  const isFirstSetup = !localStorage.getItem(SEED_APPLIED_KEY);
+  let applied: Applied = {};
+  try { applied = JSON.parse(localStorage.getItem(SEED_APPLIED_KEY) || '{}'); } catch {}
+
+  const collections = [
+    { key: 'crm_clients',    name: 'clients',    seed: CLIENTS    as { id: string }[] },
+    { key: 'crm_contacts',   name: 'contacts',   seed: CONTACTS   as { id: string }[] },
+    { key: 'crm_leads',      name: 'leads',      seed: LEADS      as { id: string }[] },
+    { key: 'crm_jobs',       name: 'jobs',       seed: JOB_ORDERS as { id: string }[] },
+    { key: 'crm_candidates', name: 'candidates', seed: CANDIDATES as { id: string }[] },
+    { key: 'crm_placements', name: 'placements', seed: PLACEMENTS as { id: string }[] },
+    { key: 'crm_activities', name: 'activities', seed: ACTIVITIES as { id: string }[] },
+    { key: 'crm_tasks',      name: 'tasks',      seed: TASKS      as { id: string }[] },
+  ];
+
+  for (const { key, name, seed } of collections) {
+    const appliedIds: string[] = applied[name] || [];
+    const raw = localStorage.getItem(key);
+
+    if (raw === null) {
+      // First time ever – load seed data fresh
+      localStorage.setItem(key, JSON.stringify(seed));
+      applied[name] = seed.map(item => item.id);
+    } else if (isFirstSetup) {
+      // Migrating from old wipe-on-version system: mark all current seed IDs
+      // as already applied so we don't duplicate them. Don't touch existing data.
+      applied[name] = [...new Set([...appliedIds, ...seed.map(item => item.id)])];
+    } else {
+      // Normal operation: merge only genuinely new seed IDs
+      const newItems = seed.filter(item => !appliedIds.includes(item.id));
+      if (newItems.length > 0) {
+        try {
+          const current = JSON.parse(raw) as { id: string }[];
+          localStorage.setItem(key, JSON.stringify([...current, ...newItems]));
+        } catch { /* keep existing data */ }
+        applied[name] = [...appliedIds, ...newItems.map(item => item.id)];
+      }
+    }
+  }
+
+  localStorage.setItem(SEED_APPLIED_KEY, JSON.stringify(applied));
+  localStorage.setItem('crm_data_version', DATA_VERSION);
+}
+
 function ensureFreshData() {
   const stored = localStorage.getItem('crm_data_version');
-  if (stored !== DATA_VERSION) {
-    ALL_KEYS.forEach(k => localStorage.removeItem(k));
-    localStorage.setItem('crm_data_version', DATA_VERSION);
-  }
+  if (stored !== DATA_VERSION) mergeSeedData();
 }
 
 // ── Context type ────────────────────────────────────────────────────────────
