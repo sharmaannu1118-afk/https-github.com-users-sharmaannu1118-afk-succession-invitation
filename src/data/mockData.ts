@@ -2,7 +2,7 @@ import type {
   Client, Contact, Lead, Task, JobOrder, Candidate, Placement, Activity, TeamMember
 } from '../types';
 
-export const DATA_VERSION = 'v12';
+export const DATA_VERSION = 'v13';
 
 export const TEAM: TeamMember[] = [
   { id: 'u1', name: 'Annu Sharma',  role: 'Admin',               email: 'annu@annuhrconsulting.com' },
@@ -48,8 +48,11 @@ export const CLIENTS: Client[] = [
   {
     id: 'c5', name: 'Anant Insurance Solutions', industry: 'Insurance',
     status: 'Active', city: 'Surat', country: 'India',
+    phone: '+91-98797-98702',
     accountManager: 'Annu Sharma',
-    notes: 'Insurance company. Active client.',
+    workMode: 'Weekly Visit',
+    address: 'Vesu, Surat',
+    notes: 'Pro bono client (no billing). Weekly onsite visit. Contact: Ashutosh Kedia.',
     createdAt: '2026-04-15', updatedAt: '2026-04-15',
   },
 ];
@@ -59,6 +62,7 @@ export const CONTACTS: Contact[] = [
   { id: 'ct2', clientId: 'c2', firstName: 'Shubham', lastName: '', role: 'MD', email: '', phone: '', isPrimary: true, createdAt: '2025-10-01' },
   { id: 'ct3', clientId: 'c3', firstName: 'Rajesh', lastName: 'Patel', role: 'HR Manager', email: 'rajesh@stellarexports.in', phone: '+91-9876512340', isPrimary: true, createdAt: '2026-02-10' },
   { id: 'ct4', clientId: 'c4', firstName: 'Suresh', lastName: 'Shah', role: 'HR Director', email: 'suresh@royaltextiles.in', phone: '+91-9876598760', isPrimary: true, createdAt: '2026-03-01' },
+  { id: 'ct5', clientId: 'c5', firstName: 'Ashutosh', lastName: 'Kedia', role: 'Owner', email: '', phone: '+91-98797-98702', isPrimary: true, createdAt: '2026-04-15' },
 ];
 
 // ─── LEADS — Week of 14 Apr 2026 ─────────────────────────────────────────────
