@@ -2,7 +2,7 @@ import type {
   Client, Contact, Lead, Task, JobOrder, Candidate, Placement, Activity, TeamMember
 } from '../types';
 
-export const DATA_VERSION = 'v13';
+export const DATA_VERSION = 'v14';
 
 export const TEAM: TeamMember[] = [
   { id: 'u1', name: 'Annu Sharma',  role: 'Admin',               email: 'annu@annuhrconsulting.com' },
@@ -22,7 +22,7 @@ export const CLIENTS: Client[] = [
     createdAt: '2024-09-01', updatedAt: '2026-04-12',
   },
   {
-    id: 'c2', name: 'Shubham Cargo Movers', industry: 'Logistics',
+    id: 'c2', name: 'Shubham Cargo Movers', industry: 'Transport & Logistics',
     status: 'Active', city: 'Surat', country: 'India',
     accountManager: 'Annu Sharma', employees: 40,
     billingAmount: 50000, billingCycle: 'Quarterly', workMode: 'Onsite',
@@ -51,6 +51,7 @@ export const CLIENTS: Client[] = [
     phone: '+91-98797-98702',
     accountManager: 'Annu Sharma',
     workMode: 'Weekly Visit',
+    billingCycle: 'Pro Bono',
     address: 'Vesu, Surat',
     notes: 'Pro bono client (no billing). Weekly onsite visit. Contact: Ashutosh Kedia.',
     createdAt: '2026-04-15', updatedAt: '2026-04-15',

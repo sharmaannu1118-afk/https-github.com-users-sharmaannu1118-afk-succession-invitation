@@ -6,11 +6,23 @@ import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 
 const INDUSTRIES: Industry[] = [
-  'Technology','Finance','Healthcare','Manufacturing','Retail','Education',
-  'Consulting','FMCG','Real Estate','Logistics','Exports & Trading','Pharma','Construction','Other'
+  'Technology','IT Services','E-commerce',
+  'Finance','Banking','Insurance',
+  'Healthcare','Pharma',
+  'Manufacturing','Automotive','Textile & Apparel',
+  'Chemicals','Steel & Metals','Plastics & Rubber',
+  'Diamond & Gems','Jewellery',
+  'Food & Beverages','FMCG','Agriculture',
+  'Real Estate','Construction',
+  'Retail','Wholesale & Distribution',
+  'Transport & Logistics','Exports & Trading',
+  'Education','Consulting','Legal & Compliance',
+  'Hospitality & Tourism','Media & Entertainment',
+  'Telecommunications','Energy & Power',
+  'NGO / Non-Profit','Other',
 ];
 const STATUSES: ClientStatus[]    = ['Active', 'Inactive', 'Prospect'];
-const BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual', 'Project-Based'];
+const BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual', 'Project-Based', 'Pro Bono'];
 const WORK_MODES: WorkMode[]       = ['Onsite', 'Hybrid', 'Weekly Visit', 'Remote'];
 const TEAM = ['Annu Sharma', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
 
@@ -25,7 +37,7 @@ function toMonthly(amount: number, cycle: BillingCycle): number {
   if (cycle === 'Monthly')       return amount;
   if (cycle === 'Quarterly')     return amount / 3;
   if (cycle === 'Annual')        return amount / 12;
-  return 0; // Project-Based = not recurring
+  return 0; // Project-Based / Pro Bono = not counted in recurring revenue
 }
 
 const WORK_MODE_COLORS: Record<WorkMode, string> = {
@@ -49,12 +61,15 @@ export default function Clients() {
   const [viewing, setViewing]         = useState<Client | null>(null);
   const [form, setForm]               = useState<Omit<Client, 'id' | 'createdAt' | 'updatedAt'>>(EMPTY);
 
-  const filtered = clients.filter(c => {
-    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.city.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === 'All' || c.status === statusFilter;
-    return matchSearch && matchStatus;
-  });
+  const statusOrder: Record<string, number> = { Active: 0, Inactive: 1, Prospect: 2 };
+  const filtered = clients
+    .filter(c => {
+      const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
+        c.city.toLowerCase().includes(search.toLowerCase());
+      const matchStatus = statusFilter === 'All' || c.status === statusFilter;
+      return matchSearch && matchStatus;
+    })
+    .sort((a, b) => (statusOrder[a.status] ?? 9) - (statusOrder[b.status] ?? 9));
 
   // ── Earnings summary (active clients only) ──────────────────────────────
   const activeClients = clients.filter(c => c.status === 'Active');
@@ -192,7 +207,9 @@ export default function Clients() {
                     ) : <span className="text-gray-300">—</span>}
                   </td>
                   <td className="td">
-                    {c.billingAmount && c.billingCycle ? (
+                    {c.billingCycle === 'Pro Bono' ? (
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-700">Pro Bono</span>
+                    ) : c.billingAmount && c.billingCycle ? (
                       <div>
                         <p className="text-sm font-semibold text-green-700">{fmt(c.billingAmount)}</p>
                         <p className="text-xs text-gray-400">{c.billingCycle}</p>
@@ -250,20 +267,22 @@ export default function Clients() {
             </div>
 
             <div>
+              <label className="label">Billing Cycle</label>
+              <select className="input" value={form.billingCycle ?? ''}
+                onChange={e => setForm(p => ({ ...p, billingCycle: e.target.value as BillingCycle || undefined, billingAmount: e.target.value === 'Pro Bono' ? undefined : p.billingAmount }))}>
+                <option value="">-- Select --</option>
+                {BILLING_CYCLES.map(b => <option key={b}>{b}</option>)}
+              </select>
+            </div>
+
+            {form.billingCycle && form.billingCycle !== 'Pro Bono' && (
+            <div>
               <label className="label">Billing Amount (₹)</label>
               <input type="number" className="input" placeholder="e.g. 10000"
                 value={form.billingAmount ?? ''}
                 onChange={e => setForm(p => ({ ...p, billingAmount: +e.target.value || undefined }))} />
             </div>
-
-            <div>
-              <label className="label">Billing Cycle</label>
-              <select className="input" value={form.billingCycle ?? ''}
-                onChange={e => setForm(p => ({ ...p, billingCycle: e.target.value as BillingCycle || undefined }))}>
-                <option value="">-- Select --</option>
-                {BILLING_CYCLES.map(b => <option key={b}>{b}</option>)}
-              </select>
-            </div>
+            )}
 
             <div className="sm:col-span-2">
               <label className="label">Mode of Working</label>

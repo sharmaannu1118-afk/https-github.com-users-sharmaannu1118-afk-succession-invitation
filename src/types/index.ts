@@ -1,10 +1,21 @@
 // ─── Client / Company ───────────────────────────────────────────────────────
 export type ClientStatus  = 'Active' | 'Inactive' | 'Prospect';
 export type Industry =
-  | 'Technology' | 'Finance' | 'Insurance' | 'Healthcare' | 'Manufacturing'
-  | 'Retail' | 'Education' | 'Consulting' | 'FMCG' | 'Real Estate'
-  | 'Logistics' | 'Exports & Trading' | 'Pharma' | 'Construction' | 'Other';
-export type BillingCycle  = 'Monthly' | 'Quarterly' | 'Annual' | 'Project-Based';
+  | 'Technology' | 'IT Services' | 'E-commerce'
+  | 'Finance' | 'Banking' | 'Insurance'
+  | 'Healthcare' | 'Pharma'
+  | 'Manufacturing' | 'Automotive' | 'Textile & Apparel'
+  | 'Chemicals' | 'Steel & Metals' | 'Plastics & Rubber'
+  | 'Diamond & Gems' | 'Jewellery'
+  | 'Food & Beverages' | 'FMCG' | 'Agriculture'
+  | 'Real Estate' | 'Construction'
+  | 'Retail' | 'Wholesale & Distribution'
+  | 'Transport & Logistics' | 'Exports & Trading'
+  | 'Education' | 'Consulting' | 'Legal & Compliance'
+  | 'Hospitality & Tourism' | 'Media & Entertainment'
+  | 'Telecommunications' | 'Energy & Power'
+  | 'NGO / Non-Profit' | 'Other';
+export type BillingCycle  = 'Monthly' | 'Quarterly' | 'Annual' | 'Project-Based' | 'Pro Bono';
 export type WorkMode      = 'Onsite' | 'Hybrid' | 'Weekly Visit' | 'Remote';
 
 export interface Client {
