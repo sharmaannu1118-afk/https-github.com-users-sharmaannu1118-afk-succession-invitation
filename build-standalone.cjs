@@ -34,6 +34,7 @@ const html = `<!doctype html>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Annu HR" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="manifest" href="manifest.json" />
   <title>Annu HR \u2013 CRM</title>
@@ -60,7 +61,7 @@ fs.writeFileSync(outFile, html, 'utf8');
 console.log(`\nWrote: AnuHR-CRM.html  (${(html.length/1024).toFixed(1)} KB)`);
 
 // Copy PWA assets to dist/
-for (const file of ['manifest.json', 'sw.js', 'icon.svg']) {
+for (const file of ['manifest.json', 'sw.js', 'icon.svg', 'favicon.svg']) {
   const src = path.join(publicDir, file);
   const dst = path.join(distDir, file);
   if (fs.existsSync(src)) {

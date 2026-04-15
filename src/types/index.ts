@@ -1,7 +1,7 @@
 // ─── Client / Company ───────────────────────────────────────────────────────
 export type ClientStatus  = 'Active' | 'Inactive' | 'Prospect';
 export type Industry =
-  | 'Technology' | 'Finance' | 'Healthcare' | 'Manufacturing'
+  | 'Technology' | 'Finance' | 'Insurance' | 'Healthcare' | 'Manufacturing'
   | 'Retail' | 'Education' | 'Consulting' | 'FMCG' | 'Real Estate'
   | 'Logistics' | 'Exports & Trading' | 'Pharma' | 'Construction' | 'Other';
 export type BillingCycle  = 'Monthly' | 'Quarterly' | 'Annual' | 'Project-Based';
@@ -33,7 +33,8 @@ export interface Client {
 // ─── Contact ─────────────────────────────────────────────────────────────────
 export type ContactRole =
   | 'HR Manager' | 'HR Director' | 'CHRO' | 'Talent Acquisition'
-  | 'CEO' | 'CFO' | 'MD' | 'Owner' | 'Hiring Manager' | 'Other';
+  | 'CEO' | 'CFO' | 'MD' | 'Director' | 'Owner' | 'Business Partner'
+  | 'Hiring Manager' | 'Other';
 
 export interface Contact {
   id: string;

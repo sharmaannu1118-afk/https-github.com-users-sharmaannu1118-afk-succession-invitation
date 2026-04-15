@@ -5,7 +5,8 @@ import type { Contact, ContactRole } from '../types';
 import Modal from '../components/Modal';
 
 const ROLES: ContactRole[] = [
-  'HR Manager','HR Director','CHRO','Talent Acquisition','CEO','CFO','Hiring Manager','Other'
+  'HR Manager','HR Director','CHRO','Talent Acquisition',
+  'CEO','CFO','MD','Director','Owner','Business Partner','Hiring Manager','Other'
 ];
 
 function newId() { return 'ct' + Date.now(); }
