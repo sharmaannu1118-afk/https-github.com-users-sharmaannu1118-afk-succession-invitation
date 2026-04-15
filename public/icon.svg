@@ -1,5 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="90" fill="#2563eb"/>
-  <text x="256" y="340" font-family="system-ui,Arial,sans-serif" font-weight="900"
-    font-size="280" fill="white" text-anchor="middle">A</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Subtle shine overlay -->
+  <rect width="512" height="256" rx="96" fill="url(#shine)"/>
+
+  <!-- Three people icons (HR motif) -->
+  <circle cx="152" cy="148" r="32" fill="white" opacity="0.75"/>
+  <path d="M90 242 Q90 196 152 196 Q214 196 214 242" fill="white" opacity="0.75"/>
+
+  <circle cx="360" cy="148" r="32" fill="white" opacity="0.75"/>
+  <path d="M298 242 Q298 196 360 196 Q422 196 422 242" fill="white" opacity="0.75"/>
+
+  <!-- Center main person (larger, full opacity) -->
+  <circle cx="256" cy="132" r="44" fill="white"/>
+  <path d="M172 252 Q172 188 256 188 Q340 188 340 252" fill="white"/>
+
+  <!-- AHR text -->
+  <text x="256" y="378" font-family="Georgia,'Times New Roman',serif"
+    font-weight="700" font-size="110" fill="white"
+    text-anchor="middle" letter-spacing="6">AHR</text>
+
+  <!-- Tagline -->
+  <text x="256" y="426" font-family="Arial,Helvetica,sans-serif"
+    font-weight="400" font-size="34" fill="white"
+    text-anchor="middle" opacity="0.72" letter-spacing="9">CONSULTING</text>
 </svg>

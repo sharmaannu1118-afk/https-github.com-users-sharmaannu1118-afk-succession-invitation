@@ -35,13 +35,26 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         lg:translate-x-0 lg:static lg:z-auto flex flex-col
       `}>
         {/* Logo */}
-        <div className="flex items-center justify-between px-5 py-5 border-b border-brand-800">
-          <div>
-            <p className="text-[10px] text-brand-400 font-semibold tracking-widest uppercase">CRM</p>
-            <h1 className="text-lg font-bold leading-tight text-white">Annu HR</h1>
-            <p className="text-xs text-brand-400">Consulting & Advisory</p>
+        <div className="flex items-center justify-between px-4 py-4 border-b border-brand-800">
+          <div className="flex items-center gap-3 min-w-0">
+            {/* App icon */}
+            <div className="flex-shrink-0 w-11 h-11 rounded-xl shadow-lg overflow-hidden" style={{background:'linear-gradient(135deg,#1e3a8a 0%,#3b82f6 100%)'}}>
+              <svg viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                <circle cx="11" cy="13" r="5" fill="white" opacity="0.7"/>
+                <path d="M3 28 Q3 21 11 21 Q19 21 19 28" fill="white" opacity="0.7"/>
+                <circle cx="33" cy="13" r="5" fill="white" opacity="0.7"/>
+                <path d="M25 28 Q25 21 33 21 Q41 21 41 28" fill="white" opacity="0.7"/>
+                <circle cx="22" cy="12" r="6" fill="white"/>
+                <path d="M12 29 Q12 23 22 23 Q32 23 32 29" fill="white"/>
+                <text x="22" y="40" fontFamily="Georgia,serif" fontWeight="700" fontSize="9" fill="white" textAnchor="middle" letterSpacing="1.5">AHR</text>
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <h1 className="text-base font-bold leading-tight text-white">Annu HR</h1>
+              <p className="text-[10px] text-brand-400 font-semibold tracking-widest uppercase">Consulting & Advisory</p>
+            </div>
           </div>
-          <button onClick={onClose} className="lg:hidden text-brand-400 hover:text-white">
+          <button onClick={onClose} className="lg:hidden text-brand-400 hover:text-white ml-1 flex-shrink-0">
             <X size={20} />
           </button>
         </div>
