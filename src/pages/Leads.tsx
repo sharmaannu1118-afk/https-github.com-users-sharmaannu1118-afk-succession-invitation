@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, Phone, Mail } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Plus, Search, Pencil, Trash2, Phone, Mail, Link2, X, MapPin, Calendar, TrendingUp } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import type { Lead, LeadStage, LeadSource, LeadTemperature } from '../types';
 import StatusBadge from '../components/StatusBadge';
@@ -8,7 +8,6 @@ import Modal from '../components/Modal';
 const STAGES: LeadStage[] = ['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost'];
 const SOURCES: LeadSource[] = ['Referral', 'LinkedIn', 'Naukri', 'IndiaMART', 'Justdial', 'Email Campaign', 'Cold Call', 'Website', 'Event', 'Partner', 'WhatsApp'];
 const TEMPS: LeadTemperature[] = ['Hot', 'Warm', 'Cold'];
-const TEAM = ['Annu Sharma', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
 
 function newId() { return 'l' + Date.now(); }
 
@@ -23,31 +22,75 @@ const TEMP_COLORS: Record<LeadTemperature, string> = {
   Cold: 'bg-blue-100 text-blue-700',
 };
 
+const TEMP_BORDER: Record<LeadTemperature, string> = {
+  Hot:  'border-l-red-500',
+  Warm: 'border-l-orange-400',
+  Cold: 'border-l-blue-400',
+};
+
+const STAGE_COLORS: Record<LeadStage, { col: string; badge: string }> = {
+  New:             { col: 'border-blue-300 bg-blue-50',    badge: 'bg-blue-500' },
+  Contacted:       { col: 'border-cyan-300 bg-cyan-50',    badge: 'bg-cyan-500' },
+  Qualified:       { col: 'border-indigo-300 bg-indigo-50',badge: 'bg-indigo-500' },
+  'Proposal Sent': { col: 'border-yellow-300 bg-yellow-50',badge: 'bg-yellow-500' },
+  Negotiation:     { col: 'border-orange-300 bg-orange-50',badge: 'bg-orange-500' },
+  Won:             { col: 'border-green-300 bg-green-50',  badge: 'bg-green-500' },
+  Lost:            { col: 'border-red-300 bg-red-50',      badge: 'bg-red-400' },
+};
+
 const EMPTY: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'> = {
   companyName: '', title: '', stage: 'New', source: 'Cold Call',
   temperature: 'Warm', value: 0, probability: 20,
   assignedTo: 'Annu Sharma', location: '', expectedCloseDate: new Date().toISOString().slice(0, 10),
 };
 
-const STAGE_COLORS: Record<LeadStage, string> = {
-  New: 'border-blue-300 bg-blue-50',
-  Contacted: 'border-cyan-300 bg-cyan-50',
-  Qualified: 'border-indigo-300 bg-indigo-50',
-  'Proposal Sent': 'border-yellow-300 bg-yellow-50',
-  Negotiation: 'border-orange-300 bg-orange-50',
-  Won: 'border-green-300 bg-green-50',
-  Lost: 'border-red-300 bg-red-50',
-};
+// Resizable TH component
+function ResizerTh({ children, className = '', minW = 60 }: { children: React.ReactNode; className?: string; minW?: number }) {
+  const thRef = useRef<HTMLTableCellElement>(null);
+  const startX = useRef(0);
+  const startW = useRef(0);
+
+  function onMouseDown(e: React.MouseEvent) {
+    e.preventDefault();
+    startX.current = e.clientX;
+    startW.current = thRef.current?.offsetWidth ?? 100;
+    function onMove(ev: MouseEvent) {
+      const newW = Math.max(minW, startW.current + ev.clientX - startX.current);
+      if (thRef.current) thRef.current.style.width = `${newW}px`;
+    }
+    function onUp() {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    }
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }
+
+  return (
+    <th ref={thRef} className={`th relative select-none ${className}`} style={{ minWidth: minW }}>
+      {children}
+      <span
+        onMouseDown={onMouseDown}
+        className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize hover:bg-brand-300 rounded"
+      />
+    </th>
+  );
+}
 
 export default function Leads() {
   const { leads, clients, addLead, updateLead, deleteLead } = useCRM();
-  const [search, setSearch]       = useState('');
-  const [stageFilter, setStage]   = useState('All');
-  const [tempFilter, setTemp]     = useState('All');
-  const [view, setView]           = useState<'table' | 'kanban'>('kanban');
-  const [showForm, setShowForm]   = useState(false);
-  const [editing, setEditing]     = useState<Lead | null>(null);
-  const [form, setForm]           = useState<Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>>(EMPTY);
+  const [search, setSearch]           = useState('');
+  const [stageFilter, setStage]       = useState('All');
+  const [tempFilter, setTemp]         = useState('All');
+  const [locationFilter, setLocation] = useState('All');
+  const [view, setView]               = useState<'table' | 'kanban'>('kanban');
+  const [showForm, setShowForm]       = useState(false);
+  const [editing, setEditing]         = useState<Lead | null>(null);
+  const [viewing, setViewing]         = useState<Lead | null>(null);
+  const [form, setForm]               = useState<Omit<Lead, 'id' | 'createdAt' | 'updatedAt'>>(EMPTY);
+
+  // Unique sorted locations from all leads
+  const allLocations = Array.from(new Set(leads.map(l => l.location).filter(Boolean))).sort();
 
   const filtered = leads.filter(l => {
     const q = search.toLowerCase();
@@ -55,39 +98,47 @@ export default function Leads() {
       l.companyName.toLowerCase().includes(q) ||
       l.title.toLowerCase().includes(q) ||
       (l.contactPerson ?? '').toLowerCase().includes(q) ||
-      (l.location ?? '').toLowerCase().includes(q);
-    const matchStage = stageFilter === 'All' || l.stage === stageFilter;
-    const matchTemp  = tempFilter === 'All'  || l.temperature === tempFilter;
-    return matchSearch && matchStage && matchTemp;
+      (l.location ?? '').toLowerCase().includes(q) ||
+      (l.requirement ?? '').toLowerCase().includes(q);
+    const matchStage    = stageFilter === 'All' || l.stage === stageFilter;
+    const matchTemp     = tempFilter === 'All'  || l.temperature === tempFilter;
+    const matchLocation = locationFilter === 'All' || l.location === locationFilter;
+    return matchSearch && matchStage && matchTemp && matchLocation;
   });
 
-  const totalPipeline = leads.filter(l => !['Won', 'Lost'].includes(l.stage)).reduce((s, l) => s + l.value, 0);
-  const weightedPipeline = leads.filter(l => !['Won', 'Lost'].includes(l.stage)).reduce((s, l) => s + l.value * (l.probability / 100), 0);
-  const wonRevenue = leads.filter(l => l.stage === 'Won').reduce((s, l) => s + l.value, 0);
-  const hotCount = leads.filter(l => l.temperature === 'Hot' && !['Won','Lost'].includes(l.stage)).length;
+  const totalPipeline    = leads.filter(l => !['Won','Lost'].includes(l.stage)).reduce((s,l) => s+l.value, 0);
+  const weightedPipeline = leads.filter(l => !['Won','Lost'].includes(l.stage)).reduce((s,l) => s+l.value*(l.probability/100), 0);
+  const wonRevenue       = leads.filter(l => l.stage === 'Won').reduce((s,l) => s+l.value, 0);
+  const hotCount         = leads.filter(l => l.temperature === 'Hot' && !['Won','Lost'].includes(l.stage)).length;
 
-  function openAdd() {
-    setEditing(null);
-    setForm(EMPTY);
-    setShowForm(true);
-  }
+  function openAdd() { setEditing(null); setForm(EMPTY); setShowForm(true); }
 
   function openEdit(l: Lead) {
     setEditing(l);
     const { id, createdAt, updatedAt, ...rest } = l;
     setForm(rest);
     setShowForm(true);
+    setViewing(null);
   }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const now = new Date().toISOString().slice(0, 10);
-    if (editing) {
-      updateLead({ ...editing, ...form, updatedAt: now });
-    } else {
-      addLead({ ...form, id: newId(), createdAt: now, updatedAt: now });
-    }
+    if (editing) { updateLead({ ...editing, ...form, updatedAt: now }); }
+    else { addLead({ ...form, id: newId(), createdAt: now, updatedAt: now }); }
     setShowForm(false);
+  }
+
+  // Kanban filtered leads per stage (respects all filters)
+  function stageLeads(stage: LeadStage) {
+    return leads.filter(l =>
+      l.stage === stage &&
+      (tempFilter === 'All' || l.temperature === tempFilter) &&
+      (locationFilter === 'All' || l.location === locationFilter) &&
+      (!search || l.companyName.toLowerCase().includes(search.toLowerCase()) ||
+        l.title.toLowerCase().includes(search.toLowerCase()) ||
+        (l.contactPerson ?? '').toLowerCase().includes(search.toLowerCase()))
+    );
   }
 
   return (
@@ -95,19 +146,19 @@ export default function Leads() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="card p-4">
+        <div className="card p-4 border-l-4 border-gray-300">
           <p className="text-xs text-gray-500">Total Pipeline</p>
           <p className="text-xl font-bold text-gray-900">{fmt(totalPipeline)}</p>
         </div>
-        <div className="card p-4">
+        <div className="card p-4 border-l-4 border-brand-400">
           <p className="text-xs text-gray-500">Weighted Pipeline</p>
           <p className="text-xl font-bold text-brand-700">{fmt(weightedPipeline)}</p>
         </div>
-        <div className="card p-4">
+        <div className="card p-4 border-l-4 border-green-400">
           <p className="text-xs text-gray-500">Won Revenue</p>
           <p className="text-xl font-bold text-green-700">{fmt(wonRevenue)}</p>
         </div>
-        <div className="card p-4">
+        <div className="card p-4 border-l-4 border-red-400">
           <p className="text-xs text-gray-500">Hot Leads Active</p>
           <p className="text-xl font-bold text-red-600">{hotCount}</p>
         </div>
@@ -115,12 +166,12 @@ export default function Leads() {
 
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative flex-1 max-w-xs">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="Search company, contact, location…" className="input pl-9" />
+            placeholder="Search company, contact…" className="input pl-9" />
         </div>
-        <select value={stageFilter} onChange={e => setStage(e.target.value)} className="input w-44">
+        <select value={stageFilter} onChange={e => setStage(e.target.value)} className="input w-40">
           <option value="All">All Stages</option>
           {STAGES.map(s => <option key={s}>{s}</option>)}
         </select>
@@ -128,13 +179,17 @@ export default function Leads() {
           <option value="All">All Temps</option>
           {TEMPS.map(t => <option key={t}>{t}</option>)}
         </select>
+        <select value={locationFilter} onChange={e => setLocation(e.target.value)} className="input w-44">
+          <option value="All">All Locations</option>
+          {allLocations.map(loc => <option key={loc}>{loc}</option>)}
+        </select>
         <div className="flex gap-1 ml-auto">
           <button onClick={() => setView('kanban')}
-            className={`px-3 py-2 rounded-lg text-sm border ${view === 'kanban' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-600 border-gray-300'}`}>
+            className={`px-3 py-2 rounded-lg text-sm border ${view==='kanban' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-600 border-gray-300'}`}>
             Board
           </button>
           <button onClick={() => setView('table')}
-            className={`px-3 py-2 rounded-lg text-sm border ${view === 'table' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-600 border-gray-300'}`}>
+            className={`px-3 py-2 rounded-lg text-sm border ${view==='table' ? 'bg-brand-600 text-white border-brand-600' : 'bg-white text-gray-600 border-gray-300'}`}>
             List
           </button>
           <button onClick={openAdd} className="btn-primary ml-2">
@@ -143,57 +198,91 @@ export default function Leads() {
         </div>
       </div>
 
-      {/* Kanban Board */}
+      {/* ── ClickUp-style Kanban Board ─────────────────────────────────────── */}
       {view === 'kanban' && (
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-3 overflow-x-auto pb-4">
           {STAGES.map(stage => {
-            const stageLeads = leads.filter(l => l.stage === stage &&
-              (tempFilter === 'All' || l.temperature === tempFilter) &&
-              (!search || l.companyName.toLowerCase().includes(search.toLowerCase()) || l.title.toLowerCase().includes(search.toLowerCase())));
-            const stageValue = stageLeads.reduce((s, l) => s + l.value, 0);
+            const cols = stageLeads(stage);
+            const colValue = cols.reduce((s,l) => s+l.value, 0);
+            const { col, badge } = STAGE_COLORS[stage];
             return (
               <div key={stage} className="flex-shrink-0 w-72">
-                <div className={`rounded-xl border-2 ${STAGE_COLORS[stage]} p-3 min-h-32`}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="text-xs font-semibold text-gray-700">{stage}</p>
-                      <p className="text-xs text-gray-500">{fmt(stageValue)}</p>
-                    </div>
-                    <span className="w-6 h-6 rounded-full bg-white text-gray-700 text-xs font-bold flex items-center justify-center shadow-sm">
-                      {stageLeads.length}
+                {/* Column header */}
+                <div className={`rounded-t-xl border-2 ${col} px-3 py-2.5 flex items-center justify-between`}>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2.5 h-2.5 rounded-full ${badge}`} />
+                    <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">{stage}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">{fmt(colValue)}</span>
+                    <span className={`w-5 h-5 rounded-full ${badge} text-white text-xs font-bold flex items-center justify-center`}>
+                      {cols.length}
                     </span>
                   </div>
-                  <div className="space-y-2">
-                    {stageLeads.map(l => (
-                      <div key={l.id} className="bg-white rounded-lg p-3 shadow-sm border border-white hover:border-gray-200">
-                        <div className="flex items-start justify-between gap-1 mb-1">
-                          <p className="text-sm font-medium text-gray-900 leading-tight">{l.companyName}</p>
-                          <span className={`px-1.5 py-0.5 rounded text-xs font-semibold flex-shrink-0 ${TEMP_COLORS[l.temperature]}`}>
-                            {l.temperature}
+                </div>
+                {/* Cards */}
+                <div className={`border-2 border-t-0 ${col} rounded-b-xl min-h-24 p-2 space-y-2`}>
+                  {cols.map(l => (
+                    <div key={l.id}
+                      onClick={() => setViewing(l)}
+                      className={`bg-white rounded-lg shadow-sm border-l-4 ${TEMP_BORDER[l.temperature]} border border-gray-100 p-3 cursor-pointer hover:shadow-md transition-shadow`}>
+                      {/* Top row */}
+                      <div className="flex items-start justify-between gap-1 mb-1.5">
+                        <p className="text-sm font-semibold text-gray-900 leading-tight">{l.companyName}</p>
+                        <span className={`px-1.5 py-0.5 rounded text-xs font-bold flex-shrink-0 ${TEMP_COLORS[l.temperature]}`}>
+                          {l.temperature}
+                        </span>
+                      </div>
+                      {/* Title / requirement */}
+                      {l.requirement && (
+                        <p className="text-xs text-gray-500 mb-1.5 truncate">{l.requirement}</p>
+                      )}
+                      {/* Contact */}
+                      {l.contactPerson && (
+                        <div className="flex items-center gap-1 mb-1">
+                          <div className="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                            {l.contactPerson[0]}
+                          </div>
+                          <span className="text-xs text-gray-600 truncate">{l.contactPerson}</span>
+                        </div>
+                      )}
+                      {l.contactPhone && (
+                        <a href={`tel:${l.contactPhone}`} onClick={e => e.stopPropagation()}
+                          className="flex items-center gap-1 text-xs text-gray-400 hover:text-brand-600 mb-1">
+                          <Phone size={10} /> {l.contactPhone}
+                        </a>
+                      )}
+                      {/* Location */}
+                      {l.location && (
+                        <div className="flex items-center gap-1 text-xs text-gray-400 mb-2">
+                          <MapPin size={10} /> {l.location}
+                        </div>
+                      )}
+                      {/* Bottom row */}
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs font-bold text-brand-700">{fmt(l.value)}</span>
+                        {l.followUpDate && (
+                          <span className="flex items-center gap-0.5 text-xs text-gray-400">
+                            <Calendar size={10} /> {l.followUpDate}
                           </span>
-                        </div>
-                        {l.contactPerson && (
-                          <p className="text-xs text-gray-500 mb-1">{l.contactPerson}</p>
                         )}
-                        {l.requirement && (
-                          <p className="text-xs text-gray-400 mb-1 italic truncate">{l.requirement}</p>
-                        )}
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs font-semibold text-brand-700">{fmt(l.value)}</span>
-                          <span className="text-xs text-gray-400">{l.location}</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-1 mt-1.5">
-                          <div className="bg-brand-500 h-1 rounded-full" style={{ width: `${l.probability}%` }} />
-                        </div>
-                        <div className="flex items-center justify-between mt-1.5">
-                          <p className="text-xs text-gray-400">{l.probability}%</p>
-                          <button onClick={() => openEdit(l)} className="text-xs text-gray-400 hover:text-brand-600 flex items-center gap-1">
-                            <Pencil size={10} /> Edit
-                          </button>
+                      </div>
+                      {/* Probability bar */}
+                      <div className="w-full bg-gray-100 rounded-full h-1 mt-1.5">
+                        <div className="bg-brand-500 h-1 rounded-full transition-all" style={{ width: `${l.probability}%` }} />
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs text-gray-400">{l.probability}%</span>
+                        <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+                          <button onClick={() => openEdit(l)} className="text-gray-400 hover:text-brand-600"><Pencil size={11} /></button>
+                          <button onClick={() => deleteLead(l.id)} className="text-gray-400 hover:text-red-500"><Trash2 size={11} /></button>
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
+                  {cols.length === 0 && (
+                    <p className="text-xs text-gray-400 text-center py-4">No leads</p>
+                  )}
                 </div>
               </div>
             );
@@ -201,47 +290,45 @@ export default function Leads() {
         </div>
       )}
 
-      {/* Table View */}
+      {/* ── List / Table View ──────────────────────────────────────────────── */}
       {view === 'table' && (
         <div className="card p-0 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full table-fixed">
               <thead>
                 <tr>
-                  <th className="th">Company</th>
-                  <th className="th">Contact</th>
-                  <th className="th">Requirement</th>
-                  <th className="th">Temp</th>
-                  <th className="th">Stage</th>
-                  <th className="th">Value</th>
-                  <th className="th">Location</th>
-                  <th className="th">Follow-up</th>
-                  <th className="th"></th>
+                  <ResizerTh minW={55}>Lead #</ResizerTh>
+                  <ResizerTh minW={120}>Company</ResizerTh>
+                  <ResizerTh minW={130}>Contact</ResizerTh>
+                  <ResizerTh minW={130}>Requirement</ResizerTh>
+                  <ResizerTh minW={70}>Temp</ResizerTh>
+                  <ResizerTh minW={100}>Stage</ResizerTh>
+                  <ResizerTh minW={80}>Value</ResizerTh>
+                  <ResizerTh minW={100}>Location</ResizerTh>
+                  <ResizerTh minW={90}>Follow-up</ResizerTh>
+                  <th className="th w-16"></th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={9} className="td text-center text-gray-400 py-10">No leads found.</td></tr>
-                ) : filtered.map(l => (
-                  <tr key={l.id} className="hover:bg-gray-50">
+                  <tr><td colSpan={10} className="td text-center text-gray-400 py-10">No leads found.</td></tr>
+                ) : filtered.map((l, idx) => (
+                  <tr key={l.id} className="hover:bg-gray-50 cursor-pointer"
+                    onClick={() => setViewing(l)}>
+                    <td className="td text-xs font-semibold text-gray-400">#{idx + 1}</td>
                     <td className="td">
-                      <p className="font-medium text-gray-900 text-sm">{l.companyName}</p>
-                      <p className="text-xs text-gray-400">{l.assignedTo}</p>
+                      <p className="font-medium text-gray-900 text-sm truncate">{l.companyName}</p>
                     </td>
                     <td className="td">
-                      {l.contactPerson && <p className="text-sm text-gray-700">{l.contactPerson}</p>}
+                      {l.contactPerson && <p className="text-sm text-gray-700 truncate">{l.contactPerson}</p>}
                       {l.contactPhone && (
-                        <a href={`tel:${l.contactPhone}`} className="text-xs text-gray-400 flex items-center gap-1 hover:text-brand-600">
+                        <a href={`tel:${l.contactPhone}`} onClick={e => e.stopPropagation()}
+                          className="text-xs text-gray-400 flex items-center gap-1 hover:text-brand-600">
                           <Phone size={10} /> {l.contactPhone}
                         </a>
                       )}
-                      {l.contactEmail && (
-                        <a href={`mailto:${l.contactEmail}`} className="text-xs text-gray-400 flex items-center gap-1 hover:text-brand-600">
-                          <Mail size={10} /> {l.contactEmail}
-                        </a>
-                      )}
                     </td>
-                    <td className="td text-xs text-gray-500 max-w-[140px] truncate">{l.requirement ?? '—'}</td>
+                    <td className="td text-xs text-gray-500 truncate">{l.requirement ?? '—'}</td>
                     <td className="td">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${TEMP_COLORS[l.temperature]}`}>
                         {l.temperature}
@@ -249,9 +336,9 @@ export default function Leads() {
                     </td>
                     <td className="td"><StatusBadge value={l.stage} /></td>
                     <td className="td font-semibold text-brand-700 text-sm">{fmt(l.value)}</td>
-                    <td className="td text-xs text-gray-500">{l.location}</td>
+                    <td className="td text-xs text-gray-500 truncate">{l.location}</td>
                     <td className="td text-xs text-gray-500">{l.followUpDate ?? l.expectedCloseDate}</td>
-                    <td className="td">
+                    <td className="td" onClick={e => e.stopPropagation()}>
                       <div className="flex gap-2">
                         <button onClick={() => openEdit(l)} className="text-gray-400 hover:text-brand-600"><Pencil size={14} /></button>
                         <button onClick={() => deleteLead(l.id)} className="text-gray-400 hover:text-red-500"><Trash2 size={14} /></button>
@@ -265,7 +352,155 @@ export default function Leads() {
         </div>
       )}
 
-      {/* Form Modal */}
+      {/* ── View Lead Detail Popup ─────────────────────────────────────────── */}
+      {viewing && (() => {
+        const { badge } = STAGE_COLORS[viewing.stage];
+        return (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+            onClick={() => setViewing(null)}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}>
+
+              {/* Header */}
+              <div className="bg-gradient-to-r from-brand-600 to-indigo-600 rounded-t-2xl p-6 text-white">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className={`w-2.5 h-2.5 rounded-full ${badge} flex-shrink-0`} />
+                      <span className="text-xs uppercase tracking-wider text-white/70 font-medium">{viewing.stage}</span>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${TEMP_COLORS[viewing.temperature]}`}>
+                        {viewing.temperature}
+                      </span>
+                    </div>
+                    <h2 className="text-xl font-bold truncate">{viewing.companyName}</h2>
+                    {viewing.title && <p className="text-sm text-white/70 mt-0.5 truncate">{viewing.title}</p>}
+                  </div>
+                  <button onClick={() => setViewing(null)} className="text-white/70 hover:text-white ml-4 flex-shrink-0">
+                    <X size={20} />
+                  </button>
+                </div>
+                {/* Value + probability */}
+                <div className="flex items-center gap-4 mt-3">
+                  <div>
+                    <p className="text-xs text-white/60">Deal Value</p>
+                    <p className="text-lg font-bold">{fmt(viewing.value)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-white/60">Probability</p>
+                    <p className="text-lg font-bold">{viewing.probability}%</p>
+                  </div>
+                  {viewing.location && (
+                    <div className="ml-auto flex items-center gap-1 text-sm text-white/80">
+                      <MapPin size={14} /> {viewing.location}
+                    </div>
+                  )}
+                </div>
+                <div className="w-full bg-white/20 rounded-full h-1.5 mt-2">
+                  <div className="bg-white h-1.5 rounded-full" style={{ width: `${viewing.probability}%` }} />
+                </div>
+              </div>
+
+              {/* Body */}
+              <div className="p-6 space-y-3">
+
+                {/* Contact details */}
+                {(viewing.contactPerson || viewing.contactPhone || viewing.contactEmail || viewing.linkedin) && (
+                  <div className="rounded-xl border border-gray-100 overflow-hidden">
+                    {viewing.contactPerson && (
+                      <div className="flex items-center gap-3 p-3 bg-gray-50">
+                        <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                          {viewing.contactPerson[0]}
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400">Contact Person</p>
+                          <p className="text-sm font-semibold text-gray-900">{viewing.contactPerson}</p>
+                        </div>
+                      </div>
+                    )}
+                    {viewing.contactPhone && (
+                      <a href={`tel:${viewing.contactPhone}`}
+                        className="flex items-center gap-3 p-3 border-t border-gray-100 hover:bg-green-50 transition-colors">
+                        <Phone size={16} className="text-green-500 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-gray-400">Phone</p>
+                          <p className="text-sm font-medium text-gray-800">{viewing.contactPhone}</p>
+                        </div>
+                      </a>
+                    )}
+                    {viewing.contactEmail && (
+                      <a href={`mailto:${viewing.contactEmail}`}
+                        className="flex items-center gap-3 p-3 border-t border-gray-100 hover:bg-blue-50 transition-colors">
+                        <Mail size={16} className="text-blue-500 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-gray-400">Email</p>
+                          <p className="text-sm font-medium text-gray-800">{viewing.contactEmail}</p>
+                        </div>
+                      </a>
+                    )}
+                    {viewing.linkedin && (
+                      <a href={viewing.linkedin} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-3 p-3 border-t border-gray-100 hover:bg-blue-50 transition-colors">
+                        <Link2 size={16} className="text-blue-600 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs text-gray-400">LinkedIn</p>
+                          <p className="text-sm font-medium text-blue-600 truncate">{viewing.linkedin}</p>
+                        </div>
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {/* Requirement */}
+                {viewing.requirement && (
+                  <div className="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+                    <p className="text-xs text-indigo-600 font-medium mb-1">Requirement</p>
+                    <p className="text-sm text-gray-700">{viewing.requirement}</p>
+                  </div>
+                )}
+
+                {/* Dates + Source */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-400 flex items-center gap-1"><Calendar size={11} /> Expected Close</p>
+                    <p className="text-sm font-medium text-gray-800 mt-0.5">{viewing.expectedCloseDate}</p>
+                  </div>
+                  {viewing.followUpDate && (
+                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
+                      <p className="text-xs text-amber-600 flex items-center gap-1"><Calendar size={11} /> Follow-up</p>
+                      <p className="text-sm font-medium text-gray-800 mt-0.5">{viewing.followUpDate}</p>
+                    </div>
+                  )}
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-400 flex items-center gap-1"><TrendingUp size={11} /> Source</p>
+                    <p className="text-sm font-medium text-gray-800 mt-0.5">{viewing.source}</p>
+                  </div>
+                  <div className="p-3 bg-gray-50 rounded-xl">
+                    <p className="text-xs text-gray-400">Assigned To</p>
+                    <p className="text-sm font-medium text-gray-800 mt-0.5">{viewing.assignedTo}</p>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                {viewing.notes && (
+                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
+                    <p className="text-xs text-amber-600 font-medium mb-1">Notes</p>
+                    <p className="text-sm text-gray-700">{viewing.notes}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="px-6 pb-6 flex gap-3">
+                <button onClick={() => openEdit(viewing)} className="flex-1 btn-primary justify-center">
+                  <Pencil size={14} /> Edit Lead
+                </button>
+                <button onClick={() => setViewing(null)} className="btn-secondary">Close</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* ── Add / Edit Form ────────────────────────────────────────────────── */}
       {showForm && (
         <Modal title={editing ? 'Edit Lead' : 'Add Lead'} onClose={() => setShowForm(false)}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -306,6 +541,13 @@ export default function Leads() {
             </div>
 
             <div>
+              <label className="label">LinkedIn URL</label>
+              <input className="input" placeholder="https://linkedin.com/in/..."
+                value={form.linkedin ?? ''}
+                onChange={e => setForm(p => ({ ...p, linkedin: e.target.value }))} />
+            </div>
+
+            <div>
               <label className="label">Location</label>
               <input className="input" placeholder="e.g. Mumbai, Maharashtra"
                 value={form.location}
@@ -314,7 +556,7 @@ export default function Leads() {
 
             <div className="sm:col-span-2">
               <label className="label">Requirement / HR Service Needed</label>
-              <input className="input" placeholder="e.g. Permanent staffing – 5 engineers, payroll outsourcing"
+              <input className="input" placeholder="e.g. Permanent staffing – 5 engineers"
                 value={form.requirement ?? ''}
                 onChange={e => setForm(p => ({ ...p, requirement: e.target.value }))} />
             </div>
@@ -377,10 +619,8 @@ export default function Leads() {
 
             <div>
               <label className="label">Assigned To</label>
-              <select className="input" value={form.assignedTo}
-                onChange={e => setForm(p => ({ ...p, assignedTo: e.target.value }))}>
-                {TEAM.map(t => <option key={t}>{t}</option>)}
-              </select>
+              <input className="input" value="Annu Sharma" readOnly
+                style={{ background: '#f9fafb', color: '#374151' }} />
             </div>
 
             <div>
@@ -403,7 +643,7 @@ export default function Leads() {
 
             <div className="sm:col-span-2 flex justify-end gap-3 pt-2">
               <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Cancel</button>
-              <button type="submit" className="btn-primary">{editing ? 'Update' : 'Add Lead'}</button>
+              <button type="submit" className="btn-primary">{editing ? 'Update Lead' : 'Add Lead'}</button>
             </div>
           </form>
         </Modal>
