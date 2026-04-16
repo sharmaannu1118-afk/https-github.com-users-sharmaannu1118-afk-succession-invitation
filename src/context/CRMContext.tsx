@@ -71,9 +71,31 @@ function mergeSeedData() {
   localStorage.setItem('crm_data_version', DATA_VERSION);
 }
 
+// Patch specific fields on existing seed records (e.g. adding linkedin to leads)
+// Only patches fields that are missing on existing records – never overwrites user data.
+function patchSeedFields() {
+  const PATCH_KEY = 'crm_field_patch_version';
+  if (localStorage.getItem(PATCH_KEY) === DATA_VERSION) return;
+  try {
+    const raw = localStorage.getItem('crm_leads');
+    if (raw) {
+      const current = JSON.parse(raw) as { id: string; linkedin?: string }[];
+      let changed = false;
+      const patched = current.map(lead => {
+        const seed = LEADS.find(l => l.id === lead.id);
+        if (seed?.linkedin && !lead.linkedin) { changed = true; return { ...lead, linkedin: seed.linkedin }; }
+        return lead;
+      });
+      if (changed) localStorage.setItem('crm_leads', JSON.stringify(patched));
+    }
+  } catch { /* keep existing */ }
+  localStorage.setItem(PATCH_KEY, DATA_VERSION);
+}
+
 function ensureFreshData() {
   const stored = localStorage.getItem('crm_data_version');
   if (stored !== DATA_VERSION) mergeSeedData();
+  patchSeedFields();
 }
 
 // ── Context type ────────────────────────────────────────────────────────────
