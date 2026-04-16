@@ -24,7 +24,7 @@ const INDUSTRIES: Industry[] = [
 const STATUSES: ClientStatus[]    = ['Active', 'Inactive', 'Prospect'];
 const BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual', 'Project-Based', 'Pro Bono'];
 const WORK_MODES: WorkMode[]       = ['Onsite', 'Hybrid', 'Weekly Visit', 'Remote'];
-const TEAM = ['Annu Sharma', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
+const TEAM = ['Annu Sharma'];
 
 function newId() { return 'c' + Date.now(); }
 
