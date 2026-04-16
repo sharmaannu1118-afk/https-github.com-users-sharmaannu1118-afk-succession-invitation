@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, Star, Phone, Mail, Link2, X } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Phone, Mail, Link2, X } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import type { Contact, ContactRole } from '../types';
 import Modal from '../components/Modal';
@@ -99,13 +99,12 @@ export default function Contacts() {
                 <th className="th">Company</th>
                 <th className="th">Email</th>
                 <th className="th">Phone</th>
-                <th className="th">Primary</th>
                 <th className="th"></th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={7} className="td text-center text-gray-400 py-10">No contacts found.</td></tr>
+                <tr><td colSpan={6} className="td text-center text-gray-400 py-10">No contacts found.</td></tr>
               ) : filtered.map(ct => {
                 const client = clients.find(c => c.id === ct.clientId);
                 return (
@@ -141,9 +140,6 @@ export default function Contacts() {
                         </a>
                       ) : <span className="text-gray-300">—</span>}
                     </td>
-                    <td className="td">
-                      {ct.isPrimary && <Star size={14} className="text-yellow-500 fill-yellow-400" />}
-                    </td>
                     <td className="td" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <button onClick={() => openEdit(ct)} className="text-gray-400 hover:text-brand-600">
@@ -178,11 +174,6 @@ export default function Contacts() {
                     <div>
                       <h2 className="text-xl font-bold">{viewing.firstName} {viewing.lastName}</h2>
                       <span className="text-sm text-indigo-200">{viewing.role}</span>
-                      {viewing.isPrimary && (
-                        <span className="ml-2 px-2 py-0.5 bg-yellow-400 text-yellow-900 text-xs font-semibold rounded-full">
-                          ★ Primary
-                        </span>
-                      )}
                     </div>
                   </div>
                   <button onClick={() => setViewing(null)} className="text-white/70 hover:text-white">
@@ -301,12 +292,6 @@ export default function Contacts() {
               <input className="input" placeholder="https://linkedin.com/in/..."
                 value={form.linkedin ?? ''}
                 onChange={e => setForm(p => ({ ...p, linkedin: e.target.value }))} />
-            </div>
-            <div className="flex items-center gap-2 pt-5">
-              <input type="checkbox" id="primary" checked={form.isPrimary}
-                onChange={e => setForm(p => ({ ...p, isPrimary: e.target.checked }))}
-                className="w-4 h-4 accent-brand-600" />
-              <label htmlFor="primary" className="text-sm text-gray-700">Primary Contact</label>
             </div>
             <div className="sm:col-span-2">
               <label className="label">Notes</label>
