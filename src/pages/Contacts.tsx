@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, Phone, Mail, Link2, X } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Phone, Mail, Link2, X, MapPin } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import type { Contact, ContactRole } from '../types';
 import Modal from '../components/Modal';
@@ -99,12 +99,13 @@ export default function Contacts() {
                 <th className="th">Company</th>
                 <th className="th">Email</th>
                 <th className="th">Phone</th>
+                <th className="th">Location</th>
                 <th className="th"></th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={6} className="td text-center text-gray-400 py-10">No contacts found.</td></tr>
+                <tr><td colSpan={7} className="td text-center text-gray-400 py-10">No contacts found.</td></tr>
               ) : filtered.map(ct => {
                 const client = clients.find(c => c.id === ct.clientId);
                 return (
@@ -140,6 +141,7 @@ export default function Contacts() {
                         </a>
                       ) : <span className="text-gray-300">—</span>}
                     </td>
+                    <td className="td text-xs text-gray-500">{ct.location ?? '—'}</td>
                     <td className="td" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <button onClick={() => openEdit(ct)} className="text-gray-400 hover:text-brand-600">
@@ -227,6 +229,15 @@ export default function Contacts() {
                       </div>
                     </a>
                   )}
+                  {viewing.location && (
+                    <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-100">
+                      <MapPin size={18} className="text-gray-400" />
+                      <div>
+                        <p className="text-xs text-gray-400">Location</p>
+                        <p className="text-sm font-medium text-gray-800">{viewing.location}</p>
+                      </div>
+                    </div>
+                  )}
                   {viewing.notes && (
                     <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
                       <p className="text-xs text-amber-600 font-medium mb-1">Notes</p>
@@ -292,6 +303,12 @@ export default function Contacts() {
               <input className="input" placeholder="https://linkedin.com/in/..."
                 value={form.linkedin ?? ''}
                 onChange={e => setForm(p => ({ ...p, linkedin: e.target.value }))} />
+            </div>
+            <div>
+              <label className="label">Location</label>
+              <input className="input" placeholder="e.g. Surat, Gujarat"
+                value={form.location ?? ''}
+                onChange={e => setForm(p => ({ ...p, location: e.target.value }))} />
             </div>
             <div className="sm:col-span-2">
               <label className="label">Notes</label>

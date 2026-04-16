@@ -56,6 +56,7 @@ export interface Contact {
   email: string;
   phone?: string;
   linkedin?: string;
+  location?: string;
   isPrimary: boolean;
   notes?: string;
   createdAt: string;
