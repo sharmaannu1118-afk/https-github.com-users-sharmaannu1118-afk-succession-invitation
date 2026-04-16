@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Plus, Search, Pencil, Trash2, Phone, Mail, Link2, X, MapPin, Calendar, TrendingUp, GripVertical } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Phone, Mail, Link2, X, MapPin, Calendar, TrendingUp, GripVertical, Send } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import type { Lead, LeadStage, LeadSource, LeadTemperature } from '../types';
 import StatusBadge from '../components/StatusBadge';
@@ -9,8 +9,53 @@ const STAGES: LeadStage[] = ['New', 'Contacted', 'Qualified', 'Proposal Sent', '
 const SOURCES: LeadSource[] = ['Referral', 'LinkedIn', 'Naukri', 'IndiaMART', 'Justdial', 'Email Campaign', 'Cold Call', 'Website', 'Event', 'Partner', 'WhatsApp'];
 const TEMPS: LeadTemperature[] = ['Hot', 'Warm', 'Cold'];
 
+const FROM_EMAIL = 'annuchelaramani.hrconsultant@gmail.com';
+
 function newId() { return 'l' + Date.now(); }
 const today = new Date().toISOString().slice(0, 10);
+
+function getEmailTemplate(lead: { companyName: string; contactPerson?: string; contactEmail?: string; requirement?: string }, stage: LeadStage): { subject: string; body: string } {
+  const name = lead.contactPerson || 'Sir/Ma\'am';
+  const company = lead.companyName;
+  const req = lead.requirement ? `\n\nRequirement noted: ${lead.requirement}` : '';
+
+  const templates: Partial<Record<LeadStage, { subject: string; body: string }>> = {
+    'Contacted': {
+      subject: `HR Consulting Services Enquiry – ${company} | Annu HR`,
+      body: `Dear ${name},\n\nI hope this message finds you well.\n\nI am Annu Sharma, Founder & HR Consultant at Annu HR Consulting & Advisory. I recently reached out regarding HR consulting services for ${company}.${req}\n\nI would love to schedule a brief call to understand your HR requirements better and share how we can add value to your organisation.\n\nLooking forward to connecting.\n\nWarm regards,\nAnnu Sharma\nAnnu HR Consulting & Advisory\nannuhrconsulting.com\n${FROM_EMAIL}`,
+    },
+    'Qualified': {
+      subject: `Thank You for Your Interest – ${company} | Annu HR`,
+      body: `Dear ${name},\n\nThank you for taking the time to speak with me. It was great learning more about ${company} and your HR needs.${req}\n\nBased on our conversation, I believe we can provide significant value to your organisation through our tailored HR solutions — including compliance, payroll management, recruitment, and HR policy development.\n\nI will prepare a detailed proposal and share it with you shortly.\n\nLooking forward to working together.\n\nWarm regards,\nAnnu Sharma\nAnnu HR Consulting & Advisory\nannuhrconsulting.com\n${FROM_EMAIL}`,
+    },
+    'Proposal Sent': {
+      subject: `HR Consulting Proposal for ${company} | Annu HR`,
+      body: `Dear ${name},\n\nPlease find attached our detailed proposal for HR Consulting Services for ${company}.${req}\n\nOur proposal covers:\n• HR Policy Development & Documentation\n• Payroll Management & Statutory Compliance (PF/ESIC/PT)\n• Recruitment & Talent Acquisition Support\n• Employee Onboarding & HR Setup\n\nI would be happy to walk you through the proposal over a call at your convenience. Please feel free to reach out with any questions.\n\nLooking forward to your feedback.\n\nWarm regards,\nAnnu Sharma\nAnnu HR Consulting & Advisory\nannuhrconsulting.com\n${FROM_EMAIL}`,
+    },
+    'Negotiation': {
+      subject: `Following Up on Our Proposal – ${company} | Annu HR`,
+      body: `Dear ${name},\n\nI hope you had a chance to review the proposal we shared for ${company}.\n\nI wanted to follow up and check if you have any questions or if there are any aspects you'd like us to customise further. We are flexible and happy to tailor our services to best fit your needs and budget.\n\nWould you be available for a quick call this week?\n\nLooking forward to hearing from you.\n\nWarm regards,\nAnnu Sharma\nAnnu HR Consulting & Advisory\nannuhrconsulting.com\n${FROM_EMAIL}`,
+    },
+    'Won': {
+      subject: `Welcome Aboard – ${company} & Annu HR Partnership!`,
+      body: `Dear ${name},\n\nWe are absolutely delighted to welcome ${company} as our valued client! 🎉\n\nThank you for placing your trust in Annu HR Consulting & Advisory. We are committed to delivering exceptional HR support and ensuring a smooth, compliant, and people-first work environment at ${company}.\n\nOur team will be in touch shortly to kick off the engagement. In the meantime, please feel free to reach out to me directly for any immediate requirements.\n\nLooking forward to a long and successful partnership!\n\nWarm regards,\nAnnu Sharma\nAnnu HR Consulting & Advisory\nannuhrconsulting.com\n${FROM_EMAIL}`,
+    },
+    'Lost': {
+      subject: `Staying in Touch – ${company} | Annu HR`,
+      body: `Dear ${name},\n\nThank you for considering Annu HR Consulting & Advisory for ${company}'s HR requirements.\n\nWe understand that the timing may not be right at the moment, and we completely respect your decision. However, we would love to stay in touch — HR needs evolve and we are always here when you need us.\n\nPlease feel free to reach out anytime. It would be a pleasure to reconnect.\n\nWishing you and ${company} continued success!\n\nWarm regards,\nAnnu Sharma\nAnnu HR Consulting & Advisory\nannuhrconsulting.com\n${FROM_EMAIL}`,
+    },
+  };
+
+  return templates[stage] ?? {
+    subject: `HR Consulting – ${company} | Annu HR`,
+    body: `Dear ${name},\n\nThank you for your time. Please feel free to reach out for any HR consulting requirements.\n\nWarm regards,\nAnnu Sharma\nAnnu HR Consulting & Advisory\n${FROM_EMAIL}`,
+  };
+}
+
+function buildGmailUrl(to: string, subject: string, body: string) {
+  const params = new URLSearchParams({ view: 'cm', fs: '1', to, su: subject, body });
+  return `https://mail.google.com/mail/?${params.toString()}`;
+}
 
 const fmt = (n: number) =>
   n >= 1_00_00_000 ? `₹${(n / 1_00_00_000).toFixed(1)}Cr`
@@ -80,6 +125,8 @@ export default function Leads() {
   // Drag state
   const [dragId, setDragId]           = useState<string | null>(null);
   const [dragOver, setDragOver]       = useState<LeadStage | null>(null);
+  // Email prompt after stage change
+  const [emailPrompt, setEmailPrompt] = useState<{ lead: Lead; stage: LeadStage } | null>(null);
 
   const allLocations = Array.from(new Set(leads.map(l => l.location).filter(Boolean))).sort();
 
@@ -144,7 +191,12 @@ export default function Leads() {
     if (dragId) {
       const lead = leads.find(l => l.id === dragId);
       if (lead && lead.stage !== stage) {
-        updateLead({ ...lead, stage, updatedAt: today });
+        const updated = { ...lead, stage, updatedAt: today };
+        updateLead(updated);
+        // Only prompt email if there's a contact email and a meaningful stage
+        if (lead.contactEmail && stage !== 'New') {
+          setEmailPrompt({ lead: updated, stage });
+        }
       }
     }
     setDragId(null);
@@ -543,6 +595,66 @@ export default function Leads() {
           </form>
         </Modal>
       )}
+
+      {/* ── Email Prompt after stage drag ──────────────────────────────────── */}
+      {emailPrompt && (() => {
+        const { lead, stage } = emailPrompt;
+        const { subject, body } = getEmailTemplate(lead, stage);
+        const gmailUrl = buildGmailUrl(lead.contactEmail ?? '', subject, body);
+        return (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
+            onClick={() => setEmailPrompt(null)}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg"
+              onClick={e => e.stopPropagation()}>
+              {/* Header */}
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-2xl p-5 text-white">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Send size={16} />
+                      <span className="text-sm font-semibold uppercase tracking-wide">Stage changed → {stage}</span>
+                    </div>
+                    <h2 className="text-lg font-bold">{lead.companyName}</h2>
+                    {lead.contactPerson && <p className="text-sm text-white/70">{lead.contactPerson} · {lead.contactEmail}</p>}
+                  </div>
+                  <button onClick={() => setEmailPrompt(null)} className="text-white/70 hover:text-white"><X size={20} /></button>
+                </div>
+              </div>
+
+              {/* Email preview */}
+              <div className="p-5 space-y-3">
+                <div>
+                  <p className="text-xs text-gray-400 mb-1 font-medium uppercase">From</p>
+                  <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2">{FROM_EMAIL}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1 font-medium uppercase">To</p>
+                  <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2">{lead.contactEmail}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1 font-medium uppercase">Subject</p>
+                  <p className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2">{subject}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-400 mb-1 font-medium uppercase">Email Preview</p>
+                  <div className="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2 max-h-40 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+                    {body}
+                  </div>
+                </div>
+              </div>
+
+              <div className="px-5 pb-5 flex gap-3">
+                <a href={gmailUrl} target="_blank" rel="noopener noreferrer"
+                  onClick={() => setEmailPrompt(null)}
+                  className="flex-1 btn-primary justify-center">
+                  <Mail size={15} /> Open in Gmail & Send
+                </a>
+                <button onClick={() => setEmailPrompt(null)} className="btn-secondary">Skip</button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
