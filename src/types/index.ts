@@ -56,6 +56,7 @@ export interface Contact {
   email: string;
   phone?: string;
   linkedin?: string;
+  website?: string;
   location?: string;
   isPrimary: boolean;
   notes?: string;
@@ -67,7 +68,8 @@ export type LeadStage =
   | 'New' | 'Contacted' | 'Qualified' | 'Proposal Sent' | 'Negotiation' | 'Won' | 'Lost';
 export type LeadSource =
   | 'Referral' | 'LinkedIn' | 'Naukri' | 'IndiaMART' | 'Justdial'
-  | 'Email Campaign' | 'Cold Call' | 'Website' | 'Event' | 'Partner' | 'WhatsApp';
+  | 'Email Campaign' | 'Cold Call' | 'Website' | 'Event' | 'Partner' | 'WhatsApp'
+  | 'Indeed' | 'Direct';
 export type LeadTemperature = 'Hot' | 'Warm' | 'Cold';
 
 export interface Lead {
@@ -77,6 +79,7 @@ export interface Lead {
   contactPhone?: string;       // direct phone
   contactEmail?: string;       // direct email
   linkedin?: string;
+  website?: string;
   requirement?: string;        // what HR service they need
   title: string;               // short title / summary
   clientId?: string;

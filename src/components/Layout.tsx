@@ -13,6 +13,7 @@ const TITLES: Record<string, string> = {
   '/jobs':        'Job Orders',
   '/placements':  'Placements',
   '/activities':  'Activities',
+  '/tasks':       'Tasks',
   '/reports':     'Reports & Analytics',
   '/search':      'Search Results',
 };
@@ -20,7 +21,7 @@ const TITLES: Record<string, string> = {
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { pathname } = useLocation();
-  const title = TITLES[pathname] ?? 'Annu HR CRM';
+  const title = TITLES[pathname] ?? 'CRM';
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">

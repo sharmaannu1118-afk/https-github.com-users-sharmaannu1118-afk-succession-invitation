@@ -1,7 +1,7 @@
 {
-  "name": "Annu HR CRM",
-  "short_name": "Annu HR",
-  "description": "HR Consulting & Advisory CRM by Annu Sharma",
+  "name": "Annu HRBP CRM",
+  "short_name": "Annu HRBP",
+  "description": "Human Resource Business Partner CRM by Annu Sharma",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

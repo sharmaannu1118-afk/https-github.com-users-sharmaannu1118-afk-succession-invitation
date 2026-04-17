@@ -6,7 +6,7 @@ import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 
 const STAGES: LeadStage[] = ['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost'];
-const SOURCES: LeadSource[] = ['Referral', 'LinkedIn', 'Naukri', 'IndiaMART', 'Justdial', 'Email Campaign', 'Cold Call', 'Website', 'Event', 'Partner', 'WhatsApp'];
+const SOURCES: LeadSource[] = ['Referral', 'LinkedIn', 'Naukri', 'IndiaMART', 'Justdial', 'Email Campaign', 'Cold Call', 'Website', 'Event', 'Partner', 'WhatsApp', 'Indeed', 'Direct'];
 const TEMPS: LeadTemperature[] = ['Hot', 'Warm', 'Cold'];
 
 
@@ -430,6 +430,12 @@ export default function Leads() {
                         <div><p className="text-xs text-gray-400">LinkedIn</p><p className="text-sm font-medium text-blue-600 truncate">{viewing.linkedin}</p></div>
                       </a>
                     )}
+                    {viewing.website && (
+                      <a href={viewing.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 border-t border-gray-100 hover:bg-purple-50 transition-colors">
+                        <Link2 size={16} className="text-purple-600 flex-shrink-0" />
+                        <div><p className="text-xs text-gray-400">Website</p><p className="text-sm font-medium text-purple-600 truncate">{viewing.website}</p></div>
+                      </a>
+                    )}
                   </div>
                 )}
                 {viewing.requirement && (
@@ -493,6 +499,9 @@ export default function Leads() {
             <div><label className="label">LinkedIn URL</label>
               <input className="input" placeholder="https://linkedin.com/in/..."
                 value={form.linkedin ?? ''} onChange={e => setForm(p => ({ ...p, linkedin: e.target.value }))} /></div>
+            <div><label className="label">Company Website</label>
+              <input className="input" placeholder="https://www.company.com"
+                value={form.website ?? ''} onChange={e => setForm(p => ({ ...p, website: e.target.value }))} /></div>
             <div><label className="label">Location</label>
               <input className="input" placeholder="e.g. Mumbai, Maharashtra"
                 value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} /></div>

@@ -229,6 +229,16 @@ export default function Contacts() {
                       </div>
                     </a>
                   )}
+                  {viewing.website && (
+                    <a href={viewing.website} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:bg-purple-50 hover:border-purple-200 transition-colors">
+                      <Link2 size={18} className="text-purple-600" />
+                      <div>
+                        <p className="text-xs text-gray-400">Company Website</p>
+                        <p className="text-sm font-medium text-purple-600 truncate">{viewing.website}</p>
+                      </div>
+                    </a>
+                  )}
                   {viewing.location && (
                     <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-100">
                       <MapPin size={18} className="text-gray-400" />
@@ -303,6 +313,12 @@ export default function Contacts() {
               <input className="input" placeholder="https://linkedin.com/in/..."
                 value={form.linkedin ?? ''}
                 onChange={e => setForm(p => ({ ...p, linkedin: e.target.value }))} />
+            </div>
+            <div>
+              <label className="label">Company Website</label>
+              <input className="input" placeholder="https://www.company.com"
+                value={form.website ?? ''}
+                onChange={e => setForm(p => ({ ...p, website: e.target.value }))} />
             </div>
             <div>
               <label className="label">Location</label>

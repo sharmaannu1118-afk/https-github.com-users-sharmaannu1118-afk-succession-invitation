@@ -2,7 +2,7 @@ import type {
   Client, Contact, Lead, Task, JobOrder, Candidate, Placement, Activity, TeamMember
 } from '../types';
 
-export const DATA_VERSION = 'v16';
+export const DATA_VERSION = 'v17';
 
 export const TEAM: TeamMember[] = [
   { id: 'u1', name: 'Annu Sharma',  role: 'Admin',               email: 'annu@annuhrconsulting.com' },
@@ -125,6 +125,17 @@ export const LEADS: Lead[] = [
   { id: 'l24', companyName: 'Rajasthan Marbles & Granites Pvt Ltd', title: 'HR Setup & Payroll', contactPerson: 'Mukesh Sharma', contactPhone: '9829054567', contactEmail: 'mukesh.s@rajasthanmarbles.com', linkedin: 'https://www.linkedin.com/search/results/companies/?keywords=Rajasthan+Marbles+Granites+Pvt+Ltd+Jaipur', requirement: 'HR setup, payroll for 85 employees, PF/ESIC, HR policies', location: 'Jaipur, Rajasthan', stage: 'New', temperature: 'Warm', source: 'Justdial', value: 100000, probability: 30, assignedTo: 'Annu Sharma', expectedCloseDate: '2026-07-15', followUpDate: '2026-04-23', notes: 'Marble manufacturer. 85 employees. Remote service.', createdAt: '2026-04-14', updatedAt: '2026-04-14' },
 
   { id: 'l25', companyName: 'Eastern Seafoods Pvt Ltd', title: 'Payroll & Compliance', contactPerson: 'Biswajit Das', contactPhone: '9831065678', contactEmail: 'biswajit.das@easternseafoods.in', linkedin: 'https://www.linkedin.com/search/results/companies/?keywords=Eastern+Seafoods+Pvt+Ltd+Kolkata', requirement: 'Payroll processing, PF/ESIC, compliance for seasonal & permanent staff', location: 'Kolkata, West Bengal', stage: 'New', temperature: 'Cold', source: 'Cold Call', value: 80000, probability: 20, assignedTo: 'Annu Sharma', expectedCloseDate: '2026-08-30', followUpDate: '2026-04-30', notes: 'Food processing. 50 employees. Cold call. Remote service.', createdAt: '2026-04-14', updatedAt: '2026-04-14' },
+
+  // ── NEW LEADS — Apr 2026 ────────────────────────────────────────────────────
+  { id: 'l26', companyName: '1YO IT Consulting', title: 'HR Consulting & Recruitment', requirement: 'HR Consulting, Recruitment', location: 'Remote', stage: 'New', temperature: 'Warm', source: 'Naukri', value: 15000, probability: 30, assignedTo: 'Annu Sharma', expectedCloseDate: '2026-06-30', notes: 'Remote engagement. ₹10–20k/mo. Via Naukri.', createdAt: '2026-04-17', updatedAt: '2026-04-17' },
+
+  { id: 'l27', companyName: 'AGR Knowledge Services', title: 'HR Consulting', requirement: 'HR Consulting', location: 'Remote', stage: 'New', temperature: 'Warm', source: 'Naukri', value: 15000, probability: 30, assignedTo: 'Annu Sharma', expectedCloseDate: '2026-06-30', notes: 'Remote engagement. ₹10–20k/mo. Via Naukri.', createdAt: '2026-04-17', updatedAt: '2026-04-17' },
+
+  { id: 'l28', companyName: 'Fulcrum Resources Pvt Ltd', title: 'HR Consulting & Recruitment', requirement: 'HR Consulting, Recruitment', location: 'Remote', stage: 'New', temperature: 'Warm', source: 'Naukri', value: 15000, probability: 30, assignedTo: 'Annu Sharma', expectedCloseDate: '2026-06-30', notes: 'Remote engagement. ₹10–20k/mo. Via Naukri.', createdAt: '2026-04-17', updatedAt: '2026-04-17' },
+
+  { id: 'l29', companyName: 'D&V Business Consulting', title: 'HR Strategy & HR Systems', requirement: 'HR Strategy, HR Systems', location: 'Surat, Gujarat', stage: 'New', temperature: 'Hot', source: 'Direct', value: 0, probability: 40, assignedTo: 'Annu Sharma', expectedCloseDate: '2026-06-30', notes: 'Hybrid engagement. Negotiable fee. Direct lead.', createdAt: '2026-04-17', updatedAt: '2026-04-17' },
+
+  { id: 'l30', companyName: 'QSR Startup (via Indeed)', title: 'Payroll & Compliance, HR Setup', requirement: 'Payroll & Compliance, HR Setup', location: 'Hyderabad / Remote', stage: 'New', temperature: 'Hot', source: 'Indeed', value: 17500, probability: 40, assignedTo: 'Annu Sharma', expectedCloseDate: '2026-06-30', notes: 'Remote engagement. ₹15–20k/mo. Via Indeed.', createdAt: '2026-04-17', updatedAt: '2026-04-17' },
 ];
 
 // ─── TASKS ────────────────────────────────────────────────────────────────────
