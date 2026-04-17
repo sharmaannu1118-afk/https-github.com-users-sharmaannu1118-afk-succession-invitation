@@ -37,21 +37,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-brand-800">
           <div className="flex items-center gap-3 min-w-0">
-            {/* App icon — Annu HRBP logo: bold navy A + gold swoosh */}
-            <div className="flex-shrink-0 w-11 h-11 rounded-xl shadow-lg overflow-hidden bg-white flex items-center justify-center">
-              <svg viewBox="0 0 44 48" xmlns="http://www.w3.org/2000/svg" className="w-10 h-11">
-                {/* Bold navy A — two legs meeting at apex, no crossbar */}
-                <path d="M22 3 L40 44 L33 44 L22 14 L11 44 L4 44 Z" fill="#1e3a8a"/>
-                {/* Gold swoosh cutting through the A — from left outer to right outer */}
-                <path d="M5 31 Q14 21 22 24 Q30 27 39 21" stroke="#C9A227" strokeWidth="3.2" fill="none" strokeLinecap="round"/>
-                {/* ANNU text below */}
-                <text x="22" y="50" fontFamily="Arial,sans-serif" fontWeight="800" fontSize="9" fill="#1e3a8a" textAnchor="middle" letterSpacing="2">ANNU</text>
-              </svg>
-            </div>
             <div className="min-w-0">
-              <h1 className="text-sm font-bold leading-tight text-white">Annu</h1>
-              <p className="text-[9px] text-amber-400 font-semibold tracking-wider uppercase leading-tight">HR Business</p>
-              <p className="text-[9px] text-amber-400 font-semibold tracking-wider uppercase leading-tight">Partner</p>
+              <h1 className="text-base font-bold leading-tight text-white">Annu</h1>
+              <p className="text-[10px] text-amber-400 font-semibold tracking-wider uppercase">HR Business Partner</p>
             </div>
           </div>
           <button onClick={onClose} className="lg:hidden text-brand-400 hover:text-white ml-1 flex-shrink-0">
