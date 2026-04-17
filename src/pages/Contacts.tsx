@@ -25,14 +25,22 @@ export default function Contacts() {
   const [viewing, setViewing]         = useState<Contact | null>(null);
   const [form, setForm]               = useState<Omit<Contact, 'id' | 'createdAt'>>(EMPTY);
 
-  const filtered = contacts.filter(ct => {
-    const name = `${ct.firstName} ${ct.lastName}`.toLowerCase();
-    const matchSearch = name.includes(search.toLowerCase()) ||
-      ct.email.toLowerCase().includes(search.toLowerCase()) ||
-      (ct.phone ?? '').includes(search);
-    const matchClient = clientFilter === 'All' || ct.clientId === clientFilter;
-    return matchSearch && matchClient;
-  });
+  const statusOrder: Record<string, number> = { Active: 0, Prospect: 1, Inactive: 2 };
+
+  const filtered = contacts
+    .filter(ct => {
+      const name = `${ct.firstName} ${ct.lastName}`.toLowerCase();
+      const matchSearch = name.includes(search.toLowerCase()) ||
+        ct.email.toLowerCase().includes(search.toLowerCase()) ||
+        (ct.phone ?? '').includes(search);
+      const matchClient = clientFilter === 'All' || ct.clientId === clientFilter;
+      return matchSearch && matchClient;
+    })
+    .sort((a, b) => {
+      const ca = clients.find(c => c.id === a.clientId);
+      const cb = clients.find(c => c.id === b.clientId);
+      return (statusOrder[ca?.status ?? 'Inactive'] ?? 2) - (statusOrder[cb?.status ?? 'Inactive'] ?? 2);
+    });
 
   function openAdd() {
     setEditing(null);

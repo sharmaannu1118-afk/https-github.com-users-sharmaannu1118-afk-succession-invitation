@@ -22,22 +22,29 @@ const EMPTY: Omit<Candidate, 'id' | 'createdAt' | 'updatedAt'> = {
 };
 
 export default function Candidates() {
-  const { candidates, addCandidate, updateCandidate, deleteCandidate } = useCRM();
+  const { candidates, addCandidate, updateCandidate, deleteCandidate, jobOrders, clients } = useCRM();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [expFilter, setExpFilter] = useState('All');
+  const [jobFilter, setJobFilter] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Candidate | null>(null);
   const [viewing, setViewing] = useState<Candidate | null>(null);
   const [form, setForm] = useState<Omit<Candidate, 'id' | 'createdAt' | 'updatedAt'>>(EMPTY);
   const [skillInput, setSkillInput] = useState('');
 
+  const openJobs = jobOrders.filter(j => ['Open', 'In Progress'].includes(j.status));
+  const selectedJob = openJobs.find(j => j.id === jobFilter) ?? null;
+
   const filtered = candidates.filter(c => {
     const name = `${c.firstName} ${c.lastName} ${c.currentTitle} ${c.skills.join(' ')}`.toLowerCase();
     const matchSearch = name.includes(search.toLowerCase());
     const matchStatus = statusFilter === 'All' || c.status === statusFilter;
     const matchExp = expFilter === 'All' || c.experienceLevel === expFilter;
-    return matchSearch && matchStatus && matchExp;
+    const matchJob = !selectedJob || selectedJob.skills.some(js =>
+      c.skills.some(cs => cs.toLowerCase().includes(js.toLowerCase()) || js.toLowerCase().includes(cs.toLowerCase()))
+    );
+    return matchSearch && matchStatus && matchExp && matchJob;
   });
 
   function openAdd() {
@@ -80,6 +87,45 @@ export default function Candidates() {
 
   return (
     <div className="space-y-4">
+
+      {/* Open Job Profiles */}
+      {openJobs.length > 0 && (
+        <div className="card p-4">
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
+            Open Positions — Click to find matching candidates
+          </p>
+          <div className="flex gap-3 overflow-x-auto pb-1">
+            {openJobs.map(j => {
+              const client = clients.find(c => c.id === j.clientId);
+              const isSelected = jobFilter === j.id;
+              return (
+                <button key={j.id} onClick={() => setJobFilter(isSelected ? null : j.id)}
+                  className={`flex-shrink-0 text-left rounded-xl border-2 p-3 w-52 transition-all ${
+                    isSelected ? 'bg-brand-600 border-brand-600 text-white shadow-md' : 'bg-gray-50 border-gray-200 hover:border-brand-400 hover:bg-white'
+                  }`}>
+                  <p className={`text-xs font-bold truncate ${isSelected ? 'text-white' : 'text-gray-900'}`}>{j.title}</p>
+                  <p className={`text-xs truncate mb-2 ${isSelected ? 'text-white/70' : 'text-gray-500'}`}>{client?.name} · {j.location}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {j.skills.slice(0, 4).map(s => (
+                      <span key={s} className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                        isSelected ? 'bg-white/20 text-white' : 'bg-brand-100 text-brand-700'
+                      }`}>{s}</span>
+                    ))}
+                    {j.skills.length > 4 && <span className={`text-xs ${isSelected ? 'text-white/60' : 'text-gray-400'}`}>+{j.skills.length - 4}</span>}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          {selectedJob && (
+            <p className="text-xs text-brand-600 font-medium mt-2">
+              Filtering for "{selectedJob.title}" — {filtered.length} candidate{filtered.length !== 1 ? 's' : ''} match
+              {filtered.length === 0 && candidates.length > 0 ? ' — try adding candidates with relevant skills' : ''}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {STATUSES.map(s => (
