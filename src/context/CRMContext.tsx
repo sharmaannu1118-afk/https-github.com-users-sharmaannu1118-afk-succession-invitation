@@ -79,12 +79,22 @@ function patchSeedFields() {
   try {
     const raw = localStorage.getItem('crm_leads');
     if (raw) {
-      const current = JSON.parse(raw) as { id: string; linkedin?: string }[];
+      const CONTACT_PATCH_IDS = ['l26', 'l27', 'l28', 'l29', 'l30'];
+      const current = JSON.parse(raw) as { id: string; linkedin?: string; contactPerson?: string; contactPhone?: string; contactEmail?: string; website?: string; companyName?: string }[];
       let changed = false;
       const patched = current.map(lead => {
         const seed = LEADS.find(l => l.id === lead.id);
-        if (seed?.linkedin && !lead.linkedin) { changed = true; return { ...lead, linkedin: seed.linkedin }; }
-        return lead;
+        if (!seed) return lead;
+        let u = { ...lead };
+        if (seed.linkedin && !lead.linkedin) { changed = true; u = { ...u, linkedin: seed.linkedin }; }
+        if (CONTACT_PATCH_IDS.includes(lead.id)) {
+          if (seed.contactPerson && !lead.contactPerson) { changed = true; u = { ...u, contactPerson: seed.contactPerson }; }
+          if (seed.contactPhone  && !lead.contactPhone)  { changed = true; u = { ...u, contactPhone:  seed.contactPhone  }; }
+          if (seed.contactEmail  && !lead.contactEmail)  { changed = true; u = { ...u, contactEmail:  seed.contactEmail  }; }
+          if (seed.website       && !lead.website)       { changed = true; u = { ...u, website:       seed.website       }; }
+          if (lead.id === 'l30' && lead.companyName !== seed.companyName) { changed = true; u = { ...u, companyName: seed.companyName }; }
+        }
+        return u;
       });
       if (changed) localStorage.setItem('crm_leads', JSON.stringify(patched));
     }
