@@ -79,8 +79,8 @@ function patchSeedFields() {
   try {
     const raw = localStorage.getItem('crm_leads');
     if (raw) {
-      const CONTACT_PATCH_IDS = ['l26', 'l27', 'l28', 'l29', 'l30'];
-      const current = JSON.parse(raw) as { id: string; linkedin?: string; contactPerson?: string; contactPhone?: string; contactEmail?: string; website?: string; companyName?: string }[];
+      const CONTACT_PATCH_IDS = ['l26', 'l27', 'l28', 'l29'];
+      const current = JSON.parse(raw) as Lead[];
       let changed = false;
       const patched = current.map(lead => {
         const seed = LEADS.find(l => l.id === lead.id);
@@ -92,8 +92,9 @@ function patchSeedFields() {
           if (seed.contactPhone  && !lead.contactPhone)  { changed = true; u = { ...u, contactPhone:  seed.contactPhone  }; }
           if (seed.contactEmail  && !lead.contactEmail)  { changed = true; u = { ...u, contactEmail:  seed.contactEmail  }; }
           if (seed.website       && !lead.website)       { changed = true; u = { ...u, website:       seed.website       }; }
-          if (lead.id === 'l30' && lead.companyName !== seed.companyName) { changed = true; u = { ...u, companyName: seed.companyName }; }
         }
+        // l30 was incorrectly set to Bagel Brigade (Hyderabad) — replace entirely with Rawalwasia Group (Surat)
+        if (lead.id === 'l30' && lead.companyName !== seed.companyName) { changed = true; u = { ...seed }; }
         return u;
       });
       if (changed) localStorage.setItem('crm_leads', JSON.stringify(patched));
