@@ -8,87 +8,27 @@ import {
 } from '../data/mockData';
 
 // ── localStorage helpers ────────────────────────────────────────────────────
-function load<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
 function save<T>(key: string, value: T) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* quota */ }
 }
 
-// ── Seed merge: always adds missing seed items, never removes user data ───────
-function mergeSeedData() {
-  const collections = [
-    { key: 'crm_clients',    seed: CLIENTS    as { id: string }[] },
-    { key: 'crm_contacts',   seed: CONTACTS   as { id: string }[] },
-    { key: 'crm_leads',      seed: LEADS      as { id: string }[] },
-    { key: 'crm_jobs',       seed: JOB_ORDERS as { id: string }[] },
-    { key: 'crm_candidates', seed: CANDIDATES as { id: string }[] },
-    { key: 'crm_placements', seed: PLACEMENTS as { id: string }[] },
-    { key: 'crm_activities', seed: ACTIVITIES as { id: string }[] },
-    { key: 'crm_tasks',      seed: TASKS      as { id: string }[] },
-  ];
-
-  for (const { key, seed } of collections) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw === null) {
-        localStorage.setItem(key, JSON.stringify(seed));
-      } else {
-        const existing = JSON.parse(raw) as { id: string }[];
-        const existingIds = new Set(existing.map(item => item.id));
-        const newItems = seed.filter(item => !existingIds.has(item.id));
-        if (newItems.length > 0) {
-          localStorage.setItem(key, JSON.stringify([...existing, ...newItems]));
-        }
-      }
-    } catch {
-      try { localStorage.setItem(key, JSON.stringify(seed)); } catch { /* quota */ }
-    }
-  }
-
-  localStorage.setItem('crm_data_version', DATA_VERSION);
-}
-
-// Patch specific fields on existing seed records (e.g. adding linkedin to leads)
-// Only patches fields that are missing on existing records – never overwrites user data.
-function patchSeedFields() {
-  const PATCH_KEY = 'crm_field_patch_version';
-  if (localStorage.getItem(PATCH_KEY) === DATA_VERSION) return;
+// Always returns stored items merged with seed items (by id).
+// Any seed item missing from localStorage is added. User items are kept.
+// Saves the merged result back so subsequent reads are consistent.
+function withSeed<T extends { id: string }>(key: string, seed: T[]): T[] {
   try {
-    const raw = localStorage.getItem('crm_leads');
-    if (raw) {
-      const CONTACT_PATCH_IDS = ['l26', 'l27', 'l28', 'l29'];
-      const current = JSON.parse(raw) as Lead[];
-      let changed = false;
-      const patched = current.map(lead => {
-        const seed = LEADS.find(l => l.id === lead.id);
-        if (!seed) return lead;
-        let u = { ...lead };
-        if (seed.linkedin && !lead.linkedin) { changed = true; u = { ...u, linkedin: seed.linkedin }; }
-        if (CONTACT_PATCH_IDS.includes(lead.id)) {
-          if (seed.contactPerson && !lead.contactPerson) { changed = true; u = { ...u, contactPerson: seed.contactPerson }; }
-          if (seed.contactPhone  && !lead.contactPhone)  { changed = true; u = { ...u, contactPhone:  seed.contactPhone  }; }
-          if (seed.contactEmail  && !lead.contactEmail)  { changed = true; u = { ...u, contactEmail:  seed.contactEmail  }; }
-          if (seed.website       && !lead.website)       { changed = true; u = { ...u, website:       seed.website       }; }
-        }
-        if (lead.id === 'l30' && lead.companyName !== seed.companyName) { changed = true; u = { ...seed }; }
-        return u;
-      });
-      if (changed) localStorage.setItem('crm_leads', JSON.stringify(patched));
-    }
-  } catch { /* keep existing */ }
-  localStorage.setItem(PATCH_KEY, DATA_VERSION);
+    const raw = localStorage.getItem(key);
+    const stored: T[] = raw ? JSON.parse(raw) : [];
+    const storedIds = new Set(stored.map(i => i.id));
+    const missing = seed.filter(i => !storedIds.has(i.id));
+    const merged = missing.length ? [...stored, ...missing] : stored;
+    if (missing.length) save(key, merged);
+    return merged;
+  } catch {
+    save(key, seed);
+    return [...seed];
+  }
 }
-
-// Run synchronously at module load so localStorage is up-to-date before
-// any usePersistedState() initializer reads from it.
-mergeSeedData();
-patchSeedFields();
 
 
 // ── Context type ────────────────────────────────────────────────────────────
@@ -139,14 +79,11 @@ interface CRMContextValue {
 
 const CRMContext = createContext<CRMContextValue | null>(null);
 
-// ── Helper: persisted state ─────────────────────────────────────────────────
-function usePersistedState<T>(key: string, fallback: T) {
-  const [value, setValue] = useState<T>(() => load<T>(key, fallback));
-  const set = useCallback((updater: T | ((prev: T) => T)) => {
+function useSaved<T extends { id: string }>(key: string, seed: T[]) {
+  const [value, setValue] = useState<T[]>(() => withSeed(key, seed));
+  const set = useCallback((updater: T[] | ((prev: T[]) => T[])) => {
     setValue(prev => {
-      const next = typeof updater === 'function'
-        ? (updater as (prev: T) => T)(prev)
-        : updater;
+      const next = typeof updater === 'function' ? updater(prev) : updater;
       save(key, next);
       return next;
     });
@@ -156,14 +93,14 @@ function usePersistedState<T>(key: string, fallback: T) {
 
 // ── Provider ────────────────────────────────────────────────────────────────
 export function CRMProvider({ children }: { children: React.ReactNode }) {
-  const [clients,    setClients]    = usePersistedState<Client[]>   ('crm_clients',    CLIENTS);
-  const [contacts,   setContacts]   = usePersistedState<Contact[]>  ('crm_contacts',   CONTACTS);
-  const [leads,      setLeads]      = usePersistedState<Lead[]>     ('crm_leads',      LEADS);
-  const [jobOrders,  setJobOrders]  = usePersistedState<JobOrder[]> ('crm_jobs',       JOB_ORDERS);
-  const [candidates, setCandidates] = usePersistedState<Candidate[]>('crm_candidates', CANDIDATES);
-  const [placements, setPlacements] = usePersistedState<Placement[]>('crm_placements', PLACEMENTS);
-  const [activities, setActivities] = usePersistedState<Activity[]> ('crm_activities', ACTIVITIES);
-  const [tasks,      setTasks]      = usePersistedState<Task[]>     ('crm_tasks',      TASKS);
+  const [clients,    setClients]    = useSaved<Client>   ('crm_clients',    CLIENTS);
+  const [contacts,   setContacts]   = useSaved<Contact>  ('crm_contacts',   CONTACTS);
+  const [leads,      setLeads]      = useSaved<Lead>     ('crm_leads',      LEADS);
+  const [jobOrders,  setJobOrders]  = useSaved<JobOrder> ('crm_jobs',       JOB_ORDERS);
+  const [candidates, setCandidates] = useSaved<Candidate>('crm_candidates', CANDIDATES);
+  const [placements, setPlacements] = useSaved<Placement>('crm_placements', PLACEMENTS);
+  const [activities, setActivities] = useSaved<Activity> ('crm_activities', ACTIVITIES);
+  const [tasks,      setTasks]      = useSaved<Task>     ('crm_tasks',      TASKS);
 
   const addClient    = useCallback((c: Client)    => setClients(p    => [c, ...p]),              [setClients]);
   const updateClient = useCallback((c: Client)    => setClients(p    => p.map(x => x.id === c.id ? c : x)),  [setClients]);
