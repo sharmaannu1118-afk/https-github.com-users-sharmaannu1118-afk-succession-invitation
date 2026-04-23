@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import type {
   Client, Contact, Lead, JobOrder, Candidate, Placement, Activity, Task
 } from '../types';
@@ -109,6 +109,10 @@ function ensureFreshData() {
   patchSeedFields();
 }
 
+// Run synchronously at module load so localStorage is up-to-date before
+// any usePersistedState() initializer reads from it.
+ensureFreshData();
+
 // ── Context type ────────────────────────────────────────────────────────────
 interface CRMContextValue {
   clients: Client[];
@@ -174,8 +178,6 @@ function usePersistedState<T>(key: string, fallback: T) {
 
 // ── Provider ────────────────────────────────────────────────────────────────
 export function CRMProvider({ children }: { children: React.ReactNode }) {
-  useEffect(() => { ensureFreshData(); }, []);
-
   const [clients,    setClients]    = usePersistedState<Client[]>   ('crm_clients',    CLIENTS);
   const [contacts,   setContacts]   = usePersistedState<Contact[]>  ('crm_contacts',   CONTACTS);
   const [leads,      setLeads]      = usePersistedState<Lead[]>     ('crm_leads',      LEADS);
