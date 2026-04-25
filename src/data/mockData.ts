@@ -254,7 +254,222 @@ export const LEADS: Lead[] = [
 ];
 
 // ─── TASKS ────────────────────────────────────────────────────────────────────
-export const TASKS: Task[] = [];
+export const TASKS: Task[] = [
+
+  {
+    id: 'task1',
+    title: '📞 PITCH SCRIPT A — Companies with Active HR Job Postings (l66–l95)',
+    description: 'Use this script when calling companies that have posted for a full-time HR Manager or HR Executive. They already know they need HR — your job is to show consulting is smarter than hiring.',
+    relatedTo: 'General',
+    assignedTo: 'Annu Sharma',
+    assignedDate: '2026-04-25',
+    dueDate: '2026-12-31',
+    status: 'Pending',
+    priority: 'Urgent',
+    notes: `PITCH SCRIPT A — For companies hiring full-time HR staff (l66–l95)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPENING (first 10 seconds):
+"Namaste, may I speak with [Contact Name / HR Manager / Owner]?
+Hi [Name], my name is Annu Sharma. I run HR Consultants and Advisors, based in Surat.
+I\'ll take just 2 minutes of your time — is now okay?"
+
+HOOK (problem you already know they have):
+"I noticed your company is currently looking for an HR [Manager / Executive].
+I completely understand — managing payroll, PF/ESIC compliance, recruitment — it\'s a lot
+for one person, and finding the right candidate takes 2–3 months."
+
+PIVOT (your offer):
+"I wanted to share a different approach that many companies here in Gujarat are using —
+instead of hiring a full-time HR person, they outsource the entire HR function to us.
+You get the same work done — payroll, compliance, recruitment, employee policies —
+but at a lower total cost, and you can start within a week."
+
+COST COMPARISON (say this clearly):
+"A full-time HR hire costs you ₹25,000–₹40,000 per month in salary, plus PF/ESIC
+on top, plus the 2–3 months recruitment cost. With our retainer, you get complete
+HR coverage starting from ₹12,000–₹20,000 per month — and no overhead."
+
+CLOSE (ask for the meeting):
+"Can I come and meet you for 20 minutes this week or next — just to understand
+your current situation and show you what we cover? No commitment needed."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMMON OBJECTIONS & RESPONSES:
+
+Q: "We prefer a full-time person who is always available."
+A: "Absolutely understood. With our retainer, I or my team member is available on-call
+   every working day — and for onsite visits we schedule weekly or as needed.
+   You get dedicated availability without the fixed overhead."
+
+Q: "We already shortlisted someone."
+A: "No problem at all. Would you be open to a 15-minute comparison call before you
+   make the final decision? Many of my current clients said the same thing — and
+   they changed their mind after seeing the cost breakdown."
+
+Q: "We need someone sitting in office."
+A: "For Surat / Vapi / Navsari / Daman area, I offer onsite HR support as part of
+   the retainer. We can discuss the frequency based on your team size."
+
+Q: "We\'ll think about it."
+A: "Of course. Can I WhatsApp you our service menu so you have the details handy?
+   And shall I follow up in a week?"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SERVICES TO MENTION (pick what\'s relevant):
+• Monthly payroll processing + salary slips
+• PF / ESIC / PT registration and filing
+• Offer letters, appointment letters, HR policies
+• Recruitment support (job posting, screening, offer)
+• Labour law compliance (Factories Act, Shops & Estab.)
+• POSH policy and training
+• Employee handbook and code of conduct
+• Exit formalities and full & final settlement`,
+    createdAt: '2026-04-25',
+  },
+
+  {
+    id: 'task2',
+    title: '📞 PITCH SCRIPT B — Growing Startups with No HR Yet (l96–l101)',
+    description: 'Use this script when calling funded startups and fast-scaling D2C brands that have no dedicated HR department yet. They haven\'t posted for HR — you need to create the awareness.',
+    relatedTo: 'General',
+    assignedTo: 'Annu Sharma',
+    assignedDate: '2026-04-25',
+    dueDate: '2026-12-31',
+    status: 'Pending',
+    priority: 'High',
+    notes: `PITCH SCRIPT B — For growing startups / funded companies (l96–l101)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPENING:
+"Namaste, am I speaking with [Founder Name]?
+Hi [Name], my name is Annu Sharma — I run HR Consultants and Advisors in Surat.
+I saw that [Company Name] has been growing really well — congratulations on that.
+Just 2 minutes — is this a good time?"
+
+HOOK (make them feel the problem):
+"I work specifically with growing companies in South Gujarat — startups that have
+scaled from 10 to 50+ employees and suddenly realise they need proper HR infrastructure.
+Things like PF/ESIC registration, proper offer letters, payroll structure, leave policy —
+these seem small until the Labour Inspector arrives or an employee raises a dispute."
+
+OFFER:
+"What I offer is a Startup HR Package — I come in, assess your current situation,
+set up all your HR basics in 30 days, and then stay on a monthly retainer to manage
+everything on an ongoing basis. You focus on your business. I handle all the HR."
+
+COST ANCHOR:
+"For a team of 10–30 people, our all-inclusive retainer is typically ₹10,000–₹18,000
+per month. Compare that to the cost and time of hiring a full-time HR person."
+
+CLOSE:
+"Could we do a quick 30-minute call this week? I\'d like to understand your team
+structure and tell you exactly what you need at your current stage."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMMON OBJECTIONS & RESPONSES:
+
+Q: "We\'re too small for HR right now."
+A: "That\'s actually the best time to set it up — before problems start.
+   Once you cross 20 employees, PF/ESIC becomes mandatory. Getting it right
+   from day one saves you penalties and back-payment later."
+
+Q: "Our co-founder handles HR."
+A: "That\'s very common at early stage. But as you scale, that\'s costing you
+   a founder\'s time on admin work. We take that off your plate completely."
+
+Q: "We\'ll hire an HR person when we\'re bigger."
+A: "Absolutely. And when you\'re ready to hire, I can help you find and onboard
+   them too. In the meantime, let me handle it so you have a clean HR foundation
+   for that future hire to step into."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STARTUP HR PACKAGE (what to offer):
+• HR audit — assess current gaps
+• PF / ESIC / PT registration (if not done)
+• Offer letter and appointment letter templates
+• HR policy document (leave, attendance, code of conduct)
+• Payroll setup and monthly processing
+• POSH policy (mandatory for 10+ employees)
+• Ongoing monthly retainer — compliance + advisory`,
+    createdAt: '2026-04-25',
+  },
+
+  {
+    id: 'task3',
+    title: '📞 PITCH SCRIPT C — Cold-Call SMEs (l1–l35)',
+    description: 'Use this script when calling companies that have not posted for HR and have no obvious HR need signal. You are creating the need.',
+    relatedTo: 'General',
+    assignedTo: 'Annu Sharma',
+    assignedDate: '2026-04-25',
+    dueDate: '2026-12-31',
+    status: 'Pending',
+    priority: 'Medium',
+    notes: `PITCH SCRIPT C — Cold-call SMEs / Manufacturing / Trading companies (l1–l35)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPENING:
+"Namaste, may I speak with the Owner / MD / Admin Head?
+Hi [Name], this is Annu Sharma from HR Consultants and Advisors, Surat.
+We help small and medium companies manage their HR, payroll and compliance.
+Do you have 2 minutes?"
+
+QUALIFYING QUESTION (get them talking):
+"May I ask — do you currently have a dedicated HR person in your company,
+or does the owner / accounts team handle HR-related work?"
+
+IF NO DEDICATED HR:
+"That\'s very common for companies your size. The challenge is that HR and compliance —
+PF, ESIC, PT, Labour Inspector visits, employee disputes — these take a lot of time
+and one mistake can cost lakhs in penalties. That\'s exactly the gap we fill."
+
+IF THEY HAVE AN HR PERSON:
+"Great — do you find that one person is enough, especially for payroll, compliance
+and recruitment all together? Many of our clients came to us to support their
+existing HR person so they\'re not overwhelmed."
+
+YOUR OFFER:
+"We act as your outsourced HR department. You pay a fixed monthly retainer —
+starting from ₹8,000 to ₹20,000 depending on your team size — and we handle
+everything: payroll, PF/ESIC filing, offer letters, compliance, and recruitment support."
+
+CLOSE:
+"Can I meet you for 20 minutes at your office this week?
+I\'ll bring a quick overview of what we cover and what it would cost for your team."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COMMON OBJECTIONS & RESPONSES:
+
+Q: "We already use a CA for this."
+A: "CAs handle accounts and tax — but HR compliance, employee management,
+   recruitment and disputes are a separate area. We specialise in exactly that.
+   Many of our clients use a CA for accounts and us for HR."
+
+Q: "We don\'t need HR — we\'re small."
+A: "How many employees do you have? [Answer] — if it\'s 10 or more, PF/ESIC
+   is already mandatory. Let me check your current setup for free and tell
+   you if there are any gaps. No obligation."
+
+Q: "We manage it ourselves."
+A: "Of course. May I ask — when did you last check if your PF/ESIC filings
+   are fully up to date? A quick audit can save you from a surprise penalty.
+   I offer a free 1-hour HR audit for new companies — would that be useful?"
+
+Q: "Send me details on WhatsApp."
+A: "Sure, sharing right now. And may I follow up in 3 days once you\'ve had a look?"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FREE HR AUDIT OFFER (your door-opener):
+Offer a FREE 1-hour HR compliance check:
+• Are PF / ESIC / PT registrations done correctly?
+• Are offer letters and appointment letters in place?
+• Is the attendance and leave register maintained?
+• Any pending Labour Inspector compliance?
+This gets you in the door. Once they see the gaps, they sign up.`,
+    createdAt: '2026-04-25',
+  },
+
+];
 
 // ─── JOB ORDERS ──────────────────────────────────────────────────────────────
 export const JOB_ORDERS: JobOrder[] = [
