@@ -12,9 +12,20 @@ function save<T>(key: string, value: T) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* quota */ }
 }
 
-// Always returns stored items merged with seed items (by id).
-// Any seed item missing from localStorage is added. User items are kept.
-// Saves the merged result back so subsequent reads are consistent.
+const CRM_KEYS = ['crm_clients','crm_contacts','crm_leads','crm_jobs','crm_candidates','crm_placements','crm_activities','crm_tasks'];
+
+// When DATA_VERSION changes, wipe all stored CRM data so the new seed loads fresh.
+function resetIfVersionChanged() {
+  const stored = localStorage.getItem('crm_data_version');
+  if (stored !== DATA_VERSION) {
+    CRM_KEYS.forEach(k => localStorage.removeItem(k));
+    localStorage.setItem('crm_data_version', DATA_VERSION);
+  }
+}
+resetIfVersionChanged();
+
+// Returns seed directly (localStorage was wiped on version change above).
+// On subsequent loads within the same version, merges stored user changes with seed.
 function withSeed<T extends { id: string }>(key: string, seed: T[]): T[] {
   try {
     const raw = localStorage.getItem(key);
