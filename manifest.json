@@ -1,0 +1,19 @@
+{
+  "name": "Annu HRBP CRM",
+  "short_name": "Annu HRBP",
+  "description": "Human Resource Business Partner CRM by Annu Sharma",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1e3a5f",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
