@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ExternalLink } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import type { Task, TaskStatus, TaskPriority, TaskRelatedTo } from '../types';
 import Modal from '../components/Modal';
@@ -131,7 +131,16 @@ export default function Tasks() {
           <option value="All">All Clients</option>
           {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <button onClick={openAdd} className="btn-primary ml-auto">
+        <a
+          href="https://app.clickup.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-secondary flex items-center gap-2"
+          title="Open ClickUp"
+        >
+          <ExternalLink size={15} /> ClickUp
+        </a>
+        <button onClick={openAdd} className="btn-primary">
           <Plus size={16} /> Add Task
         </button>
       </div>
@@ -246,6 +255,15 @@ export default function Tasks() {
                 </select>
               </div>
             )}
+            <div className="sm:col-span-2">
+              <label className="label">Contact Name <span className="text-gray-400 font-normal">(person you are following up with)</span></label>
+              <input
+                className="input"
+                placeholder="e.g. Ramesh Patel – HR Manager"
+                value={form.relatedName ?? ''}
+                onChange={e => setForm(p => ({ ...p, relatedName: e.target.value }))}
+              />
+            </div>
             <div>
               <label className="label">Assigned To</label>
               <input className="input" value="Annu Sharma" readOnly
