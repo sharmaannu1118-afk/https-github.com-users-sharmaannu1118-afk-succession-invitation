@@ -3,6 +3,9 @@ import type {
 } from '../types';
 
 export const DATA_VERSION = 'v26';
+// Bump LEADS_VERSION whenever the LEADS seed array changes.
+// Only crm_leads is reset — all other user data is preserved.
+export const LEADS_VERSION = 'leads-v26';
 
 export const TEAM: TeamMember[] = [
   { id: 'u1', name: 'Annu Sharma',  role: 'Admin',               email: 'annu@annuhrconsulting.com' },

@@ -4,7 +4,7 @@ import type {
 } from '../types';
 import {
   CLIENTS, CONTACTS, LEADS, JOB_ORDERS, CANDIDATES, PLACEMENTS, ACTIVITIES, TASKS,
-  DATA_VERSION
+  DATA_VERSION, LEADS_VERSION
 } from '../data/mockData';
 
 // ── localStorage helpers ────────────────────────────────────────────────────
@@ -12,20 +12,22 @@ function save<T>(key: string, value: T) {
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* quota */ }
 }
 
-const CRM_KEYS = ['crm_clients','crm_contacts','crm_leads','crm_jobs','crm_candidates','crm_placements','crm_activities','crm_tasks'];
-
-// When DATA_VERSION changes, wipe all stored CRM data so the new seed loads fresh.
-function resetIfVersionChanged() {
-  const stored = localStorage.getItem('crm_data_version');
-  if (stored !== DATA_VERSION) {
-    CRM_KEYS.forEach(k => localStorage.removeItem(k));
-    localStorage.setItem('crm_data_version', DATA_VERSION);
+// Only resets crm_leads when LEADS_VERSION changes.
+// All other collections (contacts, clients, tasks, candidates, etc.) are NEVER wiped —
+// user-entered data is always preserved.
+function resetLeadsIfVersionChanged() {
+  const stored = localStorage.getItem('crm_leads_version');
+  if (stored !== LEADS_VERSION) {
+    localStorage.removeItem('crm_leads');
+    localStorage.setItem('crm_leads_version', LEADS_VERSION);
   }
+  // Keep crm_data_version in sync so old wipe logic doesn't trigger on legacy browsers.
+  localStorage.setItem('crm_data_version', DATA_VERSION);
 }
-resetIfVersionChanged();
+resetLeadsIfVersionChanged();
 
-// Returns seed directly (localStorage was wiped on version change above).
-// On subsequent loads within the same version, merges stored user changes with seed.
+// Merges stored user data with seed: adds any seed items missing from localStorage.
+// Never removes items the user has added.
 function withSeed<T extends { id: string }>(key: string, seed: T[]): T[] {
   try {
     const raw = localStorage.getItem(key);
