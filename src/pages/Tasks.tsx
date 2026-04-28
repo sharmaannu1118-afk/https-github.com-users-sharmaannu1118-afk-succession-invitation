@@ -7,7 +7,7 @@ import Modal from '../components/Modal';
 function newId() { return 't' + Date.now(); }
 const today = new Date().toISOString().slice(0, 10);
 
-const STATUSES: TaskStatus[]    = ['Pending', 'In Progress', 'Completed', 'Cancelled'];
+const STATUSES: TaskStatus[] = ['Not Started', 'Pending', 'In Progress', 'Under Review', 'On Hold', 'Blocked', 'Incomplete', 'Completed'];
 const PRIORITIES: TaskPriority[] = ['Low', 'Medium', 'High', 'Urgent'];
 const RELATED: TaskRelatedTo[]  = ['Client', 'Lead', 'Candidate', 'General'];
 
@@ -41,14 +41,18 @@ const PRIORITY_BG: Record<TaskPriority, string> = {
 const STATUS_CFG: Record<TaskStatus, {
   icon: React.ReactNode; textColor: string; dot: string; label: string; bg: string;
 }> = {
-  'Pending':     { icon: <Circle size={15} />,        textColor: 'text-gray-500',  dot: 'bg-gray-400',  label: 'TO DO',       bg: 'bg-gray-100 text-gray-600'  },
-  'In Progress': { icon: <Clock size={15} />,         textColor: 'text-blue-500',  dot: 'bg-blue-500',  label: 'IN PROGRESS', bg: 'bg-blue-100 text-blue-700'  },
-  'Completed':   { icon: <CheckCircle2 size={15} />,  textColor: 'text-green-500', dot: 'bg-green-500', label: 'COMPLETE',    bg: 'bg-green-100 text-green-700' },
-  'Cancelled':   { icon: <AlertCircle size={15} />,   textColor: 'text-red-400',   dot: 'bg-red-400',   label: 'CANCELLED',   bg: 'bg-red-100 text-red-600'    },
+  'Not Started':   { icon: <Circle size={15} />,        textColor: 'text-gray-400',   dot: 'bg-gray-300',   label: 'NOT STARTED',  bg: 'bg-gray-100 text-gray-500'    },
+  'Pending':       { icon: <Circle size={15} />,        textColor: 'text-gray-500',   dot: 'bg-gray-400',   label: 'PENDING',      bg: 'bg-gray-100 text-gray-600'    },
+  'In Progress':   { icon: <Clock size={15} />,         textColor: 'text-blue-500',   dot: 'bg-blue-500',   label: 'IN PROGRESS',  bg: 'bg-blue-100 text-blue-700'    },
+  'Under Review':  { icon: <Clock size={15} />,         textColor: 'text-purple-500', dot: 'bg-purple-500', label: 'UNDER REVIEW', bg: 'bg-purple-100 text-purple-700'},
+  'On Hold':       { icon: <AlertCircle size={15} />,   textColor: 'text-yellow-600', dot: 'bg-yellow-400', label: 'ON HOLD',      bg: 'bg-yellow-100 text-yellow-700'},
+  'Blocked':       { icon: <AlertCircle size={15} />,   textColor: 'text-red-500',    dot: 'bg-red-500',    label: 'BLOCKED',      bg: 'bg-red-100 text-red-700'      },
+  'Incomplete':    { icon: <AlertCircle size={15} />,   textColor: 'text-orange-500', dot: 'bg-orange-400', label: 'INCOMPLETE',   bg: 'bg-orange-100 text-orange-700'},
+  'Completed':     { icon: <CheckCircle2 size={15} />,  textColor: 'text-green-500',  dot: 'bg-green-500',  label: 'COMPLETE',     bg: 'bg-green-100 text-green-700'  },
 };
 
 function isOverdue(task: Task) {
-  return task.status !== 'Completed' && task.status !== 'Cancelled' && task.dueDate < today;
+  return task.status !== 'Completed' && task.dueDate < today;
 }
 
 function fmtDate(d: string) {
@@ -79,7 +83,9 @@ export default function Tasks() {
   const [form, setForm]            = useState<Omit<Task, 'id' | 'createdAt'>>(EMPTY);
   const [viewTask, setViewTask]    = useState<Task | null>(null);
   const [collapsed, setCollapsed]  = useState<Record<TaskStatus, boolean>>({
-    'Pending': false, 'In Progress': false, 'Completed': true, 'Cancelled': true,
+    'Not Started': false, 'Pending': false, 'In Progress': false,
+    'Under Review': false, 'On Hold': true, 'Blocked': true,
+    'Incomplete': true, 'Completed': true,
   });
 
   const filtered = tasks.filter(t => {
