@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import type { Task, TaskStatus, TaskPriority, TaskRelatedTo } from '../types';
 import Modal from '../components/Modal';
@@ -31,13 +31,20 @@ const PRIORITY_TEXT: Record<TaskPriority, string> = {
   Urgent: 'text-red-600',
 };
 
+const PRIORITY_BG: Record<TaskPriority, string> = {
+  Low:    'bg-gray-100 text-gray-600',
+  Medium: 'bg-blue-100 text-blue-700',
+  High:   'bg-orange-100 text-orange-700',
+  Urgent: 'bg-red-100 text-red-700',
+};
+
 const STATUS_CFG: Record<TaskStatus, {
-  icon: React.ReactNode; textColor: string; dot: string; label: string;
+  icon: React.ReactNode; textColor: string; dot: string; label: string; bg: string;
 }> = {
-  'Pending':     { icon: <Circle size={15} />,        textColor: 'text-gray-500',  dot: 'bg-gray-400',  label: 'TO DO'       },
-  'In Progress': { icon: <Clock size={15} />,         textColor: 'text-blue-500',  dot: 'bg-blue-500',  label: 'IN PROGRESS' },
-  'Completed':   { icon: <CheckCircle2 size={15} />,  textColor: 'text-green-500', dot: 'bg-green-500', label: 'COMPLETE'    },
-  'Cancelled':   { icon: <AlertCircle size={15} />,   textColor: 'text-red-400',   dot: 'bg-red-400',   label: 'CANCELLED'   },
+  'Pending':     { icon: <Circle size={15} />,        textColor: 'text-gray-500',  dot: 'bg-gray-400',  label: 'TO DO',       bg: 'bg-gray-100 text-gray-600'  },
+  'In Progress': { icon: <Clock size={15} />,         textColor: 'text-blue-500',  dot: 'bg-blue-500',  label: 'IN PROGRESS', bg: 'bg-blue-100 text-blue-700'  },
+  'Completed':   { icon: <CheckCircle2 size={15} />,  textColor: 'text-green-500', dot: 'bg-green-500', label: 'COMPLETE',    bg: 'bg-green-100 text-green-700' },
+  'Cancelled':   { icon: <AlertCircle size={15} />,   textColor: 'text-red-400',   dot: 'bg-red-400',   label: 'CANCELLED',   bg: 'bg-red-100 text-red-600'    },
 };
 
 function isOverdue(task: Task) {
@@ -46,7 +53,20 @@ function isOverdue(task: Task) {
 
 function fmtDate(d: string) {
   const dt = new Date(d + 'T00:00:00');
-  return `${dt.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dt.getMonth()]}`;
+  return `${dt.getDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dt.getMonth()]} ${dt.getFullYear()}`;
+}
+
+function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value?: React.ReactNode }) {
+  if (!value) return null;
+  return (
+    <div className="flex items-start gap-3 py-2.5 border-b border-gray-50 last:border-0">
+      <span className="text-gray-400 mt-0.5 flex-shrink-0">{icon}</span>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-gray-400 mb-0.5">{label}</p>
+        <div className="text-sm text-gray-800">{value}</div>
+      </div>
+    </div>
+  );
 }
 
 export default function Tasks() {
@@ -57,6 +77,7 @@ export default function Tasks() {
   const [showForm, setShowForm]    = useState(false);
   const [editing, setEditing]      = useState<Task | null>(null);
   const [form, setForm]            = useState<Omit<Task, 'id' | 'createdAt'>>(EMPTY);
+  const [viewTask, setViewTask]    = useState<Task | null>(null);
   const [collapsed, setCollapsed]  = useState<Record<TaskStatus, boolean>>({
     'Pending': false, 'In Progress': false, 'Completed': true, 'Cancelled': true,
   });
@@ -87,6 +108,7 @@ export default function Tasks() {
     setEditing(t);
     const { id, createdAt, ...rest } = t;
     setForm(rest);
+    setViewTask(null);
     setShowForm(true);
   }
 
@@ -98,7 +120,14 @@ export default function Tasks() {
   }
 
   function quickComplete(t: Task) {
-    updateTask({ ...t, status: 'Completed', completedDate: today });
+    const updated = { ...t, status: 'Completed' as TaskStatus, completedDate: today };
+    updateTask(updated);
+    if (viewTask?.id === t.id) setViewTask(updated);
+  }
+
+  function handleDelete(id: string) {
+    deleteTask(id);
+    setViewTask(null);
   }
 
   function getRelatedOptions() {
@@ -173,7 +202,7 @@ export default function Tasks() {
           return (
             <div key={status} className="border-b border-gray-100 last:border-0">
 
-              {/* Section header — click to collapse/expand */}
+              {/* Section header */}
               <button
                 onClick={() => setCollapsed(p => ({ ...p, [status]: !p[status] }))}
                 className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-gray-50 transition-colors text-left"
@@ -198,7 +227,8 @@ export default function Tasks() {
                     return (
                       <div
                         key={t.id}
-                        className={`group border-t border-gray-50 hover:bg-blue-50/30 transition-colors ${od ? 'bg-red-50/20' : ''}`}
+                        className={`group border-t border-gray-50 hover:bg-blue-50/30 transition-colors cursor-pointer ${od ? 'bg-red-50/20' : ''}`}
+                        onClick={() => setViewTask(t)}
                       >
                         {/* Desktop row */}
                         <div className="hidden sm:grid items-center px-4 py-2.5"
@@ -206,7 +236,7 @@ export default function Tasks() {
 
                           {/* Status icon / quick-complete */}
                           <button
-                            onClick={() => t.status !== 'Completed' && quickComplete(t)}
+                            onClick={e => { e.stopPropagation(); t.status !== 'Completed' && quickComplete(t); }}
                             className={`${cfg.textColor} hover:scale-110 transition-transform`}
                             title={t.status !== 'Completed' ? 'Mark complete' : 'Completed'}
                           >
@@ -251,15 +281,15 @@ export default function Tasks() {
 
                           {/* Actions — visible on row hover */}
                           <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => openEdit(t)} className="text-gray-400 hover:text-brand-600" title="Edit"><Pencil size={13} /></button>
-                            <button onClick={() => deleteTask(t.id)} className="text-gray-400 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); openEdit(t); }} className="text-gray-400 hover:text-brand-600" title="Edit"><Pencil size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); handleDelete(t.id); }} className="text-gray-400 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>
                           </div>
                         </div>
 
                         {/* Mobile row */}
                         <div className="sm:hidden flex items-start gap-3 px-4 py-3">
                           <button
-                            onClick={() => t.status !== 'Completed' && quickComplete(t)}
+                            onClick={e => { e.stopPropagation(); t.status !== 'Completed' && quickComplete(t); }}
                             className={`mt-0.5 flex-shrink-0 ${cfg.textColor}`}
                           >
                             {cfg.icon}
@@ -273,8 +303,8 @@ export default function Tasks() {
                             </div>
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
-                            <button onClick={() => openEdit(t)} className="text-gray-400 hover:text-brand-600"><Pencil size={13} /></button>
-                            <button onClick={() => deleteTask(t.id)} className="text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); openEdit(t); }} className="text-gray-400 hover:text-brand-600"><Pencil size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); handleDelete(t.id); }} className="text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
                           </div>
                         </div>
                       </div>
@@ -294,6 +324,95 @@ export default function Tasks() {
           );
         })}
       </div>
+
+      {/* ── Task Detail Modal ── */}
+      {viewTask && (() => {
+        const t = viewTask;
+        const cfg = STATUS_CFG[t.status];
+        const od = isOverdue(t);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setViewTask(null)}>
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3 px-6 pt-5 pb-4 border-b border-gray-100">
+                <div className="flex-1 min-w-0">
+                  <p className={`text-lg font-semibold leading-snug ${t.status === 'Completed' ? 'line-through text-gray-400' : 'text-gray-900'}`}>
+                    {t.title}
+                  </p>
+                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${cfg.bg}`}>
+                      {cfg.icon} {cfg.label}
+                    </span>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${PRIORITY_BG[t.priority]}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_DOT[t.priority]}`} />
+                      {t.priority}
+                    </span>
+                    {od && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-600">
+                        <AlertCircle size={11} /> Overdue
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button onClick={() => setViewTask(null)} className="text-gray-400 hover:text-gray-600 flex-shrink-0 mt-0.5">
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Detail rows */}
+              <div className="px-6 py-3">
+                <DetailRow icon={<User size={14} />} label="Client Name" value={t.relatedName || undefined} />
+                <DetailRow icon={<FileText size={14} />} label="Description" value={t.description || undefined} />
+                <DetailRow icon={<Tag size={14} />} label="Related To"
+                  value={t.relatedTo !== 'General' && t.relatedName ? `${t.relatedTo}: ${t.relatedName}` : t.relatedTo} />
+                <DetailRow icon={<User size={14} />} label="Assigned To" value={t.assignedTo} />
+                <DetailRow icon={<Calendar size={14} />} label="Due Date"
+                  value={<span className={od ? 'text-red-500 font-medium' : ''}>{fmtDate(t.dueDate)}</span>} />
+                {t.completedDate && (
+                  <DetailRow icon={<CheckCircle2 size={14} />} label="Completed Date"
+                    value={<span className="text-green-600">{fmtDate(t.completedDate)}</span>} />
+                )}
+                {t.createdAt && (
+                  <DetailRow icon={<Calendar size={14} />} label="Created On" value={fmtDate(t.createdAt)} />
+                )}
+                {t.notes && (
+                  <div className="py-2.5 border-b border-gray-50">
+                    <p className="text-xs text-gray-400 mb-1">Notes</p>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{t.notes}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer actions */}
+              <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl">
+                <div className="flex gap-2">
+                  {t.status !== 'Completed' && (
+                    <button
+                      onClick={() => quickComplete(t)}
+                      className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5"
+                    >
+                      <CheckCircle2 size={13} /> Mark Complete
+                    </button>
+                  )}
+                  <button
+                    onClick={() => openEdit(t)}
+                    className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
+                  >
+                    <Pencil size={13} /> Edit
+                  </button>
+                </div>
+                <button
+                  onClick={() => handleDelete(t.id)}
+                  className="text-xs text-red-500 hover:text-red-700 flex items-center gap-1.5 font-medium"
+                >
+                  <Trash2 size={13} /> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Task Form Modal */}
       {showForm && (
