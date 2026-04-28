@@ -300,6 +300,15 @@ export default function Tasks() {
         <Modal title={editing ? 'Edit Task' : 'New Task'} onClose={() => setShowForm(false)}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
+              <label className="label">Client Name <span className="text-gray-400 font-normal">(person you are following up with)</span></label>
+              <input
+                className="input"
+                placeholder="e.g. Ramesh Patel – HR Manager"
+                value={form.relatedName ?? ''}
+                onChange={e => setForm(p => ({ ...p, relatedName: e.target.value }))}
+              />
+            </div>
+            <div className="sm:col-span-2">
               <label className="label">Task Title *</label>
               <input required className="input" value={form.title}
                 placeholder="e.g. Follow up with TechMahindra HR"
@@ -345,15 +354,6 @@ export default function Tasks() {
                 </select>
               </div>
             )}
-            <div className="sm:col-span-2">
-              <label className="label">Contact Name <span className="text-gray-400 font-normal">(person you are following up with)</span></label>
-              <input
-                className="input"
-                placeholder="e.g. Ramesh Patel – HR Manager"
-                value={form.relatedName ?? ''}
-                onChange={e => setForm(p => ({ ...p, relatedName: e.target.value }))}
-              />
-            </div>
             <div>
               <label className="label">Assigned To</label>
               <input className="input" value="Annu Sharma" readOnly
