@@ -351,9 +351,53 @@ export default function Contacts() {
             </div>
             <div>
               <label className="label">Location</label>
-              <input className="input" placeholder="e.g. Surat, Gujarat"
-                value={form.location ?? ''}
-                onChange={e => setForm(p => ({ ...p, location: e.target.value }))} />
+              <select className="input" value={form.location ?? ''}
+                onChange={e => setForm(p => ({ ...p, location: e.target.value }))}>
+                <option value="">-- Select Location --</option>
+                <optgroup label="South Gujarat">
+                  <option>Surat, Gujarat</option>
+                  <option>Vapi, Gujarat</option>
+                  <option>Valsad, Gujarat</option>
+                  <option>Navsari, Gujarat</option>
+                  <option>Bharuch, Gujarat</option>
+                  <option>Ankleshwar, Gujarat</option>
+                  <option>Hazira, Surat</option>
+                  <option>Sachin, Surat</option>
+                  <option>Katargam, Surat</option>
+                  <option>Varachha, Surat</option>
+                  <option>Olpad, Surat</option>
+                </optgroup>
+                <optgroup label="Union Territories">
+                  <option>Daman</option>
+                  <option>Silvassa, Dadra &amp; Nagar Haveli</option>
+                  <option>Diu</option>
+                </optgroup>
+                <optgroup label="Gujarat">
+                  <option>Ahmedabad, Gujarat</option>
+                  <option>Vadodara, Gujarat</option>
+                  <option>Rajkot, Gujarat</option>
+                  <option>Gandhinagar, Gujarat</option>
+                  <option>Anand, Gujarat</option>
+                  <option>Morbi, Gujarat</option>
+                </optgroup>
+                <optgroup label="Maharashtra">
+                  <option>Mumbai, Maharashtra</option>
+                  <option>Pune, Maharashtra</option>
+                  <option>Nashik, Maharashtra</option>
+                  <option>Nagpur, Maharashtra</option>
+                  <option>Thane, Maharashtra</option>
+                  <option>Navi Mumbai, Maharashtra</option>
+                </optgroup>
+                <optgroup label="Other">
+                  <option>Delhi / NCR</option>
+                  <option>Bengaluru, Karnataka</option>
+                  <option>Hyderabad, Telangana</option>
+                  <option>Chennai, Tamil Nadu</option>
+                  <option>Kolkata, West Bengal</option>
+                  <option>Remote</option>
+                  <option>Other</option>
+                </optgroup>
+              </select>
             </div>
             <div className="sm:col-span-2">
               <label className="label">Notes</label>
