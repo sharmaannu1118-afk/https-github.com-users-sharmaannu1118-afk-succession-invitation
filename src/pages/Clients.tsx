@@ -54,7 +54,7 @@ const EMPTY: Omit<Client, 'id' | 'createdAt' | 'updatedAt'> = {
 };
 
 export default function Clients() {
-  const { clients, contacts, addClient, updateClient, deleteClient } = useCRM();
+  const { clients, contacts, addClient, updateClient, deleteClient, addContact, updateContact } = useCRM();
   const [search, setSearch]           = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showForm, setShowForm]       = useState(false);
@@ -99,8 +99,33 @@ export default function Clients() {
     const now = new Date().toISOString().slice(0, 10);
     if (editing) {
       updateClient({ ...editing, ...form, updatedAt: now });
+      // Sync phone, email, location, website to all linked contacts
+      contacts
+        .filter(ct => ct.clientId === editing.id)
+        .forEach(ct => updateContact({
+          ...ct,
+          phone:    form.phone    ?? ct.phone,
+          email:    form.email    ?? ct.email,
+          location: form.city     ?? ct.location,
+          website:  form.website  ?? ct.website,
+        }));
     } else {
-      addClient({ ...form, id: newId(), createdAt: now, updatedAt: now });
+      const clientId = newId();
+      addClient({ ...form, id: clientId, createdAt: now, updatedAt: now });
+      // Auto-create a primary contact from the client details
+      addContact({
+        id:        'ct' + Date.now(),
+        clientId,
+        firstName:  form.name,
+        lastName:   '',
+        role:       'Other',
+        email:      form.email   ?? '',
+        phone:      form.phone   ?? '',
+        location:   form.city    ?? '',
+        website:    form.website ?? '',
+        isPrimary:  true,
+        createdAt:  now,
+      });
     }
     setShowForm(false);
   }
