@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, Phone, Mail, Link2, X, MapPin } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Phone, Mail, Link2, X, MapPin, Download } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
+import { exportCsv } from '../utils/exportCsv';
 import type { Contact, ContactRole } from '../types';
 import Modal from '../components/Modal';
 
@@ -92,6 +93,26 @@ export default function Contacts() {
           <option value="All">All Clients</option>
           {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
+        <button
+          onClick={() => exportCsv('AnnuHR-Contacts.csv', contacts.map(c => {
+            const company = clients.find(cl => cl.id === c.clientId)?.name ?? '';
+            return {
+              'First Name': c.firstName,
+              'Last Name':  c.lastName ?? '',
+              'Role':       c.role ?? '',
+              'Company':    company,
+              'Email':      c.email ?? '',
+              'Phone':      c.phone ?? '',
+              'LinkedIn':   c.linkedin ?? '',
+              'Location':   c.location ?? '',
+              'Created':    c.createdAt,
+            };
+          }))}
+          className="btn-secondary flex items-center gap-1.5"
+          title="Export Contacts to CSV"
+        >
+          <Download size={14} /> Export CSV
+        </button>
         <button onClick={openAdd} className="btn-primary ml-auto">
           <Plus size={16} /> Add Contact
         </button>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X, Download } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
+import { exportCsv } from '../utils/exportCsv';
 import type { Task, TaskStatus, TaskPriority, TaskRelatedTo } from '../types';
 import Modal from '../components/Modal';
 
@@ -181,6 +182,25 @@ export default function Tasks() {
           <option value="All">All Clients</option>
           {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
+        <button
+          onClick={() => exportCsv('AnnuHR-Tasks.csv', tasks.map(t => ({
+            'Title':          t.title,
+            'Description':    t.description ?? '',
+            'Status':         t.status,
+            'Priority':       t.priority,
+            'Client Name':    t.relatedName ?? '',
+            'Related To':     t.relatedTo,
+            'Assigned To':    t.assignedTo,
+            'Due Date':       t.dueDate,
+            'Completed Date': t.completedDate ?? '',
+            'Notes':          t.notes ?? '',
+            'Created':        t.createdAt,
+          })))}
+          className="btn-secondary flex items-center gap-1.5"
+          title="Export Tasks to CSV"
+        >
+          <Download size={14} /> Export CSV
+        </button>
         <button onClick={() => openAdd()} className="btn-primary sm:ml-auto">
           <Plus size={15} /> Add Task
         </button>

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
-import { Plus, Search, Pencil, Trash2, Phone, Mail, Link2, X, MapPin, Calendar, TrendingUp, GripVertical } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, Phone, Mail, Link2, X, MapPin, Calendar, TrendingUp, GripVertical, Download } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
+import { exportCsv } from '../utils/exportCsv';
 import type { Lead, LeadStage, LeadSource, LeadTemperature } from '../types';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -196,6 +197,31 @@ export default function Leads() {
               {v === 'board' ? 'Board' : 'List'}
             </button>
           ))}
+          <button
+            onClick={() => exportCsv('AnnuHR-Leads.csv', leads.map(l => ({
+              'Company':        l.companyName,
+              'Title':          l.title,
+              'Stage':          l.stage,
+              'Temperature':    l.temperature,
+              'Contact Person': l.contactPerson ?? '',
+              'Phone':          l.contactPhone ?? '',
+              'Email':          l.contactEmail ?? '',
+              'Location':       l.location ?? '',
+              'Source':         l.source,
+              'Value (₹)':      l.value,
+              'Probability %':  l.probability,
+              'Assigned To':    l.assignedTo,
+              'Follow Up Date': l.followUpDate ?? '',
+              'Close Date':     l.expectedCloseDate ?? '',
+              'Requirement':    l.requirement ?? '',
+              'Notes':          l.notes ?? '',
+              'Created':        l.createdAt,
+            })))}
+            className="btn-secondary ml-1 flex items-center gap-1.5"
+            title="Export Leads to CSV"
+          >
+            <Download size={14} /> Export CSV
+          </button>
           <button onClick={() => openAdd()} className="btn-primary ml-1">
             <Plus size={15} /> Add Lead
           </button>

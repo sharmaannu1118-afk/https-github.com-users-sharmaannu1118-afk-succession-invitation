@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, ExternalLink, IndianRupee, Briefcase } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, ExternalLink, IndianRupee, Briefcase, Download } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
+import { exportCsv } from '../utils/exportCsv';
 import type { Client, ClientStatus, Industry, BillingCycle, WorkMode } from '../types';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
@@ -163,6 +164,28 @@ export default function Clients() {
           <option value="All">All Status</option>
           {STATUSES.map(s => <option key={s}>{s}</option>)}
         </select>
+        <button
+          onClick={() => exportCsv('AnnuHR-Clients.csv', clients.map(c => ({
+            'Name':            c.name,
+            'Industry':        c.industry,
+            'Status':          c.status,
+            'City':            c.city ?? '',
+            'Country':         c.country ?? '',
+            'Phone':           c.phone ?? '',
+            'Email':           c.email ?? '',
+            'Employees':       c.employees ?? '',
+            'Billing Amount':  c.billingAmount ?? '',
+            'Billing Cycle':   c.billingCycle ?? '',
+            'Work Mode':       c.workMode ?? '',
+            'Account Manager': c.accountManager,
+            'Notes':           c.notes ?? '',
+            'Created':         c.createdAt,
+          })))}
+          className="btn-secondary flex items-center gap-1.5"
+          title="Export Clients to CSV"
+        >
+          <Download size={14} /> Export CSV
+        </button>
         <button onClick={openAdd} className="btn-primary ml-auto">
           <Plus size={16} /> Add Client
         </button>
