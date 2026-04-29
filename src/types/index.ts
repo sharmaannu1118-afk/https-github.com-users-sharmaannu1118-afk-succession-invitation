@@ -36,6 +36,8 @@ export interface Client {
   billingAmount?: number;       // amount charged per billing cycle
   billingCycle?: BillingCycle;  // Monthly / Quarterly / Annual / Project-Based
   workMode?: WorkMode;          // Onsite / Hybrid / Weekly Visit / Remote
+  contactFirstName?: string;
+  contactLastName?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;
