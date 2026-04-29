@@ -717,6 +717,7 @@ export default function Clients() {
 
               <dl className="space-y-2 text-sm">
                 {[
+                  ['Contact Person Name', viewing.contactPersonName],
                   ['Industry',       viewing.industry],
                   ['Location', viewing.city],
                   ['Email',          viewing.email],
