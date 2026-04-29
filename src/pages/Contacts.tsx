@@ -120,16 +120,16 @@ export default function Contacts() {
 
       <div className="card p-0 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[900px]">
             <thead>
               <tr>
-                <th className="th">Name</th>
-                <th className="th">Role</th>
-                <th className="th">Company</th>
-                <th className="th">Email</th>
-                <th className="th">Phone</th>
-                <th className="th">Location</th>
-                <th className="th"></th>
+                <th className="th w-44">Name</th>
+                <th className="th w-32">Role</th>
+                <th className="th w-44">Company</th>
+                <th className="th w-52">Email</th>
+                <th className="th w-40">Phone</th>
+                <th className="th w-36">Location</th>
+                <th className="th w-16"></th>
               </tr>
             </thead>
             <tbody>
@@ -140,38 +140,38 @@ export default function Contacts() {
                 return (
                   <tr key={ct.id} className="hover:bg-gray-50 cursor-pointer"
                     onClick={() => setViewing(ct)}>
-                    <td className="td">
+                    <td className="td whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
                           {ct.firstName[0]}
                         </div>
-                        <span className="font-medium text-gray-900">{ct.firstName} {ct.lastName}</span>
+                        <span className="font-medium text-gray-900 truncate">{ct.firstName} {ct.lastName}</span>
                       </div>
                     </td>
-                    <td className="td">
+                    <td className="td whitespace-nowrap">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_COLORS[ct.role] ?? 'bg-gray-100 text-gray-600'}`}>
                         {ct.role}
                       </span>
                     </td>
-                    <td className="td text-gray-700">{client?.name ?? '—'}</td>
-                    <td className="td">
+                    <td className="td whitespace-nowrap text-gray-700 truncate max-w-[176px]">{client?.name ?? '—'}</td>
+                    <td className="td whitespace-nowrap">
                       {ct.email ? (
                         <a href={`mailto:${ct.email}`} onClick={e => e.stopPropagation()}
-                          className="text-gray-500 hover:text-brand-600 flex items-center gap-1 text-sm">
-                          <Mail size={12} /> {ct.email}
+                          className="text-gray-500 hover:text-brand-600 flex items-center gap-1 text-sm truncate max-w-[200px]">
+                          <Mail size={12} className="flex-shrink-0" /> {ct.email}
                         </a>
                       ) : <span className="text-gray-300">—</span>}
                     </td>
-                    <td className="td">
+                    <td className="td whitespace-nowrap">
                       {ct.phone ? (
                         <a href={`tel:${ct.phone}`} onClick={e => e.stopPropagation()}
                           className="text-gray-500 hover:text-brand-600 flex items-center gap-1 text-sm">
-                          <Phone size={12} /> {ct.phone}
+                          <Phone size={12} className="flex-shrink-0" /> {ct.phone}
                         </a>
                       ) : <span className="text-gray-300">—</span>}
                     </td>
-                    <td className="td text-xs text-gray-500">{ct.location ?? '—'}</td>
-                    <td className="td" onClick={e => e.stopPropagation()}>
+                    <td className="td whitespace-nowrap text-xs text-gray-500 truncate max-w-[144px]">{ct.location ?? '—'}</td>
+                    <td className="td whitespace-nowrap" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <button onClick={() => openEdit(ct)} className="text-gray-400 hover:text-brand-600">
                           <Pencil size={15} />
