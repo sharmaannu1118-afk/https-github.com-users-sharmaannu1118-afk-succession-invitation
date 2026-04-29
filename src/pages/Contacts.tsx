@@ -194,9 +194,9 @@ export default function Contacts() {
         const client = clients.find(c => c.id === viewing.clientId);
         return (
           <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setViewing(null)}>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
               {/* Header */}
-              <div className="bg-gradient-to-r from-indigo-600 to-brand-600 rounded-t-2xl p-6 text-white">
+              <div className="bg-gradient-to-r from-indigo-600 to-brand-600 rounded-t-2xl p-6 text-white flex-shrink-0">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold">
@@ -213,8 +213,8 @@ export default function Contacts() {
                 </div>
               </div>
 
-              {/* Body */}
-              <div className="p-6 space-y-3">
+              {/* Body — scrollable */}
+              <div className="p-6 space-y-3 overflow-y-auto flex-1">
                 {client && (
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                     <div className="w-8 h-8 rounded-lg bg-brand-100 flex items-center justify-center text-brand-700 font-bold text-sm">
@@ -286,9 +286,10 @@ export default function Contacts() {
                 </div>
               </div>
 
-              <div className="px-6 pb-6 flex gap-3">
+              {/* Footer — always visible */}
+              <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex gap-3 flex-shrink-0">
                 <button onClick={() => openEdit(viewing)}
-                  className="flex-1 btn-primary justify-center">
+                  className="flex-1 btn-primary justify-center flex items-center gap-2">
                   <Pencil size={14} /> Edit Contact
                 </button>
                 <button onClick={() => setViewing(null)} className="btn-secondary">Close</button>
