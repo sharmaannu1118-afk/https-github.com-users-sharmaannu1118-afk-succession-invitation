@@ -303,15 +303,11 @@ export default function Contacts() {
       {showForm && (
         <Modal title={editing ? 'Edit Contact' : 'Add Contact'} onClose={() => setShowForm(false)}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="label">First Name *</label>
-              <input required className="input" value={form.firstName}
-                onChange={e => setForm(p => ({ ...p, firstName: e.target.value }))} />
-            </div>
-            <div>
-              <label className="label">Last Name</label>
-              <input className="input" value={form.lastName}
-                onChange={e => setForm(p => ({ ...p, lastName: e.target.value }))} />
+            <div className="sm:col-span-2">
+              <label className="label">Contact Person Name *</label>
+              <input required className="input" placeholder="e.g. Rahul Mehta"
+                value={form.firstName}
+                onChange={e => setForm(p => ({ ...p, firstName: e.target.value, lastName: '' }))} />
             </div>
             <div>
               <label className="label">Role</label>

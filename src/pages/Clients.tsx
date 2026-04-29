@@ -51,7 +51,7 @@ const WORK_MODE_COLORS: Record<WorkMode, string> = {
 const EMPTY: Omit<Client, 'id' | 'createdAt' | 'updatedAt'> = {
   name: '', industry: 'Technology', status: 'Prospect',
   city: '', country: 'India', accountManager: 'Annu Sharma',
-  contactFirstName: '', contactLastName: '',
+  contactPersonName: '',
 };
 
 export default function Clients() {
@@ -93,10 +93,12 @@ export default function Clients() {
     const { id, createdAt, updatedAt, ...rest } = c;
     // Pre-fill contact name from the primary contact if not stored on client
     const primaryContact = contacts.find(ct => ct.clientId === c.id && ct.isPrimary);
+    const primaryContactName = primaryContact
+      ? `${primaryContact.firstName} ${primaryContact.lastName}`.trim()
+      : '';
     setForm({
       ...rest,
-      contactFirstName: rest.contactFirstName ?? primaryContact?.firstName ?? '',
-      contactLastName:  rest.contactLastName  ?? primaryContact?.lastName  ?? '',
+      contactPersonName: rest.contactPersonName ?? primaryContactName,
     });
     setShowForm(true);
   }
@@ -104,17 +106,15 @@ export default function Clients() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const now = new Date().toISOString().slice(0, 10);
-    const contactFirst = form.contactFirstName?.trim() || form.name;
-    const contactLast  = form.contactLastName?.trim()  || '';
+    const contactName = form.contactPersonName?.trim() || form.name;
     if (editing) {
       updateClient({ ...editing, ...form, updatedAt: now });
-      // Sync name, phone, email, location, website to primary contact
       contacts
         .filter(ct => ct.clientId === editing.id)
         .forEach(ct => updateContact({
           ...ct,
-          firstName: ct.isPrimary ? contactFirst : ct.firstName,
-          lastName:  ct.isPrimary ? contactLast  : ct.lastName,
+          firstName: ct.isPrimary ? contactName : ct.firstName,
+          lastName:  ct.isPrimary ? ''          : ct.lastName,
           phone:     form.phone    ?? ct.phone,
           email:     form.email    ?? ct.email,
           location:  form.city     ?? ct.location,
@@ -126,8 +126,8 @@ export default function Clients() {
       addContact({
         id:        'ct' + Date.now(),
         clientId,
-        firstName:  contactFirst,
-        lastName:   contactLast,
+        firstName:  contactName,
+        lastName:   '',
         role:       'Other',
         email:      form.email   ?? '',
         phone:      form.phone   ?? '',
@@ -367,18 +367,11 @@ export default function Clients() {
               </div>
             </div>
 
-            <div>
-              <label className="label">Contact Person First Name</label>
-              <input className="input" placeholder="e.g. Rahul"
-                value={form.contactFirstName ?? ''}
-                onChange={e => setForm(p => ({ ...p, contactFirstName: e.target.value }))} />
-            </div>
-
-            <div>
-              <label className="label">Contact Person Last Name</label>
-              <input className="input" placeholder="e.g. Mehta"
-                value={form.contactLastName ?? ''}
-                onChange={e => setForm(p => ({ ...p, contactLastName: e.target.value }))} />
+            <div className="sm:col-span-2">
+              <label className="label">Contact Person Name</label>
+              <input className="input" placeholder="e.g. Rahul Mehta"
+                value={form.contactPersonName ?? ''}
+                onChange={e => setForm(p => ({ ...p, contactPersonName: e.target.value }))} />
             </div>
 
             <div>
