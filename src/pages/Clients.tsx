@@ -109,9 +109,24 @@ export default function Clients() {
     const contactName = form.contactPersonName?.trim() || form.name;
     if (editing) {
       updateClient({ ...editing, ...form, updatedAt: now });
-      contacts
-        .filter(ct => ct.clientId === editing.id)
-        .forEach(ct => updateContact({
+      const linked = contacts.filter(ct => ct.clientId === editing.id);
+      if (linked.length === 0) {
+        // Client existed before auto-sync — create the contact now
+        addContact({
+          id:        'ct' + Date.now(),
+          clientId:  editing.id,
+          firstName:  contactName,
+          lastName:   '',
+          role:       'Other',
+          email:      form.email   ?? '',
+          phone:      form.phone   ?? '',
+          location:   form.city    ?? '',
+          website:    form.website ?? '',
+          isPrimary:  true,
+          createdAt:  now,
+        });
+      } else {
+        linked.forEach(ct => updateContact({
           ...ct,
           firstName: ct.isPrimary ? contactName : ct.firstName,
           lastName:  ct.isPrimary ? ''          : ct.lastName,
@@ -120,6 +135,7 @@ export default function Clients() {
           location:  form.city     ?? ct.location,
           website:   form.website  ?? ct.website,
         }));
+      }
     } else {
       const clientId = newId();
       addClient({ ...form, id: clientId, createdAt: now, updatedAt: now });
