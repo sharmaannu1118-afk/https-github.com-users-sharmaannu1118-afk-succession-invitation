@@ -1,4 +1,4 @@
-const CACHE = 'annuhr-crm-v3';
+const CACHE = 'annuhr-crm-v4';
 
 self.addEventListener('install', e => {
   e.waitUntil(self.skipWaiting());
