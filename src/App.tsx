@@ -1,5 +1,6 @@
 import { HashRouter as BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CRMProvider } from './context/CRMContext';
+import { GoogleProvider } from './context/GoogleContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
@@ -12,27 +13,33 @@ import Activities from './pages/Activities';
 import Reports from './pages/Reports';
 import Search from './pages/Search';
 import Tasks from './pages/Tasks';
+import Calendar from './pages/Calendar';
+import Drive from './pages/Drive';
 
 export default function App() {
   return (
     <CRMProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/"            element={<Dashboard />} />
-            <Route path="/clients"     element={<Clients />} />
-            <Route path="/contacts"    element={<Contacts />} />
-            <Route path="/leads"       element={<Leads />} />
-            <Route path="/candidates"  element={<Candidates />} />
-            <Route path="/jobs"        element={<Jobs />} />
-            <Route path="/placements"  element={<Placements />} />
-            <Route path="/activities"  element={<Activities />} />
-            <Route path="/tasks"       element={<Tasks />} />
-            <Route path="/reports"     element={<Reports />} />
-            <Route path="/search"      element={<Search />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <GoogleProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<Layout />}>
+              <Route path="/"            element={<Dashboard />} />
+              <Route path="/clients"     element={<Clients />} />
+              <Route path="/contacts"    element={<Contacts />} />
+              <Route path="/leads"       element={<Leads />} />
+              <Route path="/candidates"  element={<Candidates />} />
+              <Route path="/jobs"        element={<Jobs />} />
+              <Route path="/placements"  element={<Placements />} />
+              <Route path="/activities"  element={<Activities />} />
+              <Route path="/tasks"       element={<Tasks />} />
+              <Route path="/calendar"    element={<Calendar />} />
+              <Route path="/drive"       element={<Drive />} />
+              <Route path="/reports"     element={<Reports />} />
+              <Route path="/search"      element={<Search />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </GoogleProvider>
     </CRMProvider>
   );
 }

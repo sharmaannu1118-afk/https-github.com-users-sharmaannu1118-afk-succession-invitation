@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, CheckCircle2, Clock } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, CheckCircle2, Clock, Calendar, Mail } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
+import { useGoogle } from '../context/GoogleContext';
 import type { Activity, ActivityType, ActivityStatus } from '../types';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
+import BookMeetingModal from '../components/BookMeetingModal';
+import ComposeEmailModal from '../components/ComposeEmailModal';
 
 const TYPES: ActivityType[] = ['Call', 'Email', 'Meeting', 'Note', 'Task'];
 const STATUSES: ActivityStatus[] = ['Planned', 'Completed', 'Cancelled'];
@@ -31,12 +34,15 @@ const EMPTY: Omit<Activity, 'id' | 'createdAt'> = {
 
 export default function Activities() {
   const { activities, clients, candidates, leads, jobOrders, addActivity, updateActivity, deleteActivity } = useCRM();
+  const { isConnected, connect, needsSetup } = useGoogle();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<Activity | null>(null);
   const [form, setForm] = useState<Omit<Activity, 'id' | 'createdAt'>>(EMPTY);
+  const [showBookMeeting, setShowBookMeeting] = useState(false);
+  const [showCompose, setShowCompose] = useState(false);
 
   const filtered = activities.filter(a => {
     const matchSearch = a.subject.toLowerCase().includes(search.toLowerCase()) ||
@@ -117,7 +123,29 @@ export default function Activities() {
           <option value="All">All Status</option>
           {STATUSES.map(s => <option key={s}>{s}</option>)}
         </select>
-        <button onClick={openAdd} className="btn-primary ml-auto"><Plus size={16} /> Add Activity</button>
+        <div className="ml-auto flex gap-2 flex-wrap">
+          {isConnected ? (
+            <>
+              <button onClick={() => setShowBookMeeting(true)}
+                className="btn-secondary flex items-center gap-1.5 text-blue-700 border-blue-200 hover:bg-blue-50">
+                <Calendar size={14} /> Book Meeting
+              </button>
+              <button onClick={() => setShowCompose(true)}
+                className="btn-secondary flex items-center gap-1.5 text-green-700 border-green-200 hover:bg-green-50">
+                <Mail size={14} /> Send Email
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => needsSetup ? undefined : connect()}
+              title={needsSetup ? 'Setup Google integration from the sidebar' : 'Connect Google to book meetings & send emails'}
+              className="btn-secondary text-xs text-gray-500 flex items-center gap-1.5">
+              <img src="https://www.google.com/favicon.ico" className="w-3.5 h-3.5" alt="" />
+              Connect Google
+            </button>
+          )}
+          <button onClick={openAdd} className="btn-primary"><Plus size={16} /> Add Activity</button>
+        </div>
       </div>
 
       <div className="card p-0 overflow-hidden">
@@ -242,6 +270,13 @@ export default function Activities() {
             </div>
           </form>
         </Modal>
+      )}
+
+      {showBookMeeting && (
+        <BookMeetingModal onClose={() => setShowBookMeeting(false)} />
+      )}
+      {showCompose && (
+        <ComposeEmailModal onClose={() => setShowCompose(false)} />
       )}
     </div>
   );

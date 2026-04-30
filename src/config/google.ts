@@ -1,0 +1,18 @@
+export const GOOGLE_SCOPES = [
+  'openid',
+  'profile',
+  'email',
+  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/calendar.events',
+  'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/drive',
+].join(' ');
+
+export function getStoredClientId(): string {
+  return (import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) ??
+    localStorage.getItem('google_client_id') ?? '';
+}
+
+export function setStoredClientId(id: string) {
+  localStorage.setItem('google_client_id', id.trim());
+}
