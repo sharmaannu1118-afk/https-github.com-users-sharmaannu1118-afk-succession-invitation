@@ -69,7 +69,7 @@ function ConnectWall({ onSetup }: { onSetup: () => void }) {
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function Drive() {
-  const { isConnected, needsSetup } = useGoogle();
+  const { isConnected } = useGoogle();
   const { listFiles, uploadFile, deleteFile } = useGoogleDrive();
   const [files, setFiles] = useState<DriveFile[]>([]);
   const [loading, setLoading] = useState(false);

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Send, Mail, CheckCircle2 } from 'lucide-react';
+import { Send, CheckCircle2 } from 'lucide-react';
 import Modal from './Modal';
 import { useGoogleGmail } from '../hooks/useGoogleGmail';
 import { useCRM } from '../context/CRMContext';

@@ -154,7 +154,7 @@ export default function Tasks() {
     <div className="space-y-4">
 
       {/* Summary cards — all 8 status counts */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
         <div className="card p-3 border-l-4 border-gray-400">
           <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Pending</p>
           <p className="text-2xl font-bold text-gray-700">{pending}</p>
