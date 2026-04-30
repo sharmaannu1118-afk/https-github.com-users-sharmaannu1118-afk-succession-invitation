@@ -121,7 +121,7 @@ export interface Task {
 }
 
 // ─── Job Order ────────────────────────────────────────────────────────────────
-export type JobStatus = 'Open' | 'In Progress' | 'On Hold' | 'Closed' | 'Cancelled';
+export type JobStatus = 'Open' | 'In Progress' | 'On Hold' | 'Job Position Filled' | 'Closed' | 'Cancelled' | 'Cancel';
 export type JobType = 'Permanent' | 'Contract' | 'Temporary' | 'Executive Search';
 export type Priority = 'Low' | 'Medium' | 'High' | 'Urgent';
 
@@ -140,6 +140,8 @@ export interface JobOrder {
   skills: string[];
   description?: string;
   recruiter: string;
+  salaryBudget?: number;
+  salaryBudgetType?: 'Monthly Salary' | 'CTC (INR)';
   deadline?: string;
   createdAt: string;
   updatedAt: string;
@@ -147,7 +149,8 @@ export interface JobOrder {
 
 // ─── Candidate ────────────────────────────────────────────────────────────────
 export type CandidateStatus =
-  | 'Active' | 'Passive' | 'Placed' | 'Blacklisted' | 'On Hold';
+  | 'Shortlisted' | 'Interviewed' | 'Interview Scheduled'
+  | 'On Hold' | 'Rejected' | 'Blacklisted' | 'Withdrawn' | 'Hired';
 export type ExperienceLevel =
   | 'Entry' | 'Mid' | 'Senior' | 'Lead' | 'Director' | 'C-Suite';
 
@@ -168,6 +171,9 @@ export interface Candidate {
   status: CandidateStatus;
   linkedin?: string;
   resumeUrl?: string;
+  resumeFileName?: string;
+  noticePeriod?: string;
+  jobOrderId?: string;
   notes?: string;
   addedBy: string;
   createdAt: string;

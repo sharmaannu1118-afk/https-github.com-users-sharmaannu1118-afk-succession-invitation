@@ -61,7 +61,7 @@ export default function QuickAdd() {
       email: cand.email, currentTitle: cand.currentTitle,
       experienceLevel: 'Mid', yearsOfExperience: 0,
       skills: cand.skills.split(',').map(s => s.trim()).filter(Boolean),
-      location: cand.location, status: 'Active', addedBy: 'Annu Sharma',
+      location: cand.location, status: 'Shortlisted', addedBy: 'Annu Sharma',
       createdAt: today, updatedAt: today,
     });
     setModal(null);

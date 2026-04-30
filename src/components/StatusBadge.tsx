@@ -19,8 +19,10 @@ const STATUS_COLOR_MAP: Record<string, Color> = {
   Negotiation: 'orange', Won: 'green', Lost: 'red',
   // Job
   Open: 'green', 'In Progress': 'blue', 'On Hold': 'yellow',
-  Closed: 'gray', Cancelled: 'red',
+  'Job Position Filled': 'purple', Closed: 'gray', Cancelled: 'red', Cancel: 'red',
   // Candidate
+  Shortlisted: 'blue', Interviewed: 'purple', 'Interview Scheduled': 'indigo',
+  Hired: 'green', Rejected: 'red', Withdrawn: 'gray',
   Placed: 'purple', Passive: 'yellow', Blacklisted: 'red',
   // Placement
   Confirmed: 'blue', Joined: 'green', Dropped: 'red', 'Notice Period': 'orange',

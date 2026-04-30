@@ -37,7 +37,7 @@ export default function Dashboard() {
   // ── KPIs ────────────────────────────────────────────────────────────────
   const activeClients  = clients.filter(c => c.status === 'Active').length;
   const openJobs       = jobOrders.filter(j => j.status === 'Open' || j.status === 'In Progress').length;
-  const activeCands    = candidates.filter(c => c.status === 'Active').length;
+  const activeCands    = candidates.filter(c => !['Rejected','Blacklisted','Withdrawn'].includes(c.status)).length;
   const pipelineValue  = leads.filter(l => !['Won','Lost'].includes(l.stage))
     .reduce((s, l) => s + l.value * (l.probability / 100), 0);
   const feesCollected  = placements.filter(p => p.invoiced).reduce((s, p) => s + p.fee, 0);
@@ -50,7 +50,7 @@ export default function Dashboard() {
     .sort((a, b) => a.dueDate.localeCompare(b.dueDate)).slice(0, 4);
 
   // ── Candidate pool ───────────────────────────────────────────────────────
-  const candPool = ['Active','Passive','Placed','On Hold'].map((s, i) => ({
+  const candPool = ['Shortlisted','Interviewed','Hired','On Hold'].map((s, i) => ({
     name: s, value: candidates.filter(c => c.status === s).length, fill: CAND_COLORS[i]
   })).filter(d => d.value > 0);
 

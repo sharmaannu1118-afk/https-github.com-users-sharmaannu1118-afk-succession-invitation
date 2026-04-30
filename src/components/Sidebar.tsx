@@ -8,12 +8,12 @@ const NAV = [
   { to: '/',            icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/clients',     icon: Building2,       label: 'Clients' },
   { to: '/contacts',    icon: Users,           label: 'Contacts' },
+  { to: '/tasks',       icon: CheckSquare,     label: 'Tasks' },
   { to: '/leads',       icon: TrendingUp,      label: 'Leads & Pipeline' },
   { to: '/candidates',  icon: UserSearch,      label: 'Candidates' },
   { to: '/jobs',        icon: Briefcase,       label: 'Job Orders' },
   { to: '/placements',  icon: Award,           label: 'Placements' },
   { to: '/activities',  icon: CalendarCheck,   label: 'Activities' },
-  { to: '/tasks',       icon: CheckSquare,     label: 'Tasks' },
   { to: '/reports',     icon: BarChart2,       label: 'Reports' },
 ];
 
