@@ -100,10 +100,14 @@ export default function Tasks() {
     return matchSearch && matchPriority && matchClient;
   });
 
-  const pending    = tasks.filter(t => t.status === 'Pending').length;
-  const inProgress = tasks.filter(t => t.status === 'In Progress').length;
-  const completed  = tasks.filter(t => t.status === 'Completed').length;
-  const overdue    = tasks.filter(isOverdue).length;
+  const pending     = tasks.filter(t => t.status === 'Pending').length;
+  const inProgress  = tasks.filter(t => t.status === 'In Progress').length;
+  const completed   = tasks.filter(t => t.status === 'Completed').length;
+  const overdue     = tasks.filter(isOverdue).length;
+  const onHold      = tasks.filter(t => t.status === 'On Hold').length;
+  const blocked     = tasks.filter(t => t.status === 'Blocked').length;
+  const underReview = tasks.filter(t => t.status === 'Under Review').length;
+  const incomplete  = tasks.filter(t => t.status === 'Incomplete').length;
 
   function openAdd(defaultStatus: TaskStatus = 'Pending') {
     setEditing(null);
@@ -149,23 +153,39 @@ export default function Tasks() {
   return (
     <div className="space-y-4">
 
-      {/* Summary cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="card p-4 border-l-4 border-gray-300">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Pending</p>
+      {/* Summary cards — all 8 status counts */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
+        <div className="card p-3 border-l-4 border-gray-400">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Pending</p>
           <p className="text-2xl font-bold text-gray-700">{pending}</p>
         </div>
-        <div className="card p-4 border-l-4 border-blue-400">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">In Progress</p>
-          <p className="text-2xl font-bold text-blue-700">{inProgress}</p>
+        <div className="card p-3 border-l-4 border-blue-400">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">In Progress</p>
+          <p className="text-2xl font-bold text-blue-600">{inProgress}</p>
         </div>
-        <div className="card p-4 border-l-4 border-green-400">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Completed</p>
-          <p className="text-2xl font-bold text-green-700">{completed}</p>
+        <div className="card p-3 border-l-4 border-green-400">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Completed</p>
+          <p className="text-2xl font-bold text-green-600">{completed}</p>
         </div>
-        <div className="card p-4 border-l-4 border-red-400">
-          <p className="text-xs text-gray-500 uppercase tracking-wide">Overdue</p>
-          <p className="text-2xl font-bold text-red-600">{overdue}</p>
+        <div className="card p-3 border-l-4 border-red-400">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Overdue</p>
+          <p className="text-2xl font-bold text-red-500">{overdue}</p>
+        </div>
+        <div className="card p-3 border-l-4 border-yellow-400">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">On Hold</p>
+          <p className="text-2xl font-bold text-yellow-600">{onHold}</p>
+        </div>
+        <div className="card p-3 border-l-4 border-red-600">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Blocked</p>
+          <p className="text-2xl font-bold text-red-700">{blocked}</p>
+        </div>
+        <div className="card p-3 border-l-4 border-purple-400">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Under Review</p>
+          <p className="text-2xl font-bold text-purple-600">{underReview}</p>
+        </div>
+        <div className="card p-3 border-l-4 border-orange-400">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Incomplete</p>
+          <p className="text-2xl font-bold text-orange-600">{incomplete}</p>
         </div>
       </div>
 
