@@ -1,3 +1,63 @@
+import { useState, useEffect } from 'react';
+
+const CITIES: Record<string, string[]> = {
+  'Andhra Pradesh': ['Visakhapatnam','Vijayawada','Guntur','Nellore','Kurnool','Tirupati','Rajahmundry','Kakinada','Kadapa','Anantapur','Eluru','Ongole','Nandyal','Machilipatnam','Chittoor','Srikakulam','Vizianagaram','Bhimavaram','Tenali'],
+  'Arunachal Pradesh': ['Itanagar','Naharlagun','Pasighat','Tawang','Ziro','Bomdila'],
+  'Assam': ['Guwahati','Silchar','Dibrugarh','Jorhat','Nagaon','Tinsukia','Tezpur','Bongaigaon','Karimganj','Sivasagar','Dhubri','Goalpara','Diphu','North Lakhimpur'],
+  'Bihar': ['Patna','Gaya','Bhagalpur','Muzaffarpur','Purnia','Darbhanga','Bihar Sharif','Arrah','Begusarai','Katihar','Chhapra','Munger','Hajipur','Saharsa','Sitamarhi','Motihari','Siwan','Buxar','Jehanabad','Nawada'],
+  'Chhattisgarh': ['Raipur','Bhilai','Bilaspur','Durg','Korba','Rajnandgaon','Jagdalpur','Ambikapur','Raigarh','Chirmiri','Dhamtari','Mahasamund'],
+  'Goa': ['Panaji','Margao','Vasco da Gama','Mapusa','Ponda','Bicholim','Mormugao'],
+  'Gujarat': ['Ahmedabad','Surat','Vadodara','Rajkot','Gandhinagar','Bhavnagar','Jamnagar','Junagadh','Anand','Navsari','Valsad','Vapi','Bharuch','Ankleshwar','Morbi','Mehsana','Surendranagar','Patan','Dahod','Godhra','Amreli','Porbandar','Veraval','Hazira','Sachin','Katargam','Varachha','Vyara','Bardoli','Botad','Dwarka','Modasa','Palanpur','Gandhidham','Kandla','Mundra'],
+  'Haryana': ['Gurugram','Faridabad','Panipat','Ambala','Hisar','Rohtak','Yamunanagar','Sonipat','Panchkula','Karnal','Bhiwani','Sirsa','Jind','Rewari','Bahadurgarh','Kurukshetra','Fatehabad','Kaithal','Narnaul','Palwal'],
+  'Himachal Pradesh': ['Shimla','Manali','Dharamshala','Solan','Mandi','Baddi','Palampur','Nahan','Kangra','Kullu','Bilaspur','Hamirpur','Chamba','Una'],
+  'Jharkhand': ['Ranchi','Jamshedpur','Dhanbad','Bokaro','Deoghar','Hazaribagh','Giridih','Ramgarh','Chaibasa','Dumka','Phusro','Medininagar'],
+  'Karnataka': ['Bengaluru','Mysuru','Hubli','Mangaluru','Belagavi','Davangere','Ballari','Tumakuru','Shivamogga','Raichur','Vijayapura','Kalaburagi','Udupi','Hassan','Mandya','Hospet','Chitradurga','Bidar','Chikkamagaluru','Dharwad','Gadag','Haveri','Koppal','Bagalkot','Yadgir'],
+  'Kerala': ['Thiruvananthapuram','Kochi','Kozhikode','Thrissur','Kollam','Kannur','Alappuzha','Palakkad','Malappuram','Kottayam','Varkala','Kayamkulam','Thalassery','Kasaragod','Pathanamthitta','Chalakudy','Ottappalam','Tirur','Ponnani','Munnar'],
+  'Madhya Pradesh': ['Bhopal','Indore','Gwalior','Jabalpur','Ujjain','Sagar','Dewas','Satna','Ratlam','Rewa','Singrauli','Burhanpur','Khandwa','Bhind','Morena','Shivpuri','Chhindwara','Damoh','Vidisha','Pithampur','Sehore','Hoshangabad','Katni','Neemuch','Mandsaur'],
+  'Maharashtra': ['Mumbai','Pune','Nagpur','Thane','Navi Mumbai','Nashik','Aurangabad','Solapur','Kolhapur','Amravati','Nanded','Sangli','Malegaon','Jalgaon','Akola','Latur','Dhule','Ahmednagar','Chandrapur','Parbhani','Ichalkaranji','Jalna','Beed','Osmanabad','Ratnagiri','Satara','Yavatmal','Wardha','Washim','Hingoli','Bhandara','Gondia','Gadchiroli'],
+  'Manipur': ['Imphal','Thoubal','Bishnupur','Churachandpur','Senapati','Ukhrul'],
+  'Meghalaya': ['Shillong','Tura','Jowai','Nongpoh','Baghmara'],
+  'Mizoram': ['Aizawl','Lunglei','Champhai','Serchhip','Kolasib'],
+  'Nagaland': ['Kohima','Dimapur','Mokokchung','Tuensang','Wokha','Zunheboto'],
+  'Odisha': ['Bhubaneswar','Cuttack','Rourkela','Berhampur','Sambalpur','Puri','Balasore','Baripada','Bhadrak','Jeypore','Dhenkanal','Barbil','Kendujhar','Bargarh','Jharsuguda','Angul','Paradip'],
+  'Punjab': ['Ludhiana','Amritsar','Jalandhar','Patiala','Bathinda','Mohali','Pathankot','Hoshiarpur','Gurdaspur','Moga','Firozpur','Kapurthala','Sangrur','Fatehgarh Sahib','Rupnagar','Barnala','Muktsar','Fazilka','Tarn Taran'],
+  'Rajasthan': ['Jaipur','Jodhpur','Kota','Ajmer','Bikaner','Udaipur','Bhilwara','Alwar','Bharatpur','Barmer','Sikar','Tonk','Sri Ganganagar','Chittorgarh','Nagaur','Hanumangarh','Jhunjhunu','Sawai Madhopur','Pali','Jaisalmer','Banswara','Baran','Bundi','Dholpur','Dungarpur','Jhalawar','Karauli','Pratapgarh','Rajsamand'],
+  'Sikkim': ['Gangtok','Namchi','Gyalshing','Mangan','Rangpo'],
+  'Tamil Nadu': ['Chennai','Coimbatore','Madurai','Tiruchirappalli','Salem','Tirunelveli','Erode','Vellore','Thoothukudi','Tiruppur','Nagercoil','Kanchipuram','Thanjavur','Dindigul','Cuddalore','Karur','Hosur','Sivakasi','Kumbakonam','Pudukkottai','Namakkal','Ramanathapuram','Krishnagiri','Dharmapuri','Villupuram','Ariyalur','Perambalur','Nagapattinam','Nilgiris'],
+  'Telangana': ['Hyderabad','Warangal','Nizamabad','Karimnagar','Khammam','Ramagundam','Mahbubnagar','Nalgonda','Adilabad','Suryapet','Siddipet','Miryalaguda','Mancherial','Jagtial','Kothagudem','Bhongir'],
+  'Tripura': ['Agartala','Udaipur','Dharmanagar','Kailasahar','Belonia','Ambassa','Bishalgarh'],
+  'Uttar Pradesh': ['Lucknow','Kanpur','Agra','Varanasi','Meerut','Prayagraj','Bareilly','Moradabad','Ghaziabad','Aligarh','Noida','Greater Noida','Gorakhpur','Firozabad','Jhansi','Muzaffarnagar','Mathura','Rampur','Shahjahanpur','Farrukhabad','Mau','Hapur','Etawah','Bulandshahr','Saharanpur','Sambhal','Amroha','Sitapur','Bahraich','Ballia','Banda','Barabanki','Bijnor','Deoria','Etah','Faizabad','Fatehpur','Ghazipur','Hardoi','Jaunpur','Lakhimpur','Maharajganj','Mirzapur','Pratapgarh','Sultanpur','Unnao'],
+  'Uttarakhand': ['Dehradun','Haridwar','Roorkee','Haldwani','Rudrapur','Kashipur','Rishikesh','Mussoorie','Nainital','Pithoragarh','Almora','Kotdwar','Srinagar','Ramnagar','Jaspur','Khatima'],
+  'West Bengal': ['Kolkata','Howrah','Durgapur','Asansol','Siliguri','Bardhaman','Malda','Baharampur','Habra','Kharagpur','Shantipur','Dankuni','Ranaghat','Haldia','Raiganj','Krishnanagar','Nabadwip','Jalpaiguri','Cooch Behar','Balurghat','Bankura','Purulia','Basirhat','Barrackpore','Uluberia','Serampore','Chandannagar','Hooghly'],
+  'Delhi': ['New Delhi','Dwarka','Rohini','Saket','Lajpat Nagar','Karol Bagh','Pitampura','Shahdara','Janakpuri','Vikaspuri','Narela','Najafgarh'],
+  'Delhi NCR': ['Noida','Greater Noida','Gurgaon','Faridabad','Ghaziabad','Manesar','Bhiwadi','Bahadurgarh','Loni','Hapur'],
+  'Jammu & Kashmir': ['Srinagar','Jammu','Anantnag','Sopore','Baramulla','Kathua','Udhampur','Poonch','Rajouri','Kupwara'],
+  'Ladakh': ['Leh','Kargil'],
+  'Chandigarh': ['Chandigarh'],
+  'Puducherry': ['Puducherry','Karaikal','Yanam','Mahe'],
+  'Andaman & Nicobar': ['Port Blair','Diglipur','Car Nicobar'],
+  'Dadra & Nagar Haveli / Daman & Diu': ['Silvassa','Daman','Diu'],
+  'Lakshadweep': ['Kavaratti','Agatti','Minicoy'],
+};
+
+const STATES = Object.keys(CITIES).sort((a, b) => {
+  const priority = ['Gujarat','Maharashtra','Delhi','Delhi NCR','Rajasthan','Karnataka','Tamil Nadu','Telangana','Uttar Pradesh'];
+  const ai = priority.indexOf(a); const bi = priority.indexOf(b);
+  if (ai !== -1 && bi !== -1) return ai - bi;
+  if (ai !== -1) return -1;
+  if (bi !== -1) return 1;
+  return a.localeCompare(b);
+});
+
+function parseLocation(value: string) {
+  if (!value) return { state: '', city: '' };
+  const lastComma = value.lastIndexOf(', ');
+  if (lastComma === -1) return { state: '', city: value };
+  const state = value.slice(lastComma + 2);
+  const city  = value.slice(0, lastComma);
+  return CITIES[state] ? { state, city } : { state: '', city: value };
+}
+
 interface Props {
   value: string;
   onChange: (v: string) => void;
@@ -6,250 +66,46 @@ interface Props {
 }
 
 export default function LocationSelect({ value, onChange, required, className }: Props) {
+  const parsed = parseLocation(value);
+  const [stateVal, setStateVal] = useState(parsed.state);
+
+  useEffect(() => {
+    setStateVal(parseLocation(value).state);
+  }, [value]);
+
+  const cities = stateVal ? (CITIES[stateVal] ?? []) : [];
+  const cityVal = stateVal === parsed.state ? parsed.city : '';
+
+  function handleStateChange(s: string) {
+    setStateVal(s);
+    onChange('');
+  }
+
+  function handleCityChange(city: string) {
+    if (city && stateVal) onChange(`${city}, ${stateVal}`);
+  }
+
   return (
-    <select required={required} className={className ?? 'input'} value={value} onChange={e => onChange(e.target.value)}>
-      <option value="">-- Select Location --</option>
-
-      <optgroup label="── Gujarat ──">
-        <option>Ahmedabad, Gujarat</option>
-        <option>Surat, Gujarat</option>
-        <option>Vadodara, Gujarat</option>
-        <option>Rajkot, Gujarat</option>
-        <option>Gandhinagar, Gujarat</option>
-        <option>Bhavnagar, Gujarat</option>
-        <option>Jamnagar, Gujarat</option>
-        <option>Junagadh, Gujarat</option>
-        <option>Anand, Gujarat</option>
-        <option>Navsari, Gujarat</option>
-        <option>Valsad, Gujarat</option>
-        <option>Vapi, Gujarat</option>
-        <option>Bharuch, Gujarat</option>
-        <option>Ankleshwar, Gujarat</option>
-        <option>Morbi, Gujarat</option>
-        <option>Mehsana, Gujarat</option>
-        <option>Surendranagar, Gujarat</option>
-        <option>Patan, Gujarat</option>
-        <option>Dahod, Gujarat</option>
-        <option>Godhra, Gujarat</option>
-        <option>Amreli, Gujarat</option>
-        <option>Porbandar, Gujarat</option>
-        <option>Veraval, Gujarat</option>
-        <option>Hazira, Surat</option>
-        <option>Sachin, Surat</option>
-        <option>Katargam, Surat</option>
-        <option>Varachha, Surat</option>
-        <option>Olpad, Surat</option>
-        <option>Vyara, Gujarat</option>
-        <option>Bardoli, Gujarat</option>
-      </optgroup>
-
-      <optgroup label="── Union Territories ──">
-        <option>Daman, Daman &amp; Diu</option>
-        <option>Diu, Daman &amp; Diu</option>
-        <option>Silvassa, Dadra &amp; Nagar Haveli</option>
-        <option>New Delhi, Delhi</option>
-        <option>Noida, Delhi NCR</option>
-        <option>Gurgaon, Delhi NCR</option>
-        <option>Faridabad, Delhi NCR</option>
-        <option>Ghaziabad, Delhi NCR</option>
-        <option>Chandigarh</option>
-        <option>Puducherry</option>
-        <option>Port Blair, Andaman &amp; Nicobar</option>
-        <option>Leh, Ladakh</option>
-        <option>Jammu, J&amp;K</option>
-        <option>Srinagar, J&amp;K</option>
-      </optgroup>
-
-      <optgroup label="── Maharashtra ──">
-        <option>Mumbai, Maharashtra</option>
-        <option>Pune, Maharashtra</option>
-        <option>Nagpur, Maharashtra</option>
-        <option>Thane, Maharashtra</option>
-        <option>Navi Mumbai, Maharashtra</option>
-        <option>Nashik, Maharashtra</option>
-        <option>Aurangabad, Maharashtra</option>
-        <option>Solapur, Maharashtra</option>
-        <option>Kolhapur, Maharashtra</option>
-        <option>Amravati, Maharashtra</option>
-        <option>Nanded, Maharashtra</option>
-        <option>Sangli, Maharashtra</option>
-        <option>Malegaon, Maharashtra</option>
-        <option>Jalgaon, Maharashtra</option>
-        <option>Akola, Maharashtra</option>
-        <option>Latur, Maharashtra</option>
-        <option>Dhule, Maharashtra</option>
-      </optgroup>
-
-      <optgroup label="── Rajasthan ──">
-        <option>Jaipur, Rajasthan</option>
-        <option>Jodhpur, Rajasthan</option>
-        <option>Udaipur, Rajasthan</option>
-        <option>Kota, Rajasthan</option>
-        <option>Ajmer, Rajasthan</option>
-        <option>Bikaner, Rajasthan</option>
-        <option>Alwar, Rajasthan</option>
-        <option>Bhilwara, Rajasthan</option>
-        <option>Sikar, Rajasthan</option>
-      </optgroup>
-
-      <optgroup label="── Madhya Pradesh ──">
-        <option>Bhopal, Madhya Pradesh</option>
-        <option>Indore, Madhya Pradesh</option>
-        <option>Gwalior, Madhya Pradesh</option>
-        <option>Jabalpur, Madhya Pradesh</option>
-        <option>Ujjain, Madhya Pradesh</option>
-        <option>Sagar, Madhya Pradesh</option>
-        <option>Dewas, Madhya Pradesh</option>
-        <option>Ratlam, Madhya Pradesh</option>
-      </optgroup>
-
-      <optgroup label="── Karnataka ──">
-        <option>Bengaluru, Karnataka</option>
-        <option>Mysuru, Karnataka</option>
-        <option>Hubli, Karnataka</option>
-        <option>Mangaluru, Karnataka</option>
-        <option>Belagavi, Karnataka</option>
-        <option>Davangere, Karnataka</option>
-        <option>Ballari, Karnataka</option>
-        <option>Tumakuru, Karnataka</option>
-      </optgroup>
-
-      <optgroup label="── Tamil Nadu ──">
-        <option>Chennai, Tamil Nadu</option>
-        <option>Coimbatore, Tamil Nadu</option>
-        <option>Madurai, Tamil Nadu</option>
-        <option>Tiruchirappalli, Tamil Nadu</option>
-        <option>Salem, Tamil Nadu</option>
-        <option>Tirunelveli, Tamil Nadu</option>
-        <option>Erode, Tamil Nadu</option>
-        <option>Vellore, Tamil Nadu</option>
-      </optgroup>
-
-      <optgroup label="── Telangana ──">
-        <option>Hyderabad, Telangana</option>
-        <option>Warangal, Telangana</option>
-        <option>Nizamabad, Telangana</option>
-        <option>Karimnagar, Telangana</option>
-        <option>Khammam, Telangana</option>
-      </optgroup>
-
-      <optgroup label="── Andhra Pradesh ──">
-        <option>Visakhapatnam, Andhra Pradesh</option>
-        <option>Vijayawada, Andhra Pradesh</option>
-        <option>Guntur, Andhra Pradesh</option>
-        <option>Nellore, Andhra Pradesh</option>
-        <option>Kurnool, Andhra Pradesh</option>
-        <option>Tirupati, Andhra Pradesh</option>
-      </optgroup>
-
-      <optgroup label="── Kerala ──">
-        <option>Thiruvananthapuram, Kerala</option>
-        <option>Kochi, Kerala</option>
-        <option>Kozhikode, Kerala</option>
-        <option>Thrissur, Kerala</option>
-        <option>Kollam, Kerala</option>
-        <option>Kannur, Kerala</option>
-      </optgroup>
-
-      <optgroup label="── Uttar Pradesh ──">
-        <option>Lucknow, Uttar Pradesh</option>
-        <option>Kanpur, Uttar Pradesh</option>
-        <option>Agra, Uttar Pradesh</option>
-        <option>Varanasi, Uttar Pradesh</option>
-        <option>Meerut, Uttar Pradesh</option>
-        <option>Allahabad, Uttar Pradesh</option>
-        <option>Bareilly, Uttar Pradesh</option>
-        <option>Moradabad, Uttar Pradesh</option>
-        <option>Ghaziabad, Uttar Pradesh</option>
-        <option>Aligarh, Uttar Pradesh</option>
-      </optgroup>
-
-      <optgroup label="── Bihar ──">
-        <option>Patna, Bihar</option>
-        <option>Gaya, Bihar</option>
-        <option>Bhagalpur, Bihar</option>
-        <option>Muzaffarpur, Bihar</option>
-      </optgroup>
-
-      <optgroup label="── West Bengal ──">
-        <option>Kolkata, West Bengal</option>
-        <option>Howrah, West Bengal</option>
-        <option>Durgapur, West Bengal</option>
-        <option>Asansol, West Bengal</option>
-        <option>Siliguri, West Bengal</option>
-      </optgroup>
-
-      <optgroup label="── Punjab ──">
-        <option>Ludhiana, Punjab</option>
-        <option>Amritsar, Punjab</option>
-        <option>Jalandhar, Punjab</option>
-        <option>Patiala, Punjab</option>
-        <option>Bathinda, Punjab</option>
-      </optgroup>
-
-      <optgroup label="── Haryana ──">
-        <option>Gurugram, Haryana</option>
-        <option>Faridabad, Haryana</option>
-        <option>Panipat, Haryana</option>
-        <option>Ambala, Haryana</option>
-        <option>Hisar, Haryana</option>
-        <option>Rohtak, Haryana</option>
-      </optgroup>
-
-      <optgroup label="── Odisha ──">
-        <option>Bhubaneswar, Odisha</option>
-        <option>Cuttack, Odisha</option>
-        <option>Rourkela, Odisha</option>
-        <option>Berhampur, Odisha</option>
-      </optgroup>
-
-      <optgroup label="── Jharkhand ──">
-        <option>Ranchi, Jharkhand</option>
-        <option>Jamshedpur, Jharkhand</option>
-        <option>Dhanbad, Jharkhand</option>
-      </optgroup>
-
-      <optgroup label="── Chhattisgarh ──">
-        <option>Raipur, Chhattisgarh</option>
-        <option>Bhilai, Chhattisgarh</option>
-        <option>Bilaspur, Chhattisgarh</option>
-      </optgroup>
-
-      <optgroup label="── Uttarakhand ──">
-        <option>Dehradun, Uttarakhand</option>
-        <option>Haridwar, Uttarakhand</option>
-        <option>Roorkee, Uttarakhand</option>
-      </optgroup>
-
-      <optgroup label="── Himachal Pradesh ──">
-        <option>Shimla, Himachal Pradesh</option>
-        <option>Manali, Himachal Pradesh</option>
-        <option>Dharamshala, Himachal Pradesh</option>
-      </optgroup>
-
-      <optgroup label="── Assam &amp; North East ──">
-        <option>Guwahati, Assam</option>
-        <option>Dibrugarh, Assam</option>
-        <option>Silchar, Assam</option>
-        <option>Imphal, Manipur</option>
-        <option>Shillong, Meghalaya</option>
-        <option>Agartala, Tripura</option>
-        <option>Aizawl, Mizoram</option>
-        <option>Kohima, Nagaland</option>
-        <option>Itanagar, Arunachal Pradesh</option>
-        <option>Gangtok, Sikkim</option>
-      </optgroup>
-
-      <optgroup label="── Goa ──">
-        <option>Panaji, Goa</option>
-        <option>Margao, Goa</option>
-        <option>Vasco da Gama, Goa</option>
-      </optgroup>
-
-      <optgroup label="── Other ──">
-        <option>Remote / Work From Home</option>
-        <option>Other</option>
-      </optgroup>
-    </select>
+    <div className="space-y-2">
+      <select
+        className={className ?? 'input'}
+        value={stateVal}
+        onChange={e => handleStateChange(e.target.value)}
+        required={required && !stateVal}
+      >
+        <option value="">-- Select State / UT --</option>
+        {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+      </select>
+      <select
+        className={className ?? 'input'}
+        value={cityVal}
+        onChange={e => handleCityChange(e.target.value)}
+        disabled={!stateVal}
+        required={required && !!stateVal && !cityVal}
+      >
+        <option value="">{stateVal ? '-- Select City / Area --' : '-- Select state first --'}</option>
+        {cities.map(c => <option key={c} value={c}>{c}</option>)}
+      </select>
+    </div>
   );
 }

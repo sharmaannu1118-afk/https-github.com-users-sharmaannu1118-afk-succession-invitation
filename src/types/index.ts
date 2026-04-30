@@ -110,6 +110,8 @@ export interface Task {
   relatedTo: TaskRelatedTo;
   relatedId?: string;
   relatedName?: string;
+  companyId?: string;
+  contactId?: string;
   assignedTo: string;
   assignedDate: string;
   dueDate: string;

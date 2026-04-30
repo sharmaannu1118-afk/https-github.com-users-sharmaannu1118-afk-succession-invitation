@@ -75,7 +75,7 @@ function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: strin
 }
 
 export default function Tasks() {
-  const { tasks, clients, leads, candidates, addTask, updateTask, deleteTask } = useCRM();
+  const { tasks, clients, contacts, leads, candidates, addTask, updateTask, deleteTask } = useCRM();
   const [search, setSearch]        = useState('');
   const [priorityFilter, setPri]   = useState('All');
   const [clientFilter, setClientF] = useState('All');
@@ -114,7 +114,9 @@ export default function Tasks() {
   function openEdit(t: Task) {
     setEditing(t);
     const { id, createdAt, ...rest } = t;
-    setForm(rest);
+    // Restore companyId from relatedId if relatedTo === 'Client'
+    const companyId = rest.companyId ?? (rest.relatedTo === 'Client' ? rest.relatedId : '');
+    setForm({ ...rest, companyId: companyId ?? '' });
     setViewTask(null);
     setShowForm(true);
   }
@@ -388,7 +390,9 @@ export default function Tasks() {
 
               {/* Detail rows */}
               <div className="px-6 py-3">
-                <DetailRow icon={<User size={14} />} label="Client Name" value={t.relatedName || undefined} />
+                {t.companyId && <DetailRow icon={<User size={14} />} label="Company Name" value={clients.find(c => c.id === t.companyId)?.name} />}
+                {t.contactId && <DetailRow icon={<User size={14} />} label="Client Name" value={(() => { const ct = contacts.find(c => c.id === t.contactId); return ct ? `${ct.firstName} ${ct.lastName}`.trim() : undefined; })()} />}
+                {!t.companyId && !t.contactId && t.relatedName && <DetailRow icon={<User size={14} />} label="Client Name" value={t.relatedName} />}
                 <DetailRow icon={<FileText size={14} />} label="Description" value={t.description || undefined} />
                 <DetailRow icon={<Tag size={14} />} label="Related To"
                   value={t.relatedTo !== 'General' && t.relatedName ? `${t.relatedTo}: ${t.relatedName}` : t.relatedTo} />
@@ -444,14 +448,30 @@ export default function Tasks() {
       {showForm && (
         <Modal title={editing ? 'Edit Task' : 'New Task'} onClose={() => setShowForm(false)}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
+            <div>
+              <label className="label">Company Name</label>
+              <select className="input" value={form.companyId ?? ''}
+                onChange={e => {
+                  const c = clients.find(cl => cl.id === e.target.value);
+                  setForm(p => ({ ...p, companyId: e.target.value, relatedTo: 'Client', relatedId: e.target.value, relatedName: c?.name ?? '', contactId: '' }));
+                }}>
+                <option value="">-- Select Company --</option>
+                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </div>
+
+            <div>
               <label className="label">Client Name</label>
-              <input
-                className="input"
-                placeholder="e.g. Ramesh Patel – HR Manager"
-                value={form.relatedName ?? ''}
-                onChange={e => setForm(p => ({ ...p, relatedName: e.target.value }))}
-              />
+              <select className="input" value={form.contactId ?? ''}
+                onChange={e => {
+                  const ct = contacts.find(c => c.id === e.target.value);
+                  setForm(p => ({ ...p, contactId: e.target.value, relatedName: ct ? ct.firstName : (p.relatedName ?? '') }));
+                }}>
+                <option value="">-- Select Contact --</option>
+                {contacts
+                  .filter(ct => !form.companyId || ct.clientId === form.companyId)
+                  .map(ct => <option key={ct.id} value={ct.id}>{ct.firstName} {ct.lastName}</option>)}
+              </select>
             </div>
             <div className="sm:col-span-2">
               <label className="label">Task Title *</label>
