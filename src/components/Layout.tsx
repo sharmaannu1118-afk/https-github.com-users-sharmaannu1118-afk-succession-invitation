@@ -14,8 +14,6 @@ const TITLES: Record<string, string> = {
   '/placements':  'Placements',
   '/activities':  'Activities',
   '/tasks':       'Tasks',
-  '/calendar':    'Google Calendar',
-  '/drive':       'Google Drive',
   '/reports':     'Reports & Analytics',
   '/search':      'Search Results',
 };

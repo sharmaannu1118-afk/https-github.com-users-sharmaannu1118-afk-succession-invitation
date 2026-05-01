@@ -13,8 +13,6 @@ import Activities from './pages/Activities';
 import Reports from './pages/Reports';
 import Search from './pages/Search';
 import Tasks from './pages/Tasks';
-import Calendar from './pages/Calendar';
-import Drive from './pages/Drive';
 
 export default function App() {
   return (
@@ -32,8 +30,6 @@ export default function App() {
               <Route path="/placements"  element={<Placements />} />
               <Route path="/activities"  element={<Activities />} />
               <Route path="/tasks"       element={<Tasks />} />
-              <Route path="/calendar"    element={<Calendar />} />
-              <Route path="/drive"       element={<Drive />} />
               <Route path="/reports"     element={<Reports />} />
               <Route path="/search"      element={<Search />} />
             </Route>
