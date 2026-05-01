@@ -153,40 +153,27 @@ export default function Tasks() {
   return (
     <div className="space-y-4">
 
-      {/* Summary cards — all 8 status counts */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
-        <div className="card p-3 border-l-4 border-gray-400">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Pending</p>
-          <p className="text-2xl font-bold text-gray-700">{pending}</p>
-        </div>
-        <div className="card p-3 border-l-4 border-blue-400">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">In Progress</p>
-          <p className="text-2xl font-bold text-blue-600">{inProgress}</p>
-        </div>
-        <div className="card p-3 border-l-4 border-green-400">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Completed</p>
-          <p className="text-2xl font-bold text-green-600">{completed}</p>
-        </div>
-        <div className="card p-3 border-l-4 border-red-400">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Overdue</p>
-          <p className="text-2xl font-bold text-red-500">{overdue}</p>
-        </div>
-        <div className="card p-3 border-l-4 border-yellow-400">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">On Hold</p>
-          <p className="text-2xl font-bold text-yellow-600">{onHold}</p>
-        </div>
-        <div className="card p-3 border-l-4 border-red-600">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Blocked</p>
-          <p className="text-2xl font-bold text-red-700">{blocked}</p>
-        </div>
-        <div className="card p-3 border-l-4 border-purple-400">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Under Review</p>
-          <p className="text-2xl font-bold text-purple-600">{underReview}</p>
-        </div>
-        <div className="card p-3 border-l-4 border-orange-400">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Incomplete</p>
-          <p className="text-2xl font-bold text-orange-600">{incomplete}</p>
-        </div>
+      {/* Summary cards — all 8 status counts (inline styles to bypass CSS cache) */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px' }}>
+        {[
+          { label:'Pending',      count: pending,     accent:'#9ca3af', numColor:'#374151' },
+          { label:'In Progress',  count: inProgress,  accent:'#60a5fa', numColor:'#2563eb' },
+          { label:'Completed',    count: completed,   accent:'#4ade80', numColor:'#16a34a' },
+          { label:'Overdue',      count: overdue,     accent:'#f87171', numColor:'#dc2626' },
+          { label:'On Hold',      count: onHold,      accent:'#facc15', numColor:'#ca8a04' },
+          { label:'Blocked',      count: blocked,     accent:'#ef4444', numColor:'#b91c1c' },
+          { label:'Under Review', count: underReview, accent:'#c084fc', numColor:'#9333ea' },
+          { label:'Incomplete',   count: incomplete,  accent:'#fb923c', numColor:'#ea580c' },
+        ].map(({ label, count, accent, numColor }) => (
+          <div key={label} style={{
+            background:'#fff', borderRadius:'12px', padding:'12px 14px',
+            border:`1px solid #e5e7eb`, borderLeft:`4px solid ${accent}`,
+            boxShadow:'0 1px 3px rgba(0,0,0,0.06)',
+          }}>
+            <p style={{ fontSize:'10px', fontWeight:600, color:'#9ca3af', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:'4px' }}>{label}</p>
+            <p style={{ fontSize:'22px', fontWeight:700, color: numColor, margin:0 }}>{count}</p>
+          </div>
+        ))}
       </div>
 
       {/* Toolbar */}
