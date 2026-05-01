@@ -36,7 +36,7 @@ function groupByDate(events: GCalEvent[]): [string, GCalEvent[]][] {
 
 // ── Connect wall ─────────────────────────────────────────────────────────────
 function ConnectWall({ onSetup }: { onSetup: () => void }) {
-  const { connect, isLoading, needsSetup } = useGoogle();
+  const { connect, cancelConnect, isLoading, needsSetup } = useGoogle();
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
       <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
@@ -45,17 +45,22 @@ function ConnectWall({ onSetup }: { onSetup: () => void }) {
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-2">Connect Google Calendar</h2>
         <p className="text-gray-500 max-w-sm">
-          Sign in with your Google account to view upcoming events and book meetings directly from the CRM.
+          Sign in with your Google account (annuhrbp@gmail.com) to view upcoming events and book meetings directly from the CRM.
         </p>
       </div>
       {needsSetup ? (
-        <button onClick={onSetup} className="btn-primary">
-          Setup Google Integration
-        </button>
+        <div className="flex flex-col items-center gap-3">
+          <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 max-w-sm">
+            One-time setup required: create a Google OAuth Client ID and enter it below to enable Calendar, Gmail &amp; Drive.
+          </p>
+          <button onClick={onSetup} className="btn-primary">
+            Setup Google Integration
+          </button>
+        </div>
       ) : (
-        <button onClick={connect} disabled={isLoading} className="btn-primary gap-2">
+        <button onClick={isLoading ? cancelConnect : connect} className="btn-primary gap-2">
           <img src="https://www.google.com/favicon.ico" className="w-4 h-4" alt="" />
-          {isLoading ? 'Connecting…' : 'Connect with Google'}
+          {isLoading ? 'Connecting… (click to cancel)' : 'Connect with Google'}
         </button>
       )}
     </div>

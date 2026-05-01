@@ -29,7 +29,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
-  const { isConnected, connect, disconnect, isLoading, needsSetup, user } = useGoogle();
+  const { isConnected, connect, cancelConnect, disconnect, isLoading, needsSetup, user } = useGoogle();
   const [showSetup, setShowSetup] = useState(false);
 
   return (
@@ -99,14 +99,28 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                 <LogOut size={14} />
               </button>
             </div>
-          ) : (
+          ) : needsSetup ? (
             <button
-              onClick={() => needsSetup ? setShowSetup(true) : connect()}
-              disabled={isLoading}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-brand-300 hover:bg-brand-800 hover:text-white transition-colors border border-brand-700"
+              onClick={() => setShowSetup(true)}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-amber-300 hover:bg-brand-800 hover:text-white transition-colors border border-amber-600/40"
             >
               <img src="https://www.google.com/favicon.ico" className="w-3.5 h-3.5" alt="" />
-              {isLoading ? 'Connecting…' : 'Connect Google Account'}
+              Setup Google (Calendar · Gmail · Drive)
+            </button>
+          ) : (
+            <button
+              onClick={isLoading ? cancelConnect : connect}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-brand-300 hover:bg-brand-800 hover:text-white transition-colors border border-brand-700"
+            >
+              {isLoading ? (
+                <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                </svg>
+              ) : (
+                <img src="https://www.google.com/favicon.ico" className="w-3.5 h-3.5" alt="" />
+              )}
+              {isLoading ? 'Connecting… (tap to cancel)' : 'Connect Google Account'}
             </button>
           )}
 

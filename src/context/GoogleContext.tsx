@@ -41,6 +41,7 @@ interface GoogleCtx {
   accessToken: string | null;
   needsSetup: boolean;
   connect: () => void;
+  cancelConnect: () => void;
   disconnect: () => void;
   saveClientId: (id: string) => void;
 }
@@ -55,6 +56,7 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [gsiReady, setGsiReady] = useState(false);
   const tokenClientRef = useRef<TokenClient | null>(null);
+  const connectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load Google Identity Services script once
   useEffect(() => {
@@ -67,6 +69,13 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
     document.head.appendChild(s);
   }, []);
 
+  function clearConnectTimeout() {
+    if (connectTimeoutRef.current) {
+      clearTimeout(connectTimeoutRef.current);
+      connectTimeoutRef.current = null;
+    }
+  }
+
   // Re-init token client whenever clientId or GSI readiness changes
   useEffect(() => {
     if (!gsiReady || !clientId || !window.google) return;
@@ -74,9 +83,12 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
       client_id: clientId,
       scope: GOOGLE_SCOPES,
       callback: async (res) => {
+        clearConnectTimeout();
         setIsLoading(false);
         if (!res.access_token) {
-          alert(`Google sign-in failed: ${res.error ?? 'unknown error'}`);
+          if (res.error && res.error !== 'access_denied') {
+            alert(`Google sign-in failed: ${res.error}`);
+          }
           return;
         }
         setAccessToken(res.access_token);
@@ -92,13 +104,14 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
         } catch { /* ignore */ }
       },
       error_callback: (e) => {
+        clearConnectTimeout();
         setIsLoading(false);
-        if (e.type !== 'popup_closed') {
+        if (e.type !== 'popup_closed' && e.type !== 'popup_failed_to_open') {
           alert(`Google error: ${e.type}`);
         }
       },
     });
-  }, [gsiReady, clientId]);
+  }, [gsiReady, clientId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const connect = useCallback(() => {
     if (!tokenClientRef.current) {
@@ -106,16 +119,29 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     setIsLoading(true);
+    // Safety: reset loading state if no response within 60 seconds (e.g. popup blocked)
+    clearConnectTimeout();
+    connectTimeoutRef.current = setTimeout(() => {
+      setIsLoading(false);
+      connectTimeoutRef.current = null;
+    }, 60000);
     tokenClientRef.current.requestToken();
   }, []);
 
+  const cancelConnect = useCallback(() => {
+    clearConnectTimeout();
+    setIsLoading(false);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const disconnect = useCallback(() => {
+    clearConnectTimeout();
     if (accessToken && window.google) {
       window.google.accounts.oauth2.revoke(accessToken, () => {});
     }
     setAccessToken(null);
     setUser(null);
-  }, [accessToken]);
+    setIsLoading(false);
+  }, [accessToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveClientId = useCallback((id: string) => {
     setStoredClientId(id);
@@ -130,6 +156,7 @@ export function GoogleProvider({ children }: { children: React.ReactNode }) {
       accessToken,
       needsSetup: !clientId,
       connect,
+      cancelConnect,
       disconnect,
       saveClientId,
     }}>

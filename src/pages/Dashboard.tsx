@@ -207,7 +207,7 @@ export default function Dashboard() {
                 <span className="ml-2 w-5 h-5 rounded-full bg-brand-600 text-white text-xs flex items-center justify-center inline-flex">{todayActs.length}</span>
               )}
             </h3>
-            <button onClick={() => navigate('/activities')} className="text-xs text-brand-600 hover:underline flex items-center gap-1">
+            <button onClick={() => navigate('/tasks')} className="text-xs text-brand-600 hover:underline flex items-center gap-1">
               All <ArrowRight size={12} />
             </button>
           </div>

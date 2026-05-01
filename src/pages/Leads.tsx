@@ -5,6 +5,7 @@ import { exportCsv } from '../utils/exportCsv';
 import type { Lead, LeadStage, LeadSource, LeadTemperature } from '../types';
 import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
+import LocationSelect from '../components/LocationSelect';
 
 const STAGES: LeadStage[] = ['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost'];
 const SOURCES: LeadSource[] = ['Referral', 'LinkedIn', 'Naukri', 'IndiaMART', 'Justdial', 'Email Campaign', 'Cold Call', 'Website', 'Event', 'Partner', 'WhatsApp', 'Indeed', 'Direct'];
@@ -529,8 +530,7 @@ export default function Leads() {
               <input className="input" placeholder="https://www.company.com"
                 value={form.website ?? ''} onChange={e => setForm(p => ({ ...p, website: e.target.value }))} /></div>
             <div><label className="label">Location</label>
-              <input className="input" placeholder="e.g. Mumbai, Maharashtra"
-                value={form.location} onChange={e => setForm(p => ({ ...p, location: e.target.value }))} /></div>
+              <LocationSelect value={form.location} onChange={v => setForm(p => ({ ...p, location: v }))} /></div>
             <div className="sm:col-span-2"><label className="label">Requirement</label>
               <input className="input" placeholder="e.g. Permanent staffing – 5 engineers"
                 value={form.requirement ?? ''} onChange={e => setForm(p => ({ ...p, requirement: e.target.value }))} /></div>

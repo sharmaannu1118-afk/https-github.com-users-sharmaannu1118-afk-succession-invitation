@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X, Download } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X, Download, FilePen } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import { exportCsv } from '../utils/exportCsv';
 import type { Task, TaskStatus, TaskPriority, TaskRelatedTo } from '../types';
@@ -8,7 +8,7 @@ import Modal from '../components/Modal';
 function newId() { return 't' + Date.now(); }
 const today = new Date().toISOString().slice(0, 10);
 
-const STATUSES: TaskStatus[] = ['Not Started', 'Pending', 'In Progress', 'Under Review', 'On Hold', 'Blocked', 'Incomplete', 'Completed'];
+const STATUSES: TaskStatus[] = ['Draft', 'Not Started', 'Pending', 'In Progress', 'Under Review', 'On Hold', 'Blocked', 'Incomplete', 'Completed'];
 const PRIORITIES: TaskPriority[] = ['Low', 'Medium', 'High', 'Urgent'];
 const RELATED: TaskRelatedTo[]  = ['Client', 'Lead', 'Candidate', 'General'];
 
@@ -42,6 +42,7 @@ const PRIORITY_BG: Record<TaskPriority, string> = {
 const STATUS_CFG: Record<TaskStatus, {
   icon: React.ReactNode; textColor: string; dot: string; label: string; bg: string;
 }> = {
+  'Draft':         { icon: <FilePen size={15} />,       textColor: 'text-slate-400',  dot: 'bg-slate-300',  label: 'DRAFT',        bg: 'bg-slate-100 text-slate-500'  },
   'Not Started':   { icon: <Circle size={15} />,        textColor: 'text-gray-400',   dot: 'bg-gray-300',   label: 'NOT STARTED',  bg: 'bg-gray-100 text-gray-500'    },
   'Pending':       { icon: <Circle size={15} />,        textColor: 'text-gray-500',   dot: 'bg-gray-400',   label: 'PENDING',      bg: 'bg-gray-100 text-gray-600'    },
   'In Progress':   { icon: <Clock size={15} />,         textColor: 'text-blue-500',   dot: 'bg-blue-500',   label: 'IN PROGRESS',  bg: 'bg-blue-100 text-blue-700'    },
@@ -84,7 +85,7 @@ export default function Tasks() {
   const [form, setForm]            = useState<Omit<Task, 'id' | 'createdAt'>>(EMPTY);
   const [viewTask, setViewTask]    = useState<Task | null>(null);
   const [collapsed, setCollapsed]  = useState<Record<TaskStatus, boolean>>({
-    'Not Started': false, 'Pending': false, 'In Progress': false,
+    'Draft': true, 'Not Started': false, 'Pending': false, 'In Progress': false,
     'Under Review': false, 'On Hold': true, 'Blocked': true,
     'Incomplete': true, 'Completed': true,
   });
@@ -100,6 +101,7 @@ export default function Tasks() {
     return matchSearch && matchPriority && matchClient;
   });
 
+  const drafts      = tasks.filter(t => t.status === 'Draft').length;
   const pending     = tasks.filter(t => t.status === 'Pending').length;
   const inProgress  = tasks.filter(t => t.status === 'In Progress').length;
   const completed   = tasks.filter(t => t.status === 'Completed').length;
@@ -132,13 +134,23 @@ export default function Tasks() {
     setShowForm(false);
   }
 
+  function handleCloseForm() {
+    // Auto-save as Draft if user typed a title but didn't submit (new task only)
+    if (!editing && form.title.trim()) {
+      addTask({ ...form, id: newId(), createdAt: today, status: 'Draft' });
+      setCollapsed(p => ({ ...p, Draft: false }));
+    }
+    setShowForm(false);
+  }
+
   function quickComplete(t: Task) {
     const updated = { ...t, status: 'Completed' as TaskStatus, completedDate: today };
     updateTask(updated);
     if (viewTask?.id === t.id) setViewTask(updated);
   }
 
-  function handleDelete(id: string) {
+  function handleDelete(id: string, title?: string) {
+    if (!window.confirm(`Delete task "${title ?? 'this task'}"? This cannot be undone.`)) return;
     deleteTask(id);
     setViewTask(null);
   }
@@ -153,9 +165,10 @@ export default function Tasks() {
   return (
     <div className="space-y-4">
 
-      {/* Summary cards — all 8 status counts (inline styles to bypass CSS cache) */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'12px' }}>
+      {/* Summary cards — all 9 status counts (inline styles to bypass CSS cache) */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'12px' }}>
         {[
+          { label:'Draft',        count: drafts,      accent:'#94a3b8', numColor:'#475569' },
           { label:'Pending',      count: pending,     accent:'#9ca3af', numColor:'#374151' },
           { label:'In Progress',  count: inProgress,  accent:'#60a5fa', numColor:'#2563eb' },
           { label:'Completed',    count: completed,   accent:'#4ade80', numColor:'#16a34a' },
@@ -317,7 +330,7 @@ export default function Tasks() {
                           {/* Actions — visible on row hover */}
                           <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onClick={e => { e.stopPropagation(); openEdit(t); }} className="text-gray-400 hover:text-brand-600" title="Edit"><Pencil size={13} /></button>
-                            <button onClick={e => { e.stopPropagation(); handleDelete(t.id); }} className="text-gray-400 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); handleDelete(t.id, t.title); }} className="text-gray-400 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>
                           </div>
                         </div>
 
@@ -339,7 +352,7 @@ export default function Tasks() {
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
                             <button onClick={e => { e.stopPropagation(); openEdit(t); }} className="text-gray-400 hover:text-brand-600"><Pencil size={13} /></button>
-                            <button onClick={e => { e.stopPropagation(); handleDelete(t.id); }} className="text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); handleDelete(t.id, t.title); }} className="text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
                           </div>
                         </div>
                       </div>
@@ -440,7 +453,7 @@ export default function Tasks() {
                   </button>
                 </div>
                 <button
-                  onClick={() => handleDelete(t.id)}
+                  onClick={() => handleDelete(t.id, t.title)}
                   className="text-xs text-red-500 hover:text-red-700 flex items-center gap-1.5 font-medium"
                 >
                   <Trash2 size={13} /> Delete
@@ -453,7 +466,7 @@ export default function Tasks() {
 
       {/* Task Form Modal */}
       {showForm && (
-        <Modal title={editing ? 'Edit Task' : 'New Task'} onClose={() => setShowForm(false)}>
+        <Modal title={editing ? 'Edit Task' : 'New Task'} onClose={handleCloseForm}>
           <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="label">Company Name</label>
@@ -549,7 +562,7 @@ export default function Tasks() {
                 onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} />
             </div>
             <div className="sm:col-span-2 flex justify-end gap-3 pt-2">
-              <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Cancel</button>
+              <button type="button" onClick={handleCloseForm} className="btn-secondary">Cancel</button>
               <button type="submit" className="btn-primary">{editing ? 'Update Task' : 'Add Task'}</button>
             </div>
           </form>

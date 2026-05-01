@@ -99,7 +99,7 @@ export interface Lead {
 }
 
 // ─── Task ─────────────────────────────────────────────────────────────────────
-export type TaskStatus   = 'Pending' | 'In Progress' | 'Incomplete' | 'Completed' | 'Blocked' | 'On Hold' | 'Under Review' | 'Not Started';
+export type TaskStatus   = 'Pending' | 'In Progress' | 'Incomplete' | 'Completed' | 'Blocked' | 'On Hold' | 'Under Review' | 'Not Started' | 'Draft';
 export type TaskPriority = 'Low' | 'Medium' | 'High' | 'Urgent';
 export type TaskRelatedTo = 'Client' | 'Lead' | 'Candidate' | 'General';
 
