@@ -36,11 +36,14 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         lg:translate-x-0 lg:static lg:z-auto flex flex-col
       `}>
         {/* Logo */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-brand-800">
-          <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-brand-800">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <img src="./favicon.svg" alt="Annu HRBP" className="w-9 h-9 flex-shrink-0" />
             <div className="min-w-0">
-              <h1 className="text-base font-bold leading-tight text-white">Annu</h1>
-              <p className="text-[10px] text-amber-400 font-semibold tracking-wider uppercase">HR Business Partner</p>
+              <h1 className="text-base font-black leading-tight text-white tracking-widest">ANNU</h1>
+              <p className="text-[9px] font-semibold tracking-wider uppercase" style={{ color: '#c9a84c' }}>
+                HR Business Partner
+              </p>
             </div>
           </div>
           <button onClick={onClose} className="lg:hidden text-brand-400 hover:text-white ml-1 flex-shrink-0">
