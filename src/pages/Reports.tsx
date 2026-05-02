@@ -3,6 +3,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, AreaChart, Area
 } from 'recharts';
+import { FileSpreadsheet } from 'lucide-react';
+import { exportAllToSheets } from '../utils/exportToSheets';
 
 const fmt  = (n: number) => n >= 100000 ? `₹${(n/100000).toFixed(1)}L` : `₹${n.toLocaleString('en-IN')}`;
 const pct  = (n: number, d: number) => d > 0 ? `${Math.round((n/d)*100)}%` : '0%';
@@ -36,7 +38,7 @@ function StatCard({ label, value, sub, color = 'text-gray-900' }: {
 }
 
 export default function Reports() {
-  const { leads, clients, candidates, placements, jobOrders, activities } = useCRM();
+  const { leads, clients, contacts, candidates, placements, jobOrders, activities, tasks } = useCRM();
 
   // ── Lead metrics ──────────────────────────────────────────────────────────
   const wonLeads     = leads.filter(l => l.stage === 'Won').length;
@@ -95,8 +97,24 @@ export default function Reports() {
     level, count: candidates.filter(c=>c.experienceLevel===level).length
   })).filter(d=>d.count > 0);
 
+  function handleExport() {
+    exportAllToSheets({ clients, contacts, leads, tasks, candidates, jobOrders, placements, activities });
+  }
+
   return (
     <div className="space-y-6">
+
+      {/* Export to Google Sheets */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleExport}
+          className="btn-primary flex items-center gap-2 bg-green-600 hover:bg-green-700 border-green-600"
+          style={{ background: '#16a34a', borderColor: '#16a34a' }}
+        >
+          <FileSpreadsheet size={16} />
+          Export All to Google Sheets (.xlsx)
+        </button>
+      </div>
 
       {/* Summary KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
