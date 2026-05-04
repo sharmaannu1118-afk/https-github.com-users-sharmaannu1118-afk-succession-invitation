@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X, Download, FilePen } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X, Download, FilePen, Bell, RefreshCw } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import { exportCsv } from '../utils/exportCsv';
-import type { Task, TaskStatus, TaskPriority, TaskRelatedTo } from '../types';
+import type { Task, TaskStatus, TaskPriority, TaskRelatedTo, RecurringType } from '../types';
 import Modal from '../components/Modal';
 
 function newId() { return 't' + Date.now(); }
@@ -11,11 +11,13 @@ const today = new Date().toISOString().slice(0, 10);
 const STATUSES: TaskStatus[] = ['Draft', 'Not Started', 'Pending', 'In Progress', 'Under Review', 'On Hold', 'Blocked', 'Incomplete', 'Completed'];
 const PRIORITIES: TaskPriority[] = ['Low', 'Medium', 'High', 'Urgent'];
 const RELATED: TaskRelatedTo[]  = ['Client', 'Lead', 'Candidate', 'General'];
+const RECURRING_OPTIONS: RecurringType[] = ['None', 'Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Quarterly', 'Yearly'];
 
 const EMPTY: Omit<Task, 'id' | 'createdAt'> = {
   title: '', description: '', relatedTo: 'General', relatedId: '',
   relatedName: '', assignedTo: 'Annu Sharma', assignedDate: today,
   dueDate: today, status: 'Pending', priority: 'Medium', notes: '',
+  reminderDate: '', reminderTime: '', recurring: 'None', recurringEndDate: '',
 };
 
 const PRIORITY_DOT: Record<TaskPriority, string> = {
@@ -432,6 +434,20 @@ export default function Tasks() {
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{t.notes}</p>
                   </div>
                 )}
+                {t.reminderDate && (
+                  <DetailRow
+                    icon={<Bell size={14} />}
+                    label="Reminder"
+                    value={`${fmtDate(t.reminderDate)}${t.reminderTime ? ' at ' + t.reminderTime : ''}`}
+                  />
+                )}
+                {t.recurring && t.recurring !== 'None' && (
+                  <DetailRow
+                    icon={<RefreshCw size={14} />}
+                    label="Recurring"
+                    value={t.recurringEndDate ? `${t.recurring} · ends ${fmtDate(t.recurringEndDate)}` : t.recurring}
+                  />
+                )}
               </div>
 
               {/* Footer actions */}
@@ -556,6 +572,34 @@ export default function Tasks() {
                   onChange={e => setForm(p => ({ ...p, completedDate: e.target.value }))} />
               </div>
             )}
+            {/* ── Reminder ── */}
+            <div className="sm:col-span-2">
+              <label className="label flex items-center gap-1.5"><Bell size={13} className="text-brand-500" /> Reminder</label>
+              <div className="flex gap-2">
+                <input type="date" className="input flex-1" value={form.reminderDate ?? ''}
+                  onChange={e => setForm(p => ({ ...p, reminderDate: e.target.value }))}
+                  placeholder="Reminder date" />
+                <input type="time" className="input w-36" value={form.reminderTime ?? ''}
+                  onChange={e => setForm(p => ({ ...p, reminderTime: e.target.value }))} />
+              </div>
+            </div>
+
+            {/* ── Recurring ── */}
+            <div>
+              <label className="label flex items-center gap-1.5"><RefreshCw size={13} className="text-brand-500" /> Recurring</label>
+              <select className="input" value={form.recurring ?? 'None'}
+                onChange={e => setForm(p => ({ ...p, recurring: e.target.value as RecurringType, recurringEndDate: e.target.value === 'None' ? '' : p.recurringEndDate }))}>
+                {RECURRING_OPTIONS.map(r => <option key={r}>{r}</option>)}
+              </select>
+            </div>
+            {form.recurring && form.recurring !== 'None' && (
+              <div>
+                <label className="label">Recurring End Date</label>
+                <input type="date" className="input" value={form.recurringEndDate ?? ''}
+                  onChange={e => setForm(p => ({ ...p, recurringEndDate: e.target.value }))} />
+              </div>
+            )}
+
             <div className="sm:col-span-2">
               <label className="label">Notes</label>
               <textarea rows={2} className="input resize-none" value={form.notes ?? ''}

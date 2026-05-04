@@ -102,6 +102,7 @@ export interface Lead {
 export type TaskStatus   = 'Pending' | 'In Progress' | 'Incomplete' | 'Completed' | 'Blocked' | 'On Hold' | 'Under Review' | 'Not Started' | 'Draft';
 export type TaskPriority = 'Low' | 'Medium' | 'High' | 'Urgent';
 export type TaskRelatedTo = 'Client' | 'Lead' | 'Candidate' | 'General';
+export type RecurringType = 'None' | 'Daily' | 'Weekly' | 'Bi-Weekly' | 'Monthly' | 'Quarterly' | 'Yearly';
 
 export interface Task {
   id: string;
@@ -119,6 +120,12 @@ export interface Task {
   status: TaskStatus;
   priority: TaskPriority;
   notes?: string;
+  // Reminder
+  reminderDate?: string;
+  reminderTime?: string;
+  // Recurring
+  recurring?: RecurringType;
+  recurringEndDate?: string;
   createdAt: string;
 }
 
