@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X, Download, FilePen } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X, Download, FilePen, Bell, RefreshCw } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import { exportCsv } from '../utils/exportCsv';
-import type { Task, TaskStatus, TaskPriority, TaskRelatedTo } from '../types';
+import type { Task, TaskStatus, TaskPriority, TaskRelatedTo, RecurringFrequency } from '../types';
 import Modal from '../components/Modal';
 
 function newId() { return 't' + Date.now(); }
@@ -12,10 +12,14 @@ const STATUSES: TaskStatus[] = ['Draft', 'Not Started', 'Pending', 'In Progress'
 const PRIORITIES: TaskPriority[] = ['Low', 'Medium', 'High', 'Urgent'];
 const RELATED: TaskRelatedTo[]  = ['Client', 'Lead', 'Candidate', 'General'];
 
+const RECURRING_FREQUENCIES: RecurringFrequency[] = ['Daily', 'Weekly', 'Bi-Weekly', 'Monthly', 'Quarterly', 'Yearly'];
+
 const EMPTY: Omit<Task, 'id' | 'createdAt'> = {
   title: '', description: '', relatedTo: 'General', relatedId: '',
   relatedName: '', assignedTo: 'Annu Sharma', assignedDate: today,
   dueDate: today, status: 'Pending', priority: 'Medium', notes: '',
+  reminderDate: '', reminderTime: '', isRecurring: false,
+  recurringFrequency: undefined, recurringEndDate: '',
 };
 
 const PRIORITY_DOT: Record<TaskPriority, string> = {
@@ -432,6 +436,27 @@ export default function Tasks() {
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{t.notes}</p>
                   </div>
                 )}
+                {(t.reminderDate || t.reminderTime) && (
+                  <DetailRow
+                    icon={<Bell size={14} className="text-amber-500" />}
+                    label="Reminder"
+                    value={[t.reminderDate ? fmtDate(t.reminderDate) : '', t.reminderTime ?? ''].filter(Boolean).join(' at ')}
+                  />
+                )}
+                {t.isRecurring && (
+                  <DetailRow
+                    icon={<RefreshCw size={14} className="text-purple-500" />}
+                    label="Recurring"
+                    value={
+                      <span className="flex items-center gap-2 flex-wrap">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">
+                          <RefreshCw size={10} /> {t.recurringFrequency}
+                        </span>
+                        {t.recurringEndDate && <span className="text-xs text-gray-500">until {fmtDate(t.recurringEndDate)}</span>}
+                      </span>
+                    }
+                  />
+                )}
               </div>
 
               {/* Footer actions */}
@@ -556,6 +581,56 @@ export default function Tasks() {
                   onChange={e => setForm(p => ({ ...p, completedDate: e.target.value }))} />
               </div>
             )}
+            {/* Reminder */}
+            <div className="sm:col-span-2">
+              <label className="label flex items-center gap-1.5"><Bell size={13} className="text-amber-500" /> Reminder</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">Reminder Date</label>
+                  <input type="date" className="input" value={form.reminderDate ?? ''}
+                    onChange={e => setForm(p => ({ ...p, reminderDate: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-400 mb-1 block">Reminder Time</label>
+                  <input type="time" className="input" value={form.reminderTime ?? ''}
+                    onChange={e => setForm(p => ({ ...p, reminderTime: e.target.value }))} />
+                </div>
+              </div>
+            </div>
+
+            {/* Recurring */}
+            <div className="sm:col-span-2">
+              <label className="label flex items-center gap-1.5"><RefreshCw size={13} className="text-purple-500" /> Recurring Task</label>
+              <div className="flex items-center gap-3 mb-2">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input type="checkbox" className="w-4 h-4 rounded accent-purple-600"
+                    checked={!!form.isRecurring}
+                    onChange={e => setForm(p => ({
+                      ...p, isRecurring: e.target.checked,
+                      recurringFrequency: e.target.checked ? (p.recurringFrequency ?? 'Weekly') : undefined,
+                      recurringEndDate: e.target.checked ? p.recurringEndDate : '',
+                    }))} />
+                  <span className="text-sm text-gray-700">This task repeats</span>
+                </label>
+              </div>
+              {form.isRecurring && (
+                <div className="grid grid-cols-2 gap-3 pl-6 border-l-2 border-purple-200">
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">Frequency</label>
+                    <select className="input" value={form.recurringFrequency ?? 'Weekly'}
+                      onChange={e => setForm(p => ({ ...p, recurringFrequency: e.target.value as RecurringFrequency }))}>
+                      {RECURRING_FREQUENCIES.map(f => <option key={f}>{f}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-400 mb-1 block">End Date (optional)</label>
+                    <input type="date" className="input" value={form.recurringEndDate ?? ''}
+                      onChange={e => setForm(p => ({ ...p, recurringEndDate: e.target.value }))} />
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="sm:col-span-2">
               <label className="label">Notes</label>
               <textarea rows={2} className="input resize-none" value={form.notes ?? ''}
