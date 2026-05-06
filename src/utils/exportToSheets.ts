@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import type { Client, Contact, Lead, Task, Candidate, JobOrder, Placement, Activity } from '../types';
+import type { Client, Contact, Lead, Task, Candidate, JobOrder, Activity } from '../types';
 
 function today() {
   return new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -12,7 +12,6 @@ export function exportAllToSheets(data: {
   tasks:      Task[];
   candidates: Candidate[];
   jobOrders:  JobOrder[];
-  placements: Placement[];
   activities: Activity[];
 }) {
   const wb = XLSX.utils.book_new();
@@ -130,24 +129,7 @@ export function exportAllToSheets(data: {
   }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(jobRows), 'Job Orders');
 
-  /* ── 7. Placements ──────────────────────────────────────── */
-  const placementRows = data.placements.map(p => ({
-    'Candidate ID':  p.candidateId,
-    'Job Order ID':  p.jobOrderId,
-    'Status':        p.status,
-    'Offer Date':    p.offerDate,
-    'Joining Date':  p.joiningDate ?? '',
-    'CTC Offered':   p.ctcOffered,
-    'Fee (₹)':       p.fee,
-    'Invoiced':      p.invoiced ? 'Yes' : 'No',
-    'Paid Date':     p.paidDate ?? '',
-    'Recruiter':     p.recruiter,
-    'Notes':         p.notes ?? '',
-    'Created On':    p.createdAt,
-  }));
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(placementRows), 'Placements');
-
-  /* ── 8. Activities ──────────────────────────────────────── */
+  /* ── 7. Activities ──────────────────────────────────────── */
   const activityRows = data.activities.map(a => ({
     'Type':        a.type,
     'Subject':     a.subject,

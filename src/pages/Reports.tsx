@@ -17,7 +17,7 @@ const STAGE_COLORS: Record<string,string> = {
   'Proposal Sent':'#f59e0b', Negotiation:'#f97316', Won:'#22c55e', Lost:'#ef4444',
 };
 
-const TABS = ['Overview','Clients','Contacts','Leads','Tasks','Candidates','Job Orders','Placements','Activities'] as const;
+const TABS = ['Overview','Clients','Contacts','Leads','Tasks','Candidates','Job Orders','Activities'] as const;
 type Tab = typeof TABS[number];
 
 function Badge({ label, color }: { label: string; color: string }) {
@@ -74,12 +74,12 @@ function KPI({ label, value, sub, color = '#1e3a8a' }: { label: string; value: s
 }
 
 export default function Reports() {
-  const { leads, clients, contacts, candidates, placements, jobOrders, activities, tasks } = useCRM();
+  const { leads, clients, contacts, candidates, jobOrders, activities, tasks } = useCRM();
   const [tab, setTab] = useState<Tab>('Overview');
   const [search, setSearch] = useState('');
 
   function handleExport() {
-    exportAllToSheets({ clients, contacts, leads, tasks, candidates, jobOrders, placements, activities });
+    exportAllToSheets({ clients, contacts, leads, tasks, candidates, jobOrders, activities });
   }
 
   const today = new Date().toISOString().slice(0, 10);
@@ -91,8 +91,6 @@ export default function Reports() {
   const activeLeads  = leads.filter(l => !['Won','Lost'].includes(l.stage)).length;
   const totalPipeline= leads.filter(l => !['Won','Lost'].includes(l.stage)).reduce((s,l)=>s+l.value,0);
   const wonRevenue   = leads.filter(l => l.stage === 'Won').reduce((s,l)=>s+l.value,0);
-  const totalFees    = placements.reduce((s,p)=>s+p.fee,0);
-  const invoicedFees = placements.filter(p=>p.invoiced).reduce((s,p)=>s+p.fee,0);
   const overdueTasks = tasks.filter(t => t.status !== 'Completed' && t.dueDate < today).length;
   const completedTasks = tasks.filter(t => t.status === 'Completed').length;
 
@@ -104,7 +102,7 @@ export default function Reports() {
     return {
       month: MONTHS[d.getMonth()],
       leads: leads.filter(l => l.createdAt?.startsWith(key)).length,
-      fees:  placements.filter(p => p.offerDate?.startsWith(key)).reduce((s,p)=>s+p.fee,0),
+      won:   leads.filter(l => l.stage === 'Won' && l.updatedAt?.startsWith(key)).length,
     };
   });
 
@@ -147,16 +145,6 @@ export default function Reports() {
     !q || j.title.toLowerCase().includes(q) || j.status.toLowerCase().includes(q) ||
     j.location.toLowerCase().includes(q) || j.type.toLowerCase().includes(q));
 
-  const filteredPlacements = placements.filter(p => {
-    const cand = candidates.find(c=>c.id===p.candidateId);
-    const job  = jobOrders.find(j=>j.id===p.jobOrderId);
-    const client = clients.find(c=>c.id===p.clientId);
-    return !q || (cand ? `${cand.firstName} ${cand.lastName}`.toLowerCase().includes(q) : false) ||
-      (job?.title??'').toLowerCase().includes(q) ||
-      (client?.name??'').toLowerCase().includes(q) ||
-      p.status.toLowerCase().includes(q);
-  });
-
   const filteredActivities = activities.filter(a =>
     !q || a.subject.toLowerCase().includes(q) || a.type.toLowerCase().includes(q) ||
     a.relatedName.toLowerCase().includes(q) || a.status.toLowerCase().includes(q));
@@ -168,7 +156,6 @@ export default function Reports() {
     if (tab === 'Tasks')       exportCsv('Report-Tasks.csv', filteredTasks.map(t => ({ Title:t.title,Status:t.status,Priority:t.priority,'Related To':t.relatedName??'','Due Date':t.dueDate,'Completed Date':t.completedDate??'','Created On':t.createdAt })));
     if (tab === 'Candidates')  exportCsv('Report-Candidates.csv', filteredCandidates.map(c => ({ Name:`${c.firstName} ${c.lastName}`,Title:c.currentTitle,Company:c.currentCompany??'',Level:c.experienceLevel,Status:c.status,Location:c.location,'Expected Salary':c.expectedSalary??'','Created On':c.createdAt })));
     if (tab === 'Job Orders')  exportCsv('Report-Jobs.csv', filteredJobs.map(j => ({ Title:j.title,Status:j.status,Type:j.type,Priority:j.priority,Openings:j.openings,Location:j.location,Recruiter:j.recruiter,'Created On':j.createdAt })));
-    if (tab === 'Placements')  exportCsv('Report-Placements.csv', filteredPlacements.map(p => ({ Candidate:candidates.find(c=>c.id===p.candidateId) ? `${candidates.find(c=>c.id===p.candidateId)!.firstName} ${candidates.find(c=>c.id===p.candidateId)!.lastName}` : p.candidateId, Job:jobOrders.find(j=>j.id===p.jobOrderId)?.title??p.jobOrderId, Client:clients.find(c=>c.id===p.clientId)?.name??p.clientId, Status:p.status, 'Offer Date':p.offerDate,'Joining Date':p.joiningDate??'','Fee (₹)':p.fee,Invoiced:p.invoiced?'Yes':'No' })));
     if (tab === 'Activities')  exportCsv('Report-Activities.csv', filteredActivities.map(a => ({ Type:a.type,Subject:a.subject,'Related To':a.relatedName,Status:a.status,'Due Date':a.dueDate,'Completed':a.completedAt??'','Assigned To':a.assignedTo })));
   }
 
@@ -179,7 +166,7 @@ export default function Reports() {
       <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-green-50 border border-green-200 rounded-xl">
         <div>
           <p className="font-semibold text-green-900 text-sm">Export your entire CRM to Google Sheets</p>
-          <p className="text-xs text-green-700 mt-0.5">Downloads an .xlsx file with 8 tabs: Clients, Contacts, Leads, Tasks, Candidates, Jobs, Placements, Activities</p>
+          <p className="text-xs text-green-700 mt-0.5">Downloads an .xlsx file with 7 tabs: Clients, Contacts, Leads, Tasks, Candidates, Jobs, Activities</p>
         </div>
         <button onClick={handleExport} style={{ background:'#16a34a', borderColor:'#16a34a' }}
           className="btn-primary flex items-center gap-2 flex-shrink-0">
@@ -208,32 +195,31 @@ export default function Reports() {
             <KPI label="Total Leads"        value={leads.length}        sub={`${activeLeads} active · ${wonLeads} won`}                        color="#7c3aed" />
             <KPI label="Total Candidates"   value={candidates.length}   sub={`${candidates.filter(c=>c.status==='Hired').length} hired`}       color="#0d9488" />
             <KPI label="Job Orders"         value={jobOrders.length}    sub={`${jobOrders.filter(j=>j.status==='Open').length} open`}          color="#d97706" />
-            <KPI label="Placements"         value={placements.length}   sub={`${placements.filter(p=>p.status==='Joined').length} joined`}     color="#16a34a" />
             <KPI label="Total Tasks"        value={tasks.length}        sub={`${completedTasks} done · ${overdueTasks} overdue`}               color="#2563eb" />
             <KPI label="Activities"         value={activities.length}   sub={`${activities.filter(a=>a.status==='Completed').length} completed`}color="#64748b" />
+            <KPI label="Won Revenue"        value={fmt(wonRevenue)}     sub={`Win rate: ${pct(wonLeads,wonLeads+lostLeads)}`}                  color="#16a34a" />
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <KPI label="Total Pipeline"   value={fmt(totalPipeline)} sub={`${activeLeads} active leads`} color="#1e3a8a" />
-            <KPI label="Won Revenue"      value={fmt(wonRevenue)}    sub={`${wonLeads}W / ${lostLeads}L — Win rate: ${pct(wonLeads,wonLeads+lostLeads)}`} color="#16a34a" />
-            <KPI label="Total Fees"       value={fmt(totalFees)}     sub="all placements" color="#0d9488" />
-            <KPI label="Fees Collected"   value={fmt(invoicedFees)}  sub={`${fmt(totalFees-invoicedFees)} pending`} color="#16a34a" />
+            <KPI label="Won Leads"        value={wonLeads}           sub={`${lostLeads} lost`}           color="#16a34a" />
+            <KPI label="Hot Leads"        value={leads.filter(l=>l.temperature==='Hot'&&!['Won','Lost'].includes(l.stage)).length} sub="active hot leads" color="#ef4444" />
+            <KPI label="Lost Leads"       value={lostLeads}          sub={`${pct(lostLeads,leads.length)} of total`} color="#94a3b8" />
           </div>
 
           {/* Charts row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Monthly leads & fees */}
             <div className="lg:col-span-2 bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-              <p className="text-sm font-semibold text-gray-800 mb-3">Monthly Leads Added & Fees (last 6 months)</p>
+              <p className="text-sm font-semibold text-gray-800 mb-3">Monthly Leads Added & Won (last 6 months)</p>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={monthlyData} barGap={4}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                  <YAxis yAxisId="l" tick={{ fontSize: 11 }} allowDecimals={false} />
-                  <YAxis yAxisId="r" orientation="right" tick={{ fontSize: 11 }} tickFormatter={v=>`₹${(v/1000).toFixed(0)}K`} />
-                  <Tooltip formatter={(v, name) => name === 'Fees (₹)' ? fmt(v as number) : v} />
-                  <Bar yAxisId="l" dataKey="leads" name="Leads Added" fill="#6366f1" radius={[4,4,0,0]} />
-                  <Bar yAxisId="r" dataKey="fees"  name="Fees (₹)"   fill="#22c55e" radius={[4,4,0,0]} />
+                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="leads" name="Leads Added" fill="#6366f1" radius={[4,4,0,0]} />
+                  <Bar dataKey="won"   name="Won"         fill="#22c55e" radius={[4,4,0,0]} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
                 </BarChart>
               </ResponsiveContainer>
@@ -326,7 +312,6 @@ export default function Reports() {
               {tab === 'Tasks'      && `${filteredTasks.length} record${filteredTasks.length !== 1 ? 's' : ''}`}
               {tab === 'Candidates' && `${filteredCandidates.length} record${filteredCandidates.length !== 1 ? 's' : ''}`}
               {tab === 'Job Orders' && `${filteredJobs.length} record${filteredJobs.length !== 1 ? 's' : ''}`}
-              {tab === 'Placements' && `${filteredPlacements.length} record${filteredPlacements.length !== 1 ? 's' : ''}`}
               {tab === 'Activities' && `${filteredActivities.length} record${filteredActivities.length !== 1 ? 's' : ''}`}
             </span>
             <button onClick={exportTab} className="btn-secondary flex items-center gap-1.5 text-xs ml-auto">
@@ -447,31 +432,6 @@ export default function Reports() {
                 j.deadline ?? '—',
                 j.createdAt,
               ])}
-            />
-          )}
-
-          {/* PLACEMENTS */}
-          {tab === 'Placements' && (
-            <Table
-              headers={['Candidate','Job Title','Client','Status','Offer Date','Joining Date','CTC Offered','Fee (₹)','Invoiced','Recruiter','Created']}
-              rows={filteredPlacements.map(p => {
-                const cand   = candidates.find(c => c.id === p.candidateId);
-                const job    = jobOrders.find(j => j.id === p.jobOrderId);
-                const client = clients.find(c => c.id === p.clientId);
-                return [
-                  <span className="font-semibold text-gray-900">{cand ? `${cand.firstName} ${cand.lastName}` : '—'}</span>,
-                  job?.title ?? '—',
-                  client?.name ?? '—',
-                  <Badge label={p.status} color={statusColor(p.status)} />,
-                  p.offerDate,
-                  p.joiningDate ?? '—',
-                  fmt(p.ctcOffered),
-                  fmt(p.fee),
-                  p.invoiced ? <Badge label="Invoiced" color="#16a34a" /> : <Badge label="Pending" color="#f97316" />,
-                  p.recruiter,
-                  p.createdAt,
-                ];
-              })}
             />
           )}
 

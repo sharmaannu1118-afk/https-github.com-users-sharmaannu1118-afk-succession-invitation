@@ -8,7 +8,6 @@ import Contacts from './pages/Contacts';
 import Leads from './pages/Leads';
 import Candidates from './pages/Candidates';
 import Jobs from './pages/Jobs';
-import Placements from './pages/Placements';
 import Activities from './pages/Activities';
 import Reports from './pages/Reports';
 import Search from './pages/Search';
@@ -27,7 +26,6 @@ export default function App() {
               <Route path="/leads"       element={<Leads />} />
               <Route path="/candidates"  element={<Candidates />} />
               <Route path="/jobs"        element={<Jobs />} />
-              <Route path="/placements"  element={<Placements />} />
               <Route path="/activities"  element={<Activities />} />
               <Route path="/tasks"       element={<Tasks />} />
               <Route path="/reports"     element={<Reports />} />

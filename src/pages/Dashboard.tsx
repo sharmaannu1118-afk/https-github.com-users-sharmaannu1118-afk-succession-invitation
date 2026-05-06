@@ -2,7 +2,7 @@ import { useCRM } from '../context/CRMContext';
 import { useNavigate } from 'react-router-dom';
 import {
   Building2, Users, Briefcase, UserSearch,
-  Award, AlertTriangle, CheckCircle2, Clock, ArrowRight,
+  AlertTriangle, CheckCircle2, Clock, ArrowRight,
   IndianRupee, Target, Zap
 } from 'lucide-react';
 import {
@@ -31,7 +31,7 @@ const revenueData = [
 ];
 
 export default function Dashboard() {
-  const { clients, contacts, leads, jobOrders, candidates, placements, activities, updateActivity } = useCRM();
+  const { clients, contacts, leads, jobOrders, candidates, activities, updateActivity } = useCRM();
   const navigate = useNavigate();
 
   // ── KPIs ────────────────────────────────────────────────────────────────
@@ -40,8 +40,6 @@ export default function Dashboard() {
   const activeCands    = candidates.filter(c => !['Rejected','Blacklisted','Withdrawn'].includes(c.status)).length;
   const pipelineValue  = leads.filter(l => !['Won','Lost'].includes(l.stage))
     .reduce((s, l) => s + l.value * (l.probability / 100), 0);
-  const feesCollected  = placements.filter(p => p.invoiced).reduce((s, p) => s + p.fee, 0);
-  const feesPending    = placements.filter(p => !p.invoiced).reduce((s, p) => s + p.fee, 0);
 
   // ── Today / Overdue ──────────────────────────────────────────────────────
   const overdueActs    = activities.filter(a => a.status === 'Planned' && a.dueDate < today);
@@ -60,24 +58,18 @@ export default function Dashboard() {
     .sort((a, b) => b.value * b.probability - a.value * a.probability)
     .slice(0, 4);
 
-  // ── Recent placements ────────────────────────────────────────────────────
-  const recentPlacements = [...placements]
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .slice(0, 4);
-
   function markDone(act: (typeof activities)[0]) {
     updateActivity({ ...act, status: 'Completed', completedAt: today });
   }
 
   const kpis = [
-    { label: 'Active Clients',    value: activeClients,      icon: Building2,    color: 'bg-brand-600',  link: '/clients' },
+    { label: 'Active Clients',    value: activeClients,      icon: Building2,    color: 'bg-brand-600',   link: '/clients' },
     { label: 'Open Job Orders',   value: openJobs,           icon: Briefcase,    color: 'bg-emerald-600', link: '/jobs' },
-    { label: 'Active Candidates', value: activeCands,        icon: UserSearch,   color: 'bg-purple-600', link: '/candidates' },
-    { label: 'Pipeline (Wtd.)',   value: fmt(pipelineValue), icon: Target,       color: 'bg-orange-500', link: '/leads' },
-    { label: 'Fees Collected',    value: fmt(feesCollected), icon: IndianRupee,  color: 'bg-green-600',  link: '/placements' },
-    { label: 'Fees Pending',      value: fmt(feesPending),   icon: Clock,        color: 'bg-yellow-500', link: '/placements' },
-    { label: 'Total Contacts',    value: contacts.length,    icon: Users,        color: 'bg-indigo-600', link: '/contacts' },
-    { label: 'Total Placements',  value: placements.length,  icon: Award,        color: 'bg-teal-600',   link: '/placements' },
+    { label: 'Active Candidates', value: activeCands,        icon: UserSearch,   color: 'bg-purple-600',  link: '/candidates' },
+    { label: 'Pipeline (Wtd.)',   value: fmt(pipelineValue), icon: Target,       color: 'bg-orange-500',  link: '/leads' },
+    { label: 'Total Contacts',    value: contacts.length,    icon: Users,        color: 'bg-indigo-600',  link: '/contacts' },
+    { label: 'Won Leads',         value: leads.filter(l=>l.stage==='Won').length, icon: IndianRupee, color: 'bg-green-600', link: '/leads' },
+    { label: 'Pending Activities',value: activities.filter(a=>a.status==='Planned').length, icon: Clock, color: 'bg-yellow-500', link: '/activities' },
   ];
 
   return (
@@ -284,44 +276,35 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Placements + Pipeline funnel */}
+      {/* Recent Candidates + Pipeline funnel */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* Recent Placements */}
+        {/* Recent Candidates */}
         <div className="card">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-gray-800">Recent Placements</h3>
-            <button onClick={() => navigate('/placements')} className="text-xs text-brand-600 hover:underline flex items-center gap-1">
+            <h3 className="text-sm font-semibold text-gray-800">Recent Candidates</h3>
+            <button onClick={() => navigate('/candidates')} className="text-xs text-brand-600 hover:underline flex items-center gap-1">
               All <ArrowRight size={12} />
             </button>
           </div>
-          {recentPlacements.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-6">No placements yet.</p>
+          {candidates.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-6">No candidates yet.</p>
           ) : (
             <div className="space-y-3">
-              {recentPlacements.map(p => {
-                const cand   = candidates.find(c => c.id === p.candidateId);
-                const client = clients.find(c => c.id === p.clientId);
-                return (
-                  <div key={p.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold">
-                        {cand?.firstName?.[0] ?? '?'}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {cand ? `${cand.firstName} ${cand.lastName}` : '—'}
-                        </p>
-                        <p className="text-xs text-gray-500">{client?.name}</p>
-                      </div>
+              {[...candidates].sort((a,b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 4).map(c => (
+                <div key={c.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">
+                      {c.firstName[0]}
                     </div>
-                    <div className="text-right">
-                      <StatusBadge value={p.status} />
-                      <p className="text-xs text-gray-500 mt-0.5">{fmt(p.fee)}</p>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{c.firstName} {c.lastName}</p>
+                      <p className="text-xs text-gray-500">{c.currentTitle} · {c.location}</p>
                     </div>
                   </div>
-                );
-              })}
+                  <StatusBadge value={c.status} />
+                </div>
+              ))}
             </div>
           )}
         </div>
