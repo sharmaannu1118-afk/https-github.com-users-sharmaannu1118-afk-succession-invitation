@@ -25,7 +25,7 @@ const INDUSTRIES: Industry[] = [
 ];
 const STATUSES: ClientStatus[]    = ['Active', 'Inactive', 'Prospect'];
 const BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual', 'Project-Based', 'Pro Bono'];
-const WORK_MODES: WorkMode[]       = ['Onsite', 'Hybrid', 'Weekly Visit', 'Remote'];
+const WORK_MODES: WorkMode[]       = ['Onsite', 'Hybrid', 'Weekly Visit', 'Remote', 'Part-Time (Onsite)', 'Part-Time (Remote)'];
 const TEAM = ['Annu Sharma'];
 
 function newId() { return 'c' + Date.now(); }
@@ -43,10 +43,12 @@ function toMonthly(amount: number, cycle: BillingCycle): number {
 }
 
 const WORK_MODE_COLORS: Record<WorkMode, string> = {
-  'Onsite':       'bg-green-100 text-green-700',
-  'Hybrid':       'bg-blue-100 text-blue-700',
-  'Weekly Visit': 'bg-purple-100 text-purple-700',
-  'Remote':       'bg-gray-100 text-gray-600',
+  'Onsite':              'bg-green-100 text-green-700',
+  'Hybrid':              'bg-blue-100 text-blue-700',
+  'Weekly Visit':        'bg-purple-100 text-purple-700',
+  'Remote':              'bg-gray-100 text-gray-600',
+  'Part-Time (Onsite)':  'bg-orange-100 text-orange-700',
+  'Part-Time (Remote)':  'bg-yellow-100 text-yellow-700',
 };
 
 const EMPTY: Omit<Client, 'id' | 'createdAt' | 'updatedAt'> = {

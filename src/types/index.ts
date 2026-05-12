@@ -16,7 +16,7 @@ export type Industry =
   | 'Telecommunications' | 'Energy & Power'
   | 'NGO / Non-Profit' | 'Other';
 export type BillingCycle  = 'Monthly' | 'Quarterly' | 'Annual' | 'Project-Based' | 'Pro Bono';
-export type WorkMode      = 'Onsite' | 'Hybrid' | 'Weekly Visit' | 'Remote';
+export type WorkMode      = 'Onsite' | 'Hybrid' | 'Weekly Visit' | 'Remote' | 'Part-Time (Onsite)' | 'Part-Time (Remote)';
 
 export interface Client {
   id: string;
