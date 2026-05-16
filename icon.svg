@@ -1,25 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 520">
-  <rect width="520" height="520" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Navy rounded background -->
+  <rect width="512" height="512" rx="96" fill="#1a2f5e"/>
 
-  <!-- Navy A mark -->
-  <polygon points="260,30 460,310 390,310 260,140 130,310 60,310" fill="#1a2f5e"/>
+  <!-- Bold white A -->
+  <polygon points="256,70 400,390 344,390 256,190 168,390 112,390" fill="#ffffff"/>
+  <!-- A crossbar -->
+  <rect x="152" y="300" width="208" height="36" rx="4" fill="#ffffff"/>
 
-  <!-- Gold swoosh main -->
-  <path d="M50,220 Q220,100 470,190" stroke="#c9a84c" stroke-width="20" fill="none" stroke-linecap="round"/>
-  <!-- Gold swoosh thin accent -->
-  <path d="M60,250 Q230,130 470,220" stroke="#c9a84c" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.45"/>
+  <!-- Gold accent bar -->
+  <rect x="80" y="430" width="352" height="14" rx="7" fill="#c9a84c"/>
 
-  <!-- ANNU -->
-  <text x="260" y="385" font-family="Georgia,Times New Roman,serif" font-size="88" font-weight="bold"
-        fill="#1a2f5e" text-anchor="middle" letter-spacing="16">ANNU</text>
-
-  <!-- HUMAN RESOURCE BUSINESS PARTNER -->
-  <text x="260" y="430" font-family="Georgia,Times New Roman,serif" font-size="22" font-weight="bold"
-        fill="#c9a84c" text-anchor="middle" letter-spacing="3">HUMAN RESOURCE BUSINESS PARTNER</text>
-
-  <!-- decorative lines + HRBP -->
-  <line x1="80" y1="452" x2="192" y2="452" stroke="#c9a84c" stroke-width="1.5"/>
-  <text x="260" y="460" font-family="Georgia,Times New Roman,serif" font-size="24" font-weight="bold"
-        fill="#1a2f5e" text-anchor="middle" letter-spacing="3">(HRBP)</text>
-  <line x1="328" y1="452" x2="440" y2="452" stroke="#c9a84c" stroke-width="1.5"/>
+  <!-- Gold dot accent above bar -->
+  <circle cx="256" cy="422" r="6" fill="#c9a84c"/>
 </svg>
