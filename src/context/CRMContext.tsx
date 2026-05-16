@@ -26,17 +26,18 @@ function resetLeadsIfVersionChanged() {
 }
 resetLeadsIfVersionChanged();
 
-// Merges stored user data with seed: adds any seed items missing from localStorage.
-// Never removes items the user has added.
+// Seeds only on first load (when key is absent from localStorage).
+// If the user has ever saved data for this key — even an empty array — their
+// state is authoritative. Deleted items will NOT come back on reload.
 function withSeed<T extends { id: string }>(key: string, seed: T[]): T[] {
   try {
     const raw = localStorage.getItem(key);
-    const stored: T[] = raw ? JSON.parse(raw) : [];
-    const storedIds = new Set(stored.map(i => i.id));
-    const missing = seed.filter(i => !storedIds.has(i.id));
-    const merged = missing.length ? [...stored, ...missing] : stored;
-    if (missing.length) save(key, merged);
-    return merged;
+    if (raw === null) {
+      // First time ever — write the seed and use it.
+      save(key, seed);
+      return [...seed];
+    }
+    return JSON.parse(raw);
   } catch {
     save(key, seed);
     return [...seed];
