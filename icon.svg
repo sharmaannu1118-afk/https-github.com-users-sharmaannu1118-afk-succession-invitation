@@ -1,3 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="72" fill="#1a2f5e"/>
+  <!-- White background -->
+  <rect width="512" height="512" rx="0" fill="#ffffff"/>
+
+  <!-- ── Navy A mark ── -->
+  <path d="M256 30 L234 30 L60 290 L128 290 L176 175 L336 175 L384 290 L452 290 L278 30 Z
+           M200 148 L256 30 L312 148 Z" fill="#1a2f5e"/>
+
+  <!-- Gold swoosh (main thick arc) -->
+  <path d="M55 220 Q200 110 460 185" stroke="#c9a84c" stroke-width="18" fill="none" stroke-linecap="round"/>
+  <!-- Gold swoosh (thin lower accent) -->
+  <path d="M70 248 Q215 138 460 210" stroke="#c9a84c" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- ── ANNU text ── -->
+  <text x="256" y="365" font-family="Georgia, serif" font-size="90" font-weight="bold"
+        fill="#1a2f5e" text-anchor="middle" letter-spacing="18">ANNU</text>
+
+  <!-- ── HUMAN RESOURCE BUSINESS PARTNER ── -->
+  <text x="256" y="418" font-family="Georgia, serif" font-size="24" font-weight="bold"
+        fill="#c9a84c" text-anchor="middle" letter-spacing="3">HUMAN RESOURCE BUSINESS PARTNER</text>
+
+  <!-- Gold lines + (HRBP) -->
+  <line x1="90" y1="445" x2="195" y2="445" stroke="#c9a84c" stroke-width="1.5"/>
+  <text x="256" y="452" font-family="Georgia, serif" font-size="26" font-weight="bold"
+        fill="#1a2f5e" text-anchor="middle" letter-spacing="2">(HRBP)</text>
+  <line x1="317" y1="445" x2="422" y2="445" stroke="#c9a84c" stroke-width="1.5"/>
 </svg>
