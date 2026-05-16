@@ -98,8 +98,19 @@ export default function Tasks() {
       (t.relatedName ?? '').toLowerCase().includes(q) ||
       (t.description ?? '').toLowerCase().includes(q);
     const matchPriority = priorityFilter === 'All' || t.priority === priorityFilter;
-    const matchClient   = clientFilter === 'All' ||
-      (t.relatedTo === 'Client' && t.relatedId === clientFilter);
+    const matchClient = clientFilter === 'All' || (() => {
+      if (t.companyId === clientFilter) return true;
+      if (t.relatedTo === 'Client' && t.relatedId === clientFilter) return true;
+      const client = clients.find(c => c.id === clientFilter);
+      if (!client) return false;
+      if (t.relatedName === client.name) return true;
+      return contacts
+        .filter(c => c.clientId === clientFilter)
+        .some(c => {
+          const full = `${c.firstName} ${c.lastName}`.trim();
+          return t.relatedName === full || t.relatedName === c.firstName;
+        });
+    })();
     return matchSearch && matchPriority && matchClient;
   });
 
