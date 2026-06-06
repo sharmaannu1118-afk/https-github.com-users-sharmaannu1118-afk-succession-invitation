@@ -243,6 +243,7 @@ export interface Invoice {
   id: string;
   invoiceNumber: string;
   clientId: string;
+  description?: string;
   items: InvoiceItem[];
   subtotal: number;
   taxRate: number;
@@ -250,7 +251,7 @@ export interface Invoice {
   total: number;
   status: InvoiceStatus;
   issueDate: string;
-  dueDate: string;
+  dueDate?: string;
   paidDate?: string;
   notes?: string;
   createdAt: string;
