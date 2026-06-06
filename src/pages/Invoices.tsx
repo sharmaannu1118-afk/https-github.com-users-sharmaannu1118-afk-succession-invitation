@@ -8,6 +8,13 @@ import type { Invoice, InvoiceItem, InvoiceStatus } from '../types';
 
 const STATUSES: InvoiceStatus[] = ['Draft', 'Sent', 'Paid', 'Overdue', 'Cancelled'];
 
+const MONTH_NAMES = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December',
+];
+const currentYear = new Date().getFullYear();
+const YEARS = Array.from({ length: 6 }, (_, i) => currentYear - 2 + i); // 2 past + current + 3 future
+
 const STATUS_COLORS: Record<InvoiceStatus, string> = {
   Draft:     'bg-gray-100 text-gray-600',
   Sent:      'bg-blue-100 text-blue-700',
@@ -425,10 +432,35 @@ export default function Invoices() {
                 </div>
               </div>
 
-              {/* Month */}
+              {/* Month + Year */}
               <div>
                 <label className="label">Billing Month</label>
-                <input type="month" className="input" value={form.month} onChange={e => setForm(f => ({ ...f, month: e.target.value }))} />
+                <div className="grid grid-cols-2 gap-3">
+                  <select
+                    className="input"
+                    value={form.month ? form.month.split('-')[1] : ''}
+                    onChange={e => {
+                      const [y] = form.month ? form.month.split('-') : [String(currentYear)];
+                      setForm(f => ({ ...f, month: e.target.value ? `${y}-${e.target.value}` : '' }));
+                    }}
+                  >
+                    <option value="">— Month —</option>
+                    {MONTH_NAMES.map((name, i) => (
+                      <option key={name} value={String(i + 1).padStart(2, '0')}>{name}</option>
+                    ))}
+                  </select>
+                  <select
+                    className="input"
+                    value={form.month ? form.month.split('-')[0] : ''}
+                    onChange={e => {
+                      const [, m] = form.month ? form.month.split('-') : ['', ''];
+                      setForm(f => ({ ...f, month: e.target.value && m ? `${e.target.value}-${m}` : '' }));
+                    }}
+                  >
+                    <option value="">— Year —</option>
+                    {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                </div>
               </div>
 
               {/* Description */}
