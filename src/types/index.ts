@@ -228,6 +228,35 @@ export interface Activity {
   createdAt: string;
 }
 
+// ─── Invoice ──────────────────────────────────────────────────────────────────
+export type InvoiceStatus = 'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled';
+
+export interface InvoiceItem {
+  id: string;
+  description: string;
+  qty: number;
+  rate: number;
+  amount: number;
+}
+
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  clientId: string;
+  items: InvoiceItem[];
+  subtotal: number;
+  taxRate: number;
+  taxAmount: number;
+  total: number;
+  status: InvoiceStatus;
+  issueDate: string;
+  dueDate: string;
+  paidDate?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ─── User / Team member ───────────────────────────────────────────────────────
 export interface TeamMember {
   id: string;

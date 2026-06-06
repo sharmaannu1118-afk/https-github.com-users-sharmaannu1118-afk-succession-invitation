@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import type { Client, Contact, Lead, Task, Candidate, JobOrder, Activity } from '../types';
+import type { Client, Contact, Lead, Task, Candidate, JobOrder, Activity, Invoice } from '../types';
 
 function today() {
   return new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -13,6 +13,7 @@ export function exportAllToSheets(data: {
   candidates: Candidate[];
   jobOrders:  JobOrder[];
   activities: Activity[];
+  invoices:   Invoice[];
 }) {
   const wb = XLSX.utils.book_new();
 
@@ -143,6 +144,24 @@ export function exportAllToSheets(data: {
     'Created On':  a.createdAt,
   }));
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(activityRows), 'Activities');
+
+  /* ── 8. Invoices ───────────────────────────────────────── */
+  const invoiceRows = data.invoices.map(inv => ({
+    'Invoice Number': inv.invoiceNumber,
+    'Client ID':      inv.clientId,
+    'Status':         inv.status,
+    'Issue Date':     inv.issueDate,
+    'Due Date':       inv.dueDate,
+    'Paid Date':      inv.paidDate ?? '',
+    'Subtotal (₹)':   inv.subtotal,
+    'GST Rate (%)':   inv.taxRate,
+    'GST Amount (₹)': inv.taxAmount,
+    'Total (₹)':      inv.total,
+    'Items':          inv.items.map(it => `${it.description} (${it.qty}×${it.rate})`).join('; '),
+    'Notes':          inv.notes ?? '',
+    'Created On':     inv.createdAt,
+  }));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(invoiceRows.length ? invoiceRows : [{}]), 'Invoices');
 
   /* ── Download ───────────────────────────────────────────── */
   const fileName = `AnnuHR-CRM-${today().replace(/ /g, '-')}.xlsx`;

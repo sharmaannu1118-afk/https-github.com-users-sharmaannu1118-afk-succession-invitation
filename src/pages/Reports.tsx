@@ -74,12 +74,12 @@ function KPI({ label, value, sub, color = '#1e3a8a' }: { label: string; value: s
 }
 
 export default function Reports() {
-  const { leads, clients, contacts, candidates, jobOrders, activities, tasks } = useCRM();
+  const { leads, clients, contacts, candidates, jobOrders, activities, tasks, invoices } = useCRM();
   const [tab, setTab] = useState<Tab>('Overview');
   const [search, setSearch] = useState('');
 
   function handleExport() {
-    exportAllToSheets({ clients, contacts, leads, tasks, candidates, jobOrders, activities });
+    exportAllToSheets({ clients, contacts, leads, tasks, candidates, jobOrders, activities, invoices });
   }
 
   const today = new Date().toISOString().slice(0, 10);

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import type {
-  Client, Contact, Lead, JobOrder, Candidate, Placement, Activity, Task
+  Client, Contact, Lead, JobOrder, Candidate, Placement, Activity, Task, Invoice
 } from '../types';
 import {
   CLIENTS, CONTACTS, LEADS, JOB_ORDERS, CANDIDATES, PLACEMENTS, ACTIVITIES, TASKS,
@@ -87,6 +87,11 @@ interface CRMContextValue {
   updateTask: (t: Task) => void;
   deleteTask: (id: string) => void;
 
+  invoices: Invoice[];
+  addInvoice: (inv: Invoice) => void;
+  updateInvoice: (inv: Invoice) => void;
+  deleteInvoice: (id: string) => void;
+
   exportData: () => void;
   importData: (json: string) => void;
 }
@@ -115,6 +120,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   const [placements, setPlacements] = useSaved<Placement>('crm_placements', PLACEMENTS);
   const [activities, setActivities] = useSaved<Activity> ('crm_activities', ACTIVITIES);
   const [tasks,      setTasks]      = useSaved<Task>     ('crm_tasks',      TASKS);
+  const [invoices,   setInvoices]   = useSaved<Invoice>  ('crm_invoices',   []);
 
   const addClient    = useCallback((c: Client)    => setClients(p    => [c, ...p]),              [setClients]);
   const updateClient = useCallback((c: Client)    => setClients(p    => p.map(x => x.id === c.id ? c : x)),  [setClients]);
@@ -147,12 +153,16 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   const updateTask = useCallback((t: Task) => setTasks(p => p.map(x => x.id === t.id ? t : x)), [setTasks]);
   const deleteTask = useCallback((id: string) => setTasks(p => p.filter(x => x.id !== id)),     [setTasks]);
 
+  const addInvoice    = useCallback((inv: Invoice) => setInvoices(p => [inv, ...p]),                    [setInvoices]);
+  const updateInvoice = useCallback((inv: Invoice) => setInvoices(p => p.map(x => x.id === inv.id ? inv : x)), [setInvoices]);
+  const deleteInvoice = useCallback((id: string)   => setInvoices(p => p.filter(x => x.id !== id)),    [setInvoices]);
+
   // ── Backup & Restore ────────────────────────────────────────────────────
   const exportData = useCallback(() => {
     const data = {
       version: DATA_VERSION,
       exportedAt: new Date().toISOString(),
-      clients, contacts, leads, jobOrders, candidates, placements, activities, tasks,
+      clients, contacts, leads, jobOrders, candidates, placements, activities, tasks, invoices,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url  = URL.createObjectURL(blob);
@@ -174,15 +184,16 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
       if (data.placements) { save('crm_placements', data.placements); setPlacements(data.placements); }
       if (data.activities) { save('crm_activities', data.activities); setActivities(data.activities); }
       if (data.tasks)      { save('crm_tasks',      data.tasks);      setTasks(data.tasks); }
+      if (data.invoices)   { save('crm_invoices',   data.invoices);   setInvoices(data.invoices); }
       localStorage.setItem('crm_data_version', DATA_VERSION);
     } catch {
       alert('Invalid backup file. Please select a valid AnnuHR CRM backup.');
     }
-  }, [setClients, setContacts, setLeads, setJobOrders, setCandidates, setPlacements, setActivities, setTasks]);
+  }, [setClients, setContacts, setLeads, setJobOrders, setCandidates, setPlacements, setActivities, setTasks, setInvoices]);
 
   return (
     <CRMContext.Provider value={{
-      clients, contacts, leads, jobOrders, candidates, placements, activities, tasks,
+      clients, contacts, leads, jobOrders, candidates, placements, activities, tasks, invoices,
       addClient, updateClient, deleteClient,
       addContact, updateContact, deleteContact,
       addLead, updateLead, deleteLead,
@@ -191,6 +202,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
       addPlacement, updatePlacement,
       addActivity, updateActivity, deleteActivity,
       addTask, updateTask, deleteTask,
+      addInvoice, updateInvoice, deleteInvoice,
       exportData, importData,
     }}>
       {children}
