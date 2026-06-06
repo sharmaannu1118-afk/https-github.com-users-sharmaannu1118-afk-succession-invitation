@@ -22,6 +22,11 @@ function todayStr()  { return new Date().toISOString().slice(0, 10); }
 function fmt(n: number) {
   return '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+function fmtMonth(m?: string) {
+  if (!m) return '';
+  const [y, mo] = m.split('-');
+  return new Date(+y, +mo - 1).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
+}
 function nextInvoiceNo(invoices: Invoice[]) {
   const year = new Date().getFullYear();
   const nums = invoices.map(inv => {
@@ -37,6 +42,7 @@ const emptyItem = (): FormItem => ({ id: newItemId(), description: '', qty: '1',
 interface InvoiceForm {
   invoiceNumber: string;
   clientId: string;
+  month: string;
   description: string;
   status: InvoiceStatus;
   issueDate: string;
@@ -102,6 +108,7 @@ function printInvoice(invoice: Invoice, clientName: string, clientPhone: string,
     <div class="inv-meta">
       <div><strong>No:</strong> ${invoice.invoiceNumber}</div>
       <div><strong>Date:</strong> ${invoice.issueDate}</div>
+      ${invoice.month ? `<div><strong>Month:</strong> ${fmtMonth(invoice.month)}</div>` : ''}
       <div style="margin-top:6px"><span class="status-badge">${invoice.status}</span></div>
     </div>
   </div>
@@ -163,6 +170,7 @@ export default function Invoices() {
   const blankForm = (): InvoiceForm => ({
     invoiceNumber: nextInvoiceNo(invoices),
     clientId:    '',
+    month:       new Date().toISOString().slice(0, 7),
     description: '',
     status:      'Draft',
     issueDate:   todayStr(),
@@ -184,6 +192,7 @@ export default function Invoices() {
     setForm({
       invoiceNumber: inv.invoiceNumber,
       clientId:      inv.clientId,
+      month:         inv.month ?? '',
       description:   inv.description ?? '',
       status:        inv.status,
       issueDate:     inv.issueDate,
@@ -214,6 +223,7 @@ export default function Invoices() {
       id:            editing?.id ?? newId(),
       invoiceNumber: form.invoiceNumber,
       clientId:      form.clientId,
+      month:         form.month || undefined,
       description:   form.description || undefined,
       items,
       subtotal:      tot,
@@ -332,6 +342,7 @@ export default function Invoices() {
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Invoice #</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Client</th>
+                  <th className="text-left px-4 py-3 font-semibold text-gray-600">Month</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Description</th>
                   <th className="text-left px-4 py-3 font-semibold text-gray-600">Date</th>
                   <th className="text-right px-4 py-3 font-semibold text-gray-600">Amount</th>
@@ -346,7 +357,8 @@ export default function Invoices() {
                     <tr key={inv.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3 font-mono font-medium text-brand-700">{inv.invoiceNumber}</td>
                       <td className="px-4 py-3 font-medium text-gray-900">{client?.name ?? '—'}</td>
-                      <td className="px-4 py-3 text-gray-500 max-w-[200px] truncate">{inv.description || '—'}</td>
+                      <td className="px-4 py-3 text-gray-700 font-medium">{fmtMonth(inv.month) || '—'}</td>
+                      <td className="px-4 py-3 text-gray-500 max-w-[180px] truncate">{inv.description || '—'}</td>
                       <td className="px-4 py-3 text-gray-600">{inv.issueDate}</td>
                       <td className="px-4 py-3 text-right font-semibold text-gray-900">{fmt(inv.total)}</td>
                       <td className="px-4 py-3 text-center">
@@ -411,6 +423,12 @@ export default function Invoices() {
                   <label className="label">Invoice Date</label>
                   <input type="date" className="input" value={form.issueDate} onChange={e => setForm(f => ({ ...f, issueDate: e.target.value }))} />
                 </div>
+              </div>
+
+              {/* Month */}
+              <div>
+                <label className="label">Billing Month</label>
+                <input type="month" className="input" value={form.month} onChange={e => setForm(f => ({ ...f, month: e.target.value }))} />
               </div>
 
               {/* Description */}
@@ -523,7 +541,7 @@ export default function Invoices() {
 
               <div className="px-6 py-5 space-y-5">
                 {/* Meta */}
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-3 gap-4 text-sm">
                   <div>
                     <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Client</p>
                     <p className="font-semibold text-gray-900">{client?.name ?? '—'}</p>
@@ -531,9 +549,13 @@ export default function Invoices() {
                     {client?.email && <p className="text-gray-500 text-xs">{client.email}</p>}
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Invoice Date</p>
-                    <p className="font-medium text-gray-800">{inv.issueDate}</p>
-                    <p className="text-xl font-bold text-brand-700 mt-2">{fmt(inv.total)}</p>
+                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Billing Month</p>
+                    <p className="font-semibold text-gray-900">{fmtMonth(inv.month) || '—'}</p>
+                    <p className="text-xs text-gray-500 mt-1">Date: {inv.issueDate}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Amount</p>
+                    <p className="text-xl font-bold text-brand-700">{fmt(inv.total)}</p>
                     {inv.paidDate && <p className="text-xs text-green-600 mt-0.5">Paid on {inv.paidDate}</p>}
                   </div>
                 </div>

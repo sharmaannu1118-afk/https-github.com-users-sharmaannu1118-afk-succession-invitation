@@ -243,6 +243,7 @@ export interface Invoice {
   id: string;
   invoiceNumber: string;
   clientId: string;
+  month?: string;
   description?: string;
   items: InvoiceItem[];
   subtotal: number;
