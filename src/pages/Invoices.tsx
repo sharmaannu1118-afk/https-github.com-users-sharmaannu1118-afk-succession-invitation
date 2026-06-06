@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
-  Plus, Search, Pencil, Trash2, Eye, Printer,
+  Plus, Search, Pencil, Trash2, Printer,
   IndianRupee, CheckCircle2, Clock, FileText, X,
 } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
@@ -361,7 +361,7 @@ export default function Invoices() {
                 {filtered.map(inv => {
                   const client = clients.find(c => c.id === inv.clientId);
                   return (
-                    <tr key={inv.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={inv.id} onClick={() => setViewing(inv)} className="hover:bg-blue-50 cursor-pointer transition-colors">
                       <td className="px-4 py-3 font-mono font-medium text-brand-700">{inv.invoiceNumber}</td>
                       <td className="px-4 py-3 font-medium text-gray-900">{client?.name ?? '—'}</td>
                       <td className="px-4 py-3 text-gray-700 font-medium">{fmtMonth(inv.month) || '—'}</td>
@@ -371,11 +371,8 @@ export default function Invoices() {
                       <td className="px-4 py-3 text-center">
                         <span className={`badge ${STATUS_COLORS[inv.status]}`}>{inv.status}</span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center gap-1 justify-end">
-                          <button onClick={() => setViewing(inv)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-brand-600" title="View / Print">
-                            <Eye size={15} />
-                          </button>
                           <button onClick={() => openEdit(inv)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500 hover:text-brand-600" title="Edit">
                             <Pencil size={15} />
                           </button>
