@@ -112,7 +112,7 @@ function printInvoice(invoice: Invoice, clientName: string, clientPhone: string,
     <h1>Annu Chelaramani</h1>
     <div class="subtitle">HR Business Partner</div>
     <div style="font-size:11px;color:#666;margin-top:8px;line-height:1.6">
-      sharmaannu1118@gmail.com
+      sharmaannu1118@gmail.com &nbsp;|&nbsp; annuhrbp@gmail.com
     </div>
   </div>
   <div style="text-align:right">
