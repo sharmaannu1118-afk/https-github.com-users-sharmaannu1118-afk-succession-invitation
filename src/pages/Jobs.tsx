@@ -9,7 +9,7 @@ import LocationSelect from '../components/LocationSelect';
 const STATUSES: JobStatus[] = ['Open', 'In Progress', 'On Hold', 'Job Position Filled', 'Closed', 'Cancelled', 'Cancel'];
 const TYPES: JobType[] = ['Permanent', 'Contract', 'Temporary', 'Executive Search'];
 const PRIORITIES: Priority[] = ['Low', 'Medium', 'High', 'Urgent'];
-const TEAM = ['Annu Sharma', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
+const TEAM = ['Annu Chelaramani', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
 const BUDGET_TYPES = ['Monthly Salary', 'CTC (INR)'] as const;
 
 function newId() { return 'j' + Date.now(); }
@@ -18,7 +18,7 @@ const fmt = (n: number) => n >= 100000 ? `₹${(n/100000).toFixed(1)}L` : n >= 1
 const EMPTY: Omit<JobOrder, 'id' | 'createdAt' | 'updatedAt'> = {
   title: '', clientId: '', status: 'Open', type: 'Permanent',
   priority: 'Medium', openings: 1, location: '', skills: [],
-  recruiter: 'Annu Sharma',
+  recruiter: 'Annu Chelaramani',
 };
 
 const priorityDot: Record<Priority, string> = {

@@ -15,7 +15,7 @@ const RECURRING_OPTIONS: RecurringType[] = ['None', 'Daily', 'Weekly', 'Bi-Weekl
 
 const EMPTY: Omit<Task, 'id' | 'createdAt'> = {
   title: '', description: '', relatedTo: 'General', relatedId: '',
-  relatedName: '', assignedTo: 'Annu Sharma', assignedDate: today,
+  relatedName: '', assignedTo: 'Annu Chelaramani', assignedDate: today,
   dueDate: today, status: 'Pending', priority: 'Medium', notes: '',
   reminderDate: '', reminderTime: '', recurring: 'None', recurringEndDate: '',
 };
@@ -568,7 +568,7 @@ export default function Tasks() {
             )}
             <div>
               <label className="label">Assigned To</label>
-              <input className="input" value="Annu Sharma" readOnly
+              <input className="input" value="Annu Chelaramani" readOnly
                 style={{ background: '#f9fafb', color: '#374151' }} />
             </div>
             <div>

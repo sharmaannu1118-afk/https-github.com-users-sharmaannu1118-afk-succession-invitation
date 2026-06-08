@@ -42,7 +42,7 @@ const STAGE_META: Record<LeadStage, { bg: string; border: string; dot: string; t
 const EMPTY: Omit<Lead, 'id' | 'createdAt' | 'updatedAt'> = {
   companyName: '', title: '', stage: 'New', source: 'Cold Call',
   temperature: 'Warm', value: 0, probability: 20,
-  assignedTo: 'Annu Sharma', location: '', expectedCloseDate: today,
+  assignedTo: 'Annu Chelaramani', location: '', expectedCloseDate: today,
 };
 
 // Resizable TH
@@ -565,7 +565,7 @@ export default function Leads() {
             <div><label className="label">Probability (%)</label>
               <input type="number" min="0" max="100" className="input" value={form.probability} onChange={e => setForm(p => ({ ...p, probability: +e.target.value }))} /></div>
             <div><label className="label">Assigned To</label>
-              <input className="input" value="Annu Sharma" readOnly style={{ background:'#f9fafb', color:'#374151' }} /></div>
+              <input className="input" value="Annu Chelaramani" readOnly style={{ background:'#f9fafb', color:'#374151' }} /></div>
             <div><label className="label">Expected Close Date</label>
               <input type="date" className="input" value={form.expectedCloseDate} onChange={e => setForm(p => ({ ...p, expectedCloseDate: e.target.value }))} /></div>
             <div><label className="label">Follow-up Date</label>

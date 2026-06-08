@@ -26,7 +26,7 @@ const INDUSTRIES: Industry[] = [
 const STATUSES: ClientStatus[]    = ['Active', 'Inactive', 'Prospect'];
 const BILLING_CYCLES: BillingCycle[] = ['Monthly', 'Quarterly', 'Annual', 'Project-Based', 'Pro Bono'];
 const WORK_MODES: WorkMode[]       = ['Onsite', 'Hybrid', 'Weekly Visit', 'Remote', 'Part-Time (Onsite)', 'Part-Time (Remote)'];
-const TEAM = ['Annu Sharma'];
+const TEAM = ['Annu Chelaramani'];
 
 function newId() { return 'c' + Date.now(); }
 
@@ -53,7 +53,7 @@ const WORK_MODE_COLORS: Record<WorkMode, string> = {
 
 const EMPTY: Omit<Client, 'id' | 'createdAt' | 'updatedAt'> = {
   name: '', industry: 'Technology', status: 'Prospect',
-  city: '', country: 'India', accountManager: 'Annu Sharma',
+  city: '', country: 'India', accountManager: 'Annu Chelaramani',
   contactPersonName: '',
 };
 

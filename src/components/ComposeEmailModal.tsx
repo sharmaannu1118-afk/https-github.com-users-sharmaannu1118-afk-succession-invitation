@@ -52,7 +52,7 @@ export default function ComposeEmailModal({ onClose, prefill }: Props) {
         relatedTo: prefill?.relatedTo ?? 'client',
         relatedId: prefill?.relatedId ?? '',
         relatedName: prefill?.relatedName ?? '',
-        assignedTo: 'Annu Sharma',
+        assignedTo: 'Annu Chelaramani',
         dueDate: new Date().toISOString().slice(0, 10),
         completedAt: new Date().toISOString().slice(0, 10),
         createdAt: new Date().toISOString().slice(0, 10),

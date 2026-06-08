@@ -87,7 +87,7 @@ export default function BookMeetingModal({ onClose, prefill }: Props) {
         relatedTo: prefill?.relatedTo ?? 'client',
         relatedId: prefill?.relatedId ?? '',
         relatedName: prefill?.relatedName ?? '',
-        assignedTo: 'Annu Sharma',
+        assignedTo: 'Annu Chelaramani',
         dueDate: form.date,
         createdAt: new Date().toISOString().slice(0, 10),
       });

@@ -7,7 +7,7 @@ import Modal from '../components/Modal';
 
 const TYPES: ActivityType[] = ['Call', 'Email', 'Meeting', 'Note', 'Task'];
 const STATUSES: ActivityStatus[] = ['Planned', 'Completed', 'Cancelled'];
-const TEAM = ['Annu Sharma', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
+const TEAM = ['Annu Chelaramani', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
 
 function newId() { return 'act' + Date.now(); }
 
@@ -25,7 +25,7 @@ const TYPE_COLOR: Record<ActivityType, string> = {
 const EMPTY: Omit<Activity, 'id' | 'createdAt'> = {
   type: 'Call', subject: '', status: 'Planned',
   relatedTo: 'client', relatedId: '', relatedName: '',
-  assignedTo: 'Annu Sharma',
+  assignedTo: 'Annu Chelaramani',
   dueDate: new Date().toISOString().slice(0, 10),
 };
 

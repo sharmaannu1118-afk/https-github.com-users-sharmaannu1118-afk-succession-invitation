@@ -77,7 +77,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               A
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-white truncate">Annu Sharma</p>
+              <p className="text-sm font-semibold text-white truncate">Annu Chelaramani</p>
               <p className="text-xs text-brand-400">Admin · HR Business Partner</p>
             </div>
           </div>

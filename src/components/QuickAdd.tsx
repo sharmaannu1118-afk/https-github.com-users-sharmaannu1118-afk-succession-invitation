@@ -6,7 +6,7 @@ import type { Lead, Activity } from '../types';
 
 function newId(prefix: string) { return prefix + Date.now(); }
 const today = new Date().toISOString().slice(0, 10);
-const TEAM = ['Annu Sharma', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
+const TEAM = ['Annu Chelaramani', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
 
 export default function QuickAdd() {
   const { addLead, addActivity, addCandidate } = useCRM();
@@ -17,7 +17,7 @@ export default function QuickAdd() {
   const [lead, setLead] = useState({
     companyName: '', title: '', contactPerson: '', contactPhone: '',
     location: '', temperature: 'Warm', value: '', probability: '50',
-    assignedTo: 'Annu Sharma', expectedCloseDate: today,
+    assignedTo: 'Annu Chelaramani', expectedCloseDate: today,
   });
   function submitLead(e: React.FormEvent) {
     e.preventDefault();
@@ -34,11 +34,11 @@ export default function QuickAdd() {
       createdAt: today, updatedAt: today,
     } as Lead);
     setModal(null);
-    setLead({ companyName: '', title: '', contactPerson: '', contactPhone: '', location: '', temperature: 'Warm', value: '', probability: '50', assignedTo: 'Annu Sharma', expectedCloseDate: today });
+    setLead({ companyName: '', title: '', contactPerson: '', contactPhone: '', location: '', temperature: 'Warm', value: '', probability: '50', assignedTo: 'Annu Chelaramani', expectedCloseDate: today });
   }
 
   // ── Quick Activity ─────────────────────────────────────────────────────
-  const [act, setAct] = useState({ type: 'Call', subject: '', assignedTo: 'Annu Sharma', dueDate: today, relatedName: '' });
+  const [act, setAct] = useState({ type: 'Call', subject: '', assignedTo: 'Annu Chelaramani', dueDate: today, relatedName: '' });
   function submitActivity(e: React.FormEvent) {
     e.preventDefault();
     addActivity({
@@ -49,7 +49,7 @@ export default function QuickAdd() {
       createdAt: today,
     });
     setModal(null);
-    setAct({ type: 'Call', subject: '', assignedTo: 'Annu Sharma', dueDate: today, relatedName: '' });
+    setAct({ type: 'Call', subject: '', assignedTo: 'Annu Chelaramani', dueDate: today, relatedName: '' });
   }
 
   // ── Quick Candidate ────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ export default function QuickAdd() {
       email: cand.email, currentTitle: cand.currentTitle,
       experienceLevel: 'Mid', yearsOfExperience: 0,
       skills: cand.skills.split(',').map(s => s.trim()).filter(Boolean),
-      location: cand.location, status: 'Shortlisted', addedBy: 'Annu Sharma',
+      location: cand.location, status: 'Shortlisted', addedBy: 'Annu Chelaramani',
       createdAt: today, updatedAt: today,
     });
     setModal(null);

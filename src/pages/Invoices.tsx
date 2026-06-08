@@ -94,7 +94,12 @@ function printInvoice(invoice: Invoice, clientName: string, clientPhone: string,
   .totals table { width: 100%; }
   .totals td { border: none; padding: 5px 8px; font-size: 13px; }
   .totals .total-row td { font-weight: 700; font-size: 16px; border-top: 2px solid #1a2f5e; color: #1a2f5e; padding-top: 8px; }
-  .notes { clear: both; margin-top: 28px; padding-top: 14px; border-top: 1px solid #ddd; font-size: 12px; color: #555; }
+  .bank { clear: both; margin-top: 28px; padding: 14px 16px; background: #f0f4ff; border: 1px solid #c7d4f5; border-radius: 6px; font-size: 12px; }
+  .bank h4 { color: #1a2f5e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px; font-weight: 700; }
+  .bank table { width: auto; margin: 0; }
+  .bank td { padding: 2px 12px 2px 0; border: none; font-size: 12px; color: #333; }
+  .bank td:first-child { color: #666; white-space: nowrap; }
+  .notes { clear: both; margin-top: 16px; padding-top: 14px; border-top: 1px solid #ddd; font-size: 12px; color: #555; }
   .notes strong { color: #222; }
   .status-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
     background: ${invoice.status === 'Paid' ? '#d1fae5' : invoice.status === 'Overdue' ? '#fee2e2' : '#e0e7ff'};
@@ -104,7 +109,7 @@ function printInvoice(invoice: Invoice, clientName: string, clientPhone: string,
 </style></head><body>
 <div class="header">
   <div>
-    <h1>Annu Sharma</h1>
+    <h1>Annu Chelaramani</h1>
     <div class="subtitle">HR Business Partner</div>
     <div style="font-size:11px;color:#666;margin-top:8px;line-height:1.6">
       sharmaannu1118@gmail.com
@@ -149,6 +154,17 @@ ${invoice.description ? `<div class="inv-desc"><strong>Re:</strong> ${invoice.de
       <td>Total</td>
       <td style="text-align:right">${fmt(invoice.total)}</td>
     </tr>
+  </table>
+</div>
+
+<div class="bank">
+  <h4>Payment Details</h4>
+  <table>
+    <tr><td>Bank Name</td><td><strong>Kotak Mahindra Bank</strong></td></tr>
+    <tr><td>Account Holder</td><td><strong>CHELARAMANI ANNU MEHUL</strong></td></tr>
+    <tr><td>Account Number</td><td><strong>1645552879</strong></td></tr>
+    <tr><td>IFSC Code</td><td><strong>KKBK0002855</strong></td></tr>
+    <tr><td>Branch</td><td>Surat – L.P. Savani Road</td></tr>
   </table>
 </div>
 

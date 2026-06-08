@@ -12,7 +12,7 @@ const STATUSES: CandidateStatus[] = [
 ];
 const EXP_LEVELS: ExperienceLevel[] = ['Entry', 'Mid', 'Senior', 'Lead', 'Director', 'C-Suite'];
 const NOTICE_PERIODS = ['Immediate', '15 Days', '30 Days', '45 Days', '60 Days', '90 Days', 'Serving Notice'];
-const TEAM = ['Annu Sharma', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
+const TEAM = ['Annu Chelaramani', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
 
 function newId() { return 'ca' + Date.now(); }
 
@@ -22,7 +22,7 @@ const fmt = (n: number) =>
 const EMPTY: Omit<Candidate, 'id' | 'createdAt' | 'updatedAt'> = {
   firstName: '', lastName: '', email: '', currentTitle: '',
   experienceLevel: 'Mid', yearsOfExperience: 0, skills: [],
-  location: '', status: 'Shortlisted', addedBy: 'Annu Sharma',
+  location: '', status: 'Shortlisted', addedBy: 'Annu Chelaramani',
 };
 
 export default function Candidates() {

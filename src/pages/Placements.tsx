@@ -6,7 +6,7 @@ import StatusBadge from '../components/StatusBadge';
 import Modal from '../components/Modal';
 
 const STATUSES: PlacementStatus[] = ['Confirmed', 'Notice Period', 'Joined', 'Dropped'];
-const TEAM = ['Annu Sharma', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
+const TEAM = ['Annu Chelaramani', 'Priya Mehta', 'Rohit Kapoor', 'Sneha Gupta'];
 
 function newId() { return 'p' + Date.now(); }
 const fmt = (n: number) => n >= 100000 ? `₹${(n / 100000).toFixed(1)}L` : `₹${n.toLocaleString('en-IN')}`;
@@ -14,7 +14,7 @@ const fmt = (n: number) => n >= 100000 ? `₹${(n / 100000).toFixed(1)}L` : `₹
 const EMPTY: Omit<Placement, 'id' | 'createdAt'> = {
   candidateId: '', jobOrderId: '', clientId: '',
   status: 'Confirmed', offerDate: new Date().toISOString().slice(0, 10),
-  ctcOffered: 0, fee: 0, invoiced: false, recruiter: 'Annu Sharma',
+  ctcOffered: 0, fee: 0, invoiced: false, recruiter: 'Annu Chelaramani',
 };
 
 export default function Placements() {

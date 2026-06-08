@@ -110,7 +110,7 @@ export default function Header({ onMenuClick, title }: HeaderProps) {
             A
           </div>
           <div className="hidden lg:block">
-            <p className="text-xs font-semibold text-gray-900 leading-tight">Annu Sharma</p>
+            <p className="text-xs font-semibold text-gray-900 leading-tight">Annu Chelaramani</p>
             <p className="text-xs text-gray-400">Admin</p>
           </div>
         </div>
