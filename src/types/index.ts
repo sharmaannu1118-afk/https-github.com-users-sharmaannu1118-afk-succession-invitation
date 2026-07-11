@@ -228,6 +228,18 @@ export interface Activity {
   createdAt: string;
 }
 
+// ─── Login Credential ────────────────────────────────────────────────────────
+export interface Credential {
+  id: string;
+  name: string;
+  url?: string;
+  username: string;
+  password: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // ─── Invoice ──────────────────────────────────────────────────────────────────
 export type InvoiceStatus = 'Draft' | 'Sent' | 'Paid' | 'Overdue' | 'Cancelled';
 

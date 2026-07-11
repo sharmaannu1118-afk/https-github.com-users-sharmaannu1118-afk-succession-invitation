@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X, Download, FilePen, Bell, RefreshCw } from 'lucide-react';
+import { Plus, Search, Pencil, Trash2, CheckCircle2, Circle, Clock, AlertCircle, ChevronRight, ChevronDown, Calendar, User, Tag, FileText, X, Download, FilePen, Bell, RefreshCw, Copy } from 'lucide-react';
 import { useCRM } from '../context/CRMContext';
 import { exportCsv } from '../utils/exportCsv';
 import type { Task, TaskStatus, TaskPriority, TaskRelatedTo, RecurringType } from '../types';
@@ -79,6 +79,11 @@ function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: strin
 
 export default function Tasks() {
   const { tasks, clients, contacts, leads, candidates, addTask, updateTask, deleteTask } = useCRM();
+
+  function duplicateTask(t: Task) {
+    const today = new Date().toISOString().slice(0, 10);
+    addTask({ ...t, id: 'tsk' + Date.now(), title: t.title + ' (Copy)', status: 'Pending', completedDate: undefined, createdAt: today });
+  }
   const [search, setSearch]        = useState('');
   const [priorityFilter, setPri]   = useState('All');
   const [clientFilter, setClientF] = useState('All');
@@ -343,6 +348,7 @@ export default function Tasks() {
                           {/* Actions — visible on row hover */}
                           <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onClick={e => { e.stopPropagation(); openEdit(t); }} className="text-gray-400 hover:text-brand-600" title="Edit"><Pencil size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); duplicateTask(t); }} className="text-gray-400 hover:text-indigo-500" title="Duplicate"><Copy size={13} /></button>
                             <button onClick={e => { e.stopPropagation(); handleDelete(t.id, t.title); }} className="text-gray-400 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>
                           </div>
                         </div>
@@ -365,6 +371,7 @@ export default function Tasks() {
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
                             <button onClick={e => { e.stopPropagation(); openEdit(t); }} className="text-gray-400 hover:text-brand-600"><Pencil size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); duplicateTask(t); }} className="text-gray-400 hover:text-indigo-500"><Copy size={13} /></button>
                             <button onClick={e => { e.stopPropagation(); handleDelete(t.id, t.title); }} className="text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
                           </div>
                         </div>
@@ -477,6 +484,12 @@ export default function Tasks() {
                     className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
                   >
                     <Pencil size={13} /> Edit
+                  </button>
+                  <button
+                    onClick={() => { duplicateTask(t); setViewTask(null); }}
+                    className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5"
+                  >
+                    <Copy size={13} /> Duplicate
                   </button>
                 </div>
                 <button

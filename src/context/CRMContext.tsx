@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import type {
-  Client, Contact, Lead, JobOrder, Candidate, Placement, Activity, Task, Invoice
+  Client, Contact, Lead, JobOrder, Candidate, Placement, Activity, Task, Invoice, Credential
 } from '../types';
 import {
   CLIENTS, CONTACTS, LEADS, JOB_ORDERS, CANDIDATES, PLACEMENTS, ACTIVITIES, TASKS,
@@ -92,6 +92,11 @@ interface CRMContextValue {
   updateInvoice: (inv: Invoice) => void;
   deleteInvoice: (id: string) => void;
 
+  credentials: Credential[];
+  addCredential: (c: Credential) => void;
+  updateCredential: (c: Credential) => void;
+  deleteCredential: (id: string) => void;
+
   exportData: () => void;
   importData: (json: string) => void;
 }
@@ -120,7 +125,8 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   const [placements, setPlacements] = useSaved<Placement>('crm_placements', PLACEMENTS);
   const [activities, setActivities] = useSaved<Activity> ('crm_activities', ACTIVITIES);
   const [tasks,      setTasks]      = useSaved<Task>     ('crm_tasks',      TASKS);
-  const [invoices,   setInvoices]   = useSaved<Invoice>  ('crm_invoices',   []);
+  const [invoices,     setInvoices]     = useSaved<Invoice>    ('crm_invoices',     []);
+  const [credentials,  setCredentials]  = useSaved<Credential> ('crm_credentials',  []);
 
   const addClient    = useCallback((c: Client)    => setClients(p    => [c, ...p]),              [setClients]);
   const updateClient = useCallback((c: Client)    => setClients(p    => p.map(x => x.id === c.id ? c : x)),  [setClients]);
@@ -157,12 +163,16 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   const updateInvoice = useCallback((inv: Invoice) => setInvoices(p => p.map(x => x.id === inv.id ? inv : x)), [setInvoices]);
   const deleteInvoice = useCallback((id: string)   => setInvoices(p => p.filter(x => x.id !== id)),    [setInvoices]);
 
+  const addCredential    = useCallback((c: Credential) => setCredentials(p => [c, ...p]),                    [setCredentials]);
+  const updateCredential = useCallback((c: Credential) => setCredentials(p => p.map(x => x.id === c.id ? c : x)), [setCredentials]);
+  const deleteCredential = useCallback((id: string)    => setCredentials(p => p.filter(x => x.id !== id)),   [setCredentials]);
+
   // ── Backup & Restore ────────────────────────────────────────────────────
   const exportData = useCallback(() => {
     const data = {
       version: DATA_VERSION,
       exportedAt: new Date().toISOString(),
-      clients, contacts, leads, jobOrders, candidates, placements, activities, tasks, invoices,
+      clients, contacts, leads, jobOrders, candidates, placements, activities, tasks, invoices, credentials,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url  = URL.createObjectURL(blob);
@@ -193,7 +203,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CRMContext.Provider value={{
-      clients, contacts, leads, jobOrders, candidates, placements, activities, tasks, invoices,
+      clients, contacts, leads, jobOrders, candidates, placements, activities, tasks, invoices, credentials,
       addClient, updateClient, deleteClient,
       addContact, updateContact, deleteContact,
       addLead, updateLead, deleteLead,
@@ -203,6 +213,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
       addActivity, updateActivity, deleteActivity,
       addTask, updateTask, deleteTask,
       addInvoice, updateInvoice, deleteInvoice,
+      addCredential, updateCredential, deleteCredential,
       exportData, importData,
     }}>
       {children}

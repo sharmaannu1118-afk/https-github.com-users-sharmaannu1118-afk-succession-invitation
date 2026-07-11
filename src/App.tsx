@@ -13,6 +13,7 @@ import Reports from './pages/Reports';
 import Search from './pages/Search';
 import Tasks from './pages/Tasks';
 import Invoices from './pages/Invoices';
+import Credentials from './pages/Credentials';
 
 export default function App() {
   return (
@@ -27,7 +28,8 @@ export default function App() {
               <Route path="/leads"       element={<Leads />} />
               <Route path="/candidates"  element={<Candidates />} />
               <Route path="/jobs"        element={<Jobs />} />
-              <Route path="/invoices"    element={<Invoices />} />
+              <Route path="/invoices"     element={<Invoices />} />
+              <Route path="/credentials" element={<Credentials />} />
               <Route path="/activities"  element={<Activities />} />
               <Route path="/tasks"       element={<Tasks />} />
               <Route path="/reports"     element={<Reports />} />
