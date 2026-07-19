@@ -138,9 +138,40 @@ export default function Tasks() {
   function openEdit(t: Task) {
     setEditing(t);
     const { id, createdAt, ...rest } = t;
-    // Restore companyId from relatedId if relatedTo === 'Client'
-    const companyId = rest.companyId ?? (rest.relatedTo === 'Client' ? rest.relatedId : '');
-    setForm({ ...rest, companyId: companyId ?? '' });
+
+    // Resolve companyId: direct → relatedId (if Client) → match relatedName against clients
+    let companyId = rest.companyId ?? '';
+    if (!companyId) {
+      if (rest.relatedTo === 'Client' && rest.relatedId) {
+        companyId = rest.relatedId;
+      } else if (rest.relatedName) {
+        companyId = clients.find(c => c.name === rest.relatedName)?.id ?? '';
+      }
+    }
+
+    // Resolve relatedId: if Client and missing, use companyId
+    let relatedId = rest.relatedId ?? '';
+    if (!relatedId && rest.relatedTo === 'Client' && companyId) {
+      relatedId = companyId;
+    }
+
+    // Resolve relatedName: if missing but companyId found
+    let relatedName = rest.relatedName ?? '';
+    if (!relatedName && companyId) {
+      relatedName = clients.find(c => c.id === companyId)?.name ?? '';
+    }
+
+    // Resolve contactId: direct → match by name in contacts for this company
+    let contactId = rest.contactId ?? '';
+    if (!contactId && companyId && relatedName) {
+      const found = contacts.find(c =>
+        c.clientId === companyId &&
+        (`${c.firstName} ${c.lastName}`.trim() === relatedName || c.firstName === relatedName)
+      );
+      if (found) contactId = found.id;
+    }
+
+    setForm({ ...rest, companyId, contactId, relatedId, relatedName });
     setViewTask(null);
     setShowForm(true);
   }
