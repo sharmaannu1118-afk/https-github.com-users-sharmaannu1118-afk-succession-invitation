@@ -6,7 +6,6 @@ import Dashboard from './pages/Dashboard';
 import Clients from './pages/Clients';
 import Contacts from './pages/Contacts';
 import Leads from './pages/Leads';
-import Candidates from './pages/Candidates';
 import Jobs from './pages/Jobs';
 import Activities from './pages/Activities';
 import Reports from './pages/Reports';
@@ -26,7 +25,6 @@ export default function App() {
               <Route path="/clients"     element={<Clients />} />
               <Route path="/contacts"    element={<Contacts />} />
               <Route path="/leads"       element={<Leads />} />
-              <Route path="/candidates"  element={<Candidates />} />
               <Route path="/jobs"        element={<Jobs />} />
               <Route path="/invoices"     element={<Invoices />} />
               <Route path="/credentials" element={<Credentials />} />
