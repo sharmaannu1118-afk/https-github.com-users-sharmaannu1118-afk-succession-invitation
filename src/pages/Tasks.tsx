@@ -69,9 +69,9 @@ function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: strin
   return (
     <div className="flex items-start gap-3 py-2.5 border-b border-gray-50 last:border-0">
       <span className="text-gray-400 mt-0.5 flex-shrink-0">{icon}</span>
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 overflow-hidden">
         <p className="text-xs text-gray-400 mb-0.5">{label}</p>
-        <div className="text-sm text-gray-800">{value}</div>
+        <div className="text-sm text-gray-800" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{value}</div>
       </div>
     </div>
   );
@@ -543,7 +543,7 @@ export default function Tasks() {
         const od = isOverdue(t);
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setViewTask(null)}>
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl max-h-[95vh] overflow-y-auto overflow-x-hidden" onClick={e => e.stopPropagation()}>
 
               {/* Header */}
               <div className="flex items-start justify-between gap-3 px-6 pt-5 pb-4 border-b border-gray-100">
@@ -592,7 +592,7 @@ export default function Tasks() {
                 {t.notes && (
                   <div className="py-2.5 border-b border-gray-50">
                     <p className="text-xs text-gray-400 mb-1">Notes</p>
-                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{t.notes}</p>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{t.notes}</p>
                   </div>
                 )}
                 {t.reminderDate && (
