@@ -140,35 +140,56 @@ export default function Tasks() {
     setEditing(t);
     const { id, createdAt, ...rest } = t;
 
-    // Resolve companyId: direct → relatedId (if Client) → match relatedName against clients
-    let companyId = rest.companyId ?? '';
-    if (!companyId) {
-      if (rest.relatedTo === 'Client' && rest.relatedId) {
+    // Helper: check if an ID exists in the clients list
+    const clientExists = (cid: string) => !!clients.find(c => c.id === cid);
+    const nameLower = (s?: string) => (s ?? '').toLowerCase().trim();
+
+    // ── Resolve companyId ──────────────────────────────────────────────────
+    let companyId = (rest.companyId && clientExists(rest.companyId)) ? rest.companyId : '';
+
+    if (!companyId && rest.relatedTo === 'Client') {
+      // Try relatedId as a client ID
+      if (rest.relatedId && clientExists(rest.relatedId)) {
         companyId = rest.relatedId;
-      } else if (rest.relatedName) {
-        companyId = clients.find(c => c.name === rest.relatedName)?.id ?? '';
       }
     }
 
-    // Resolve relatedId: if Client and missing, use companyId
-    let relatedId = rest.relatedId ?? '';
+    if (!companyId && rest.relatedName) {
+      // Case-insensitive name match against clients
+      const byName = clients.find(c => nameLower(c.name) === nameLower(rest.relatedName));
+      if (byName) companyId = byName.id;
+    }
+
+    if (!companyId && rest.relatedName) {
+      // relatedName might be a contact's name → find their company
+      const ct = contacts.find(c => {
+        const full = nameLower(`${c.firstName} ${c.lastName}`);
+        return full === nameLower(rest.relatedName) || nameLower(c.firstName) === nameLower(rest.relatedName);
+      });
+      if (ct?.clientId && clientExists(ct.clientId)) companyId = ct.clientId;
+    }
+
+    // ── Resolve relatedId (the "Select Client" dropdown when relatedTo=Client) ──
+    let relatedId = (rest.relatedId && clientExists(rest.relatedId)) ? rest.relatedId : '';
     if (!relatedId && rest.relatedTo === 'Client' && companyId) {
       relatedId = companyId;
     }
 
-    // Resolve relatedName: if missing but companyId found
+    // ── Resolve relatedName ────────────────────────────────────────────────
     let relatedName = rest.relatedName ?? '';
     if (!relatedName && companyId) {
       relatedName = clients.find(c => c.id === companyId)?.name ?? '';
     }
 
-    // Resolve contactId: direct → match by name in contacts for this company
-    let contactId = rest.contactId ?? '';
-    if (!contactId && companyId && relatedName) {
-      const found = contacts.find(c =>
-        c.clientId === companyId &&
-        (`${c.firstName} ${c.lastName}`.trim() === relatedName || c.firstName === relatedName)
-      );
+    // ── Resolve contactId ──────────────────────────────────────────────────
+    const contactExists = (cid: string) => !!contacts.find(c => c.id === cid);
+    let contactId = (rest.contactId && contactExists(rest.contactId)) ? rest.contactId : '';
+    if (!contactId && companyId) {
+      const found = contacts.find(c => {
+        if (c.clientId !== companyId) return false;
+        const full = nameLower(`${c.firstName} ${c.lastName}`);
+        return full === nameLower(relatedName) || nameLower(c.firstName) === nameLower(relatedName);
+      });
       if (found) contactId = found.id;
     }
 
@@ -640,6 +661,9 @@ export default function Tasks() {
                 <option value="">-- Select Company --</option>
                 {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
+              {!form.companyId && form.relatedName && (
+                <p className="text-xs text-amber-600 mt-1">⚠ Previously linked to: <strong>{form.relatedName}</strong> — please re-select</p>
+              )}
             </div>
 
             <div>
