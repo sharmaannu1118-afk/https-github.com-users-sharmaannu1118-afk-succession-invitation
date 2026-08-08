@@ -91,6 +91,7 @@ export default function Tasks() {
   const [editing, setEditing]      = useState<Task | null>(null);
   const [form, setForm]            = useState<Omit<Task, 'id' | 'createdAt'>>(EMPTY);
   const [viewTask, setViewTask]    = useState<Task | null>(null);
+  const [overdueOpen, setOverdueOpen] = useState(true);
   const [collapsed, setCollapsed]  = useState<Record<TaskStatus, boolean>>({
     'Draft': true, 'Not Started': false, 'Pending': false, 'In Progress': false,
     'Under Review': false, 'On Hold': true, 'Blocked': true,
@@ -291,8 +292,98 @@ export default function Tasks() {
           <div className="text-center">Actions</div>
         </div>
 
+        {/* ── Overdue section — pinned at top, auto-populated by due date ── */}
+        {(() => {
+          const overdueGroup = filtered.filter(isOverdue);
+          if (overdueGroup.length === 0) return null;
+          return (
+            <div className="border-b border-red-100 bg-red-50/30">
+              <button
+                onClick={() => setOverdueOpen(p => !p)}
+                className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-red-50 transition-colors text-left"
+              >
+                <span className="text-red-500">
+                  {overdueOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                </span>
+                <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0 bg-red-500" />
+                <span className="text-xs font-bold tracking-widest text-red-500">OVERDUE</span>
+                <span className="ml-1 text-xs font-semibold text-red-500 bg-red-100 border border-red-200 rounded-full px-1.5 py-0.5">{overdueGroup.length}</span>
+                <span className="text-xs text-red-400 ml-1">· past due date, not completed</span>
+              </button>
+
+              {overdueOpen && (
+                <>
+                  {overdueGroup.map(t => {
+                    return (
+                      <div
+                        key={t.id}
+                        className="group border-t border-red-100 hover:bg-red-50/60 transition-colors cursor-pointer bg-red-50/20"
+                        onClick={() => setViewTask(t)}
+                      >
+                        {/* Desktop row */}
+                        <div className="hidden sm:grid items-center px-4 py-2.5"
+                          style={{ gridTemplateColumns: '28px 1fr 190px 110px 90px 64px' }}>
+                          <button
+                            onClick={e => { e.stopPropagation(); quickComplete(t); }}
+                            className="text-red-400 hover:scale-110 transition-transform"
+                            title="Mark complete"
+                          >
+                            <AlertCircle size={15} />
+                          </button>
+                          <div className="min-w-0 pr-3">
+                            <p className="text-sm font-medium truncate leading-snug text-gray-800">{t.title}</p>
+                            {t.description && <p className="text-xs text-gray-400 truncate leading-tight">{t.description}</p>}
+                          </div>
+                          <div className="text-xs text-gray-500 truncate pr-2">
+                            {t.relatedName
+                              ? <span className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full flex-shrink-0 bg-red-400" /><span className="truncate">{t.relatedName}</span></span>
+                              : <span className="text-gray-300">—</span>}
+                          </div>
+                          <div className="text-xs font-semibold text-red-500 flex items-center gap-1">
+                            <AlertCircle size={11} />{fmtDate(t.dueDate)}
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_DOT[t.priority]}`} />
+                            <span className={`text-xs font-medium ${PRIORITY_TEXT[t.priority]}`}>{t.priority}</span>
+                          </div>
+                          <div className="flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={e => { e.stopPropagation(); openEdit(t); }} className="text-gray-400 hover:text-brand-600" title="Edit"><Pencil size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); duplicateTask(t); }} className="text-gray-400 hover:text-indigo-500" title="Duplicate"><Copy size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); handleDelete(t.id, t.title); }} className="text-gray-400 hover:text-red-500" title="Delete"><Trash2 size={13} /></button>
+                          </div>
+                        </div>
+
+                        {/* Mobile row */}
+                        <div className="sm:hidden flex items-start gap-3 px-4 py-3">
+                          <button onClick={e => { e.stopPropagation(); quickComplete(t); }} className="mt-0.5 flex-shrink-0 text-red-400">
+                            <AlertCircle size={15} />
+                          </button>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-800">{t.title}</p>
+                            {t.description && <p className="text-xs text-gray-400 truncate">{t.description}</p>}
+                            <div className="flex flex-wrap gap-2 mt-1 text-xs">
+                              {t.relatedName && <span className="text-gray-400">{t.relatedName}</span>}
+                              <span className="text-red-500 font-semibold">Overdue: {t.dueDate}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <button onClick={e => { e.stopPropagation(); openEdit(t); }} className="text-gray-400 hover:text-brand-600"><Pencil size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); duplicateTask(t); }} className="text-gray-400 hover:text-indigo-500"><Copy size={13} /></button>
+                            <button onClick={e => { e.stopPropagation(); handleDelete(t.id, t.title); }} className="text-gray-400 hover:text-red-500"><Trash2 size={13} /></button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+            </div>
+          );
+        })()}
+
         {STATUSES.map(status => {
-          const group = filtered.filter(t => t.status === status);
+          // Exclude overdue tasks from their status group (they live in the Overdue section above)
+          const group = filtered.filter(t => t.status === status && !isOverdue(t));
           const isOpen = !collapsed[status];
           const cfg = STATUS_CFG[status];
 
