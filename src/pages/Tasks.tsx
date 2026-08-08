@@ -93,9 +93,9 @@ export default function Tasks() {
   const [viewTask, setViewTask]    = useState<Task | null>(null);
   const [overdueOpen, setOverdueOpen] = useState(true);
   const [collapsed, setCollapsed]  = useState<Record<TaskStatus, boolean>>({
-    'Draft': true, 'Not Started': false, 'Pending': false, 'In Progress': false,
-    'Under Review': false, 'On Hold': true, 'Blocked': true,
-    'Incomplete': true, 'Completed': true,
+    'Draft': false, 'Not Started': false, 'Pending': false, 'In Progress': false,
+    'Under Review': false, 'On Hold': false, 'Blocked': false,
+    'Incomplete': false, 'Completed': false,
   });
 
   const filtered = tasks.filter(t => {
