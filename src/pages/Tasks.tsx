@@ -433,7 +433,7 @@ export default function Tasks() {
 
                           {/* Task name + description */}
                           <div className="min-w-0 pr-3">
-                            <p className={`text-sm font-medium truncate leading-snug ${t.status === 'Completed' ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                            <p className="text-sm font-medium truncate leading-snug text-gray-800">
                               {t.title}
                             </p>
                             {t.description && (
@@ -484,7 +484,7 @@ export default function Tasks() {
                             {cfg.icon}
                           </button>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium ${t.status === 'Completed' ? 'line-through text-gray-400' : 'text-gray-800'}`}>{t.title}</p>
+                            <p className="text-sm font-medium text-gray-800">{t.title}</p>
                             {t.description && <p className="text-xs text-gray-400 truncate">{t.description}</p>}
                             <div className="flex flex-wrap gap-2 mt-1 text-xs text-gray-400">
                               {t.relatedName && <span>{t.relatedName}</span>}
@@ -527,7 +527,7 @@ export default function Tasks() {
               {/* Header */}
               <div className="flex items-start justify-between gap-3 px-6 pt-5 pb-4 border-b border-gray-100">
                 <div className="flex-1 min-w-0">
-                  <p className={`text-lg font-semibold leading-snug ${t.status === 'Completed' ? 'line-through text-gray-400' : 'text-gray-900'}`}>
+                  <p className="text-lg font-semibold leading-snug text-gray-900">
                     {t.title}
                   </p>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
