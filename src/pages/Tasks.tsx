@@ -271,7 +271,7 @@ export default function Tasks() {
           <option value="All">All Priorities</option>
           {PRIORITIES.map(p => <option key={p}>{p}</option>)}
         </select>
-        <select value={clientFilter} onChange={e => setClientF(e.target.value)} className="input w-44">
+        <select value={clientFilter} onChange={e => setClientF(e.target.value)} className="input" style={{ width: 'auto', minWidth: '11rem', maxWidth: '20rem' }}>
           <option value="All">All Clients</option>
           {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
